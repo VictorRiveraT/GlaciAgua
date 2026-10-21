@@ -1,0 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'DM Sans', sans-serif;
+}
+
+:root {
+  --teal: #3346a8;
+  --teal-dark: #25368f;
+  --teal-soft: #edf0ff;
+  --ink: #172726;
+  --muted: #667573;
+  --line: #dfe7e5;
+  --surface: #ffffff;
+  --canvas: #f4f7f6;
+  --green: #21835b;
+  --green-soft: #e8f5ed;
+  --amber: #a86408;
+  --amber-soft: #fff3d9;
+  --red: #bd3f3a;
+  --red-soft: #fbeae8;
+  --radius: 12px;
+}
+
+body {
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  background-color: var(--canvas);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Badges and tags */
+.risk-alto {
+  background-color: var(--red-soft);
+  color: var(--red);
+  border-color: #fca5a5;
+}
+.risk-medio {
+  background-color: var(--amber-soft);
+  color: var(--amber);
+  border-color: #fde68a;
+}
+.risk-bajo {
+  background-color: var(--green-soft);
+  color: var(--green);
+  border-color: #bbf7d0;
+}
+
+/* Leaflet UI styling matching GlaciAgua design */
+.leaflet-container {
+  font-family: 'DM Sans', sans-serif !important;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 18px !important;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16) !important;
+  border: 1px solid #dfe7e5 !important;
+  padding: 4px !important;
+}
+
+.leaflet-popup-content {
+  margin: 10px !important;
+  line-height: 1.4 !important;
+}
+
+.leaflet-tooltip {
+  font-family: 'DM Sans', sans-serif !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12) !important;
+  border: 1px solid #dfe7e5 !important;
+  padding: 6px 10px !important;
+}
+
+.custom-measurement-marker,
+.custom-basin-badge,
+.custom-pico-marker,
+.custom-city-marker {
+  background: transparent !important;
+  border: none !important;
+}
