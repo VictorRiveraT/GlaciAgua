@@ -232,6 +232,24 @@ export const MobilePwaShell: React.FC<MobilePwaShellProps> = ({
                 </div>
               </div>
 
+              {/* Machine Learning Estimation */}
+              {activeBasin.prediccionML && (
+                <div className="bg-[#edf0ff] p-2.5 rounded-xl border border-[#c7d2fe] flex items-center justify-between text-[11px]">
+                  <div className="flex items-center gap-1.5 text-[#3346a8] font-bold">
+                    <span>RF ML:</span>
+                    <span className="font-black text-[#172726]">
+                      pH {activeBasin.prediccionML[season].ph_estimado.toFixed(2)}
+                    </span>
+                    <span className="text-[#64748b] text-[10px]">
+                      ±{activeBasin.prediccionML[season].incertidumbre_ph.toFixed(2)}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-black text-[#21835b] bg-white px-2 py-0.5 rounded-md shadow-2xs">
+                    {Math.round(activeBasin.prediccionML[season].acuerdo_arboles * 100)}% ac.
+                  </span>
+                </div>
+              )}
+
               <div className="pt-2 border-t border-[#dfe7e5] flex gap-2">
                 <button
                   onClick={onOpenReport}
