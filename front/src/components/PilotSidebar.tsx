@@ -30,11 +30,8 @@ export const PilotSidebar: React.FC<PilotSidebarProps> = ({
   isCollapsed,
   onToggleCollapse,
 }) => {
-  const [riskFilter, setRiskFilter] = useState<'Todos' | 'Alto' | 'Medio' | 'Bajo'>('Todos')
-
-  const filteredBasins = basins.filter((b) => {
-    return riskFilter === 'Todos' || b.nivelRiesgo[season] === riskFilter
-  })
+  // Lista directa sin filtros innecesarios
+  const filteredBasins = basins
 
   const getRiskColor = (level: string) => {
     switch (level) {
@@ -113,57 +110,16 @@ export const PilotSidebar: React.FC<PilotSidebarProps> = ({
   return (
     <aside className="w-80 lg:w-84 bg-[#f7f9f8] border-r border-[#dfe7e5] flex flex-col h-full shrink-0 select-none transition-all z-20">
       {/* Sidebar Header */}
-      <div className="p-4 border-b border-[#dfe7e5] bg-white space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-black text-[#172726]">Cuencas</h2>
-          </div>
+      <div className="p-4 border-b border-[#dfe7e5] bg-white flex items-center justify-between">
+        <h2 className="text-xl font-black text-[#172726]">Cuencas</h2>
 
-          <button
-            onClick={onToggleCollapse}
-            className="w-8 h-8 rounded-xl bg-[#fafbfb] hover:bg-[#edf0ff] text-[#667573] hover:text-[#3346a8] border border-[#dfe7e5] flex items-center justify-center transition-colors shadow-xs"
-            title="Colapsar barra lateral"
-          >
-            <ChevronLeft size={16} />
-          </button>
-        </div>
-
-        {/* Risk Level Filter Chips */}
-        <div className="flex items-center gap-1.5 pt-1">
-          {[
-            { id: 'Todos', label: 'Todas' },
-            { id: 'Alto', label: 'Peligro' },
-            { id: 'Medio', label: 'Cuidado' },
-            { id: 'Bajo', label: 'Limpia' },
-          ].map((item) => {
-            const count = item.id === 'Todos' 
-              ? basins.length 
-              : basins.filter((b) => b.nivelRiesgo[season] === item.id).length
-            const isSelected = riskFilter === item.id
-            return (
-              <button
-                key={item.id}
-                onClick={() => setRiskFilter(item.id as any)}
-                className={`flex-1 py-1 rounded-lg text-[10.5px] font-bold transition-all flex items-center justify-center gap-1 ${
-                  isSelected
-                    ? item.id === 'Alto'
-                      ? 'bg-[#bd3f3a] text-white shadow-xs'
-                      : item.id === 'Medio'
-                      ? 'bg-[#a86408] text-white shadow-xs'
-                      : item.id === 'Bajo'
-                      ? 'bg-[#21835b] text-white shadow-xs'
-                      : 'bg-[#3346a8] text-white shadow-xs'
-                    : 'bg-[#f0f4f3] text-[#667573] hover:bg-[#e4eae8]'
-                }`}
-              >
-                <span>{item.label}</span>
-                <span className={`text-[9px] px-1 rounded-full ${isSelected ? 'bg-black/20 text-white' : 'bg-white text-[#667573]'}`}>
-                  {count}
-                </span>
-              </button>
-            )
-          })}
-        </div>
+        <button
+          onClick={onToggleCollapse}
+          className="w-8 h-8 rounded-xl bg-[#fafbfb] hover:bg-[#edf0ff] text-[#667573] hover:text-[#3346a8] border border-[#dfe7e5] flex items-center justify-center transition-colors shadow-xs"
+          title="Colapsar barra lateral"
+        >
+          <ChevronLeft size={16} />
+        </button>
       </div>
 
       {/* Basin Cards List with Sparklines & Heavy Metal Tags */}
