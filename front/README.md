@@ -2,7 +2,7 @@
 
 > **Sistema de Alerta Temprana Comunitaria de Drenaje Ácido de Roca (DAR) y Metales Pesados en la Cordillera Blanca (Huaraz, Áncash)**
 
-Desarrollado para el hackatón, combinando el diseño visual con los requerimientos científicos del documento técnico del proyecto.
+Desarrollado para el monitoreo geoquímico participativo, combinando diseño cartográfico de alto contraste con requerimientos científicos de validación física y predictiva.
 
 ---
 
@@ -10,7 +10,7 @@ Desarrollado para el hackatón, combinando el diseño visual con los requerimien
 
 ```bash
 # Entrar a la carpeta
-cd Proyecto
+cd front
 
 # Instalar dependencias
 npm install
@@ -24,59 +24,54 @@ npm run build
 
 ---
 
-## Estructura y Módulos Implementados
+## Módulos y Componentes Implementados
 
-1. **Mapa Interactivo de la Cordillera Blanca (`InteractiveMap.tsx`)**
-   - Reemplaza el marcador de posición inconcluso con un lienzo geográfico interactivo de alta resolución.
-   - Relieve de la Cordillera Blanca, picos nevados (Huascarán 6,768m, Pastoruri 5,240m, Vallunaraju, Ranrapalca), cuenca del Río Santa y quebradas principales (Quillcay, Cojup, Shallap, Quilcayhuanca, Pachacoto, Pumapampa).
-   - Capas conmutables:
-     - **Microcuencas:** Polígonos interactivos con semáforo de riesgo (Alto, Medio, Bajo).
-     - **Bofedales:** Filtros naturales neutralizadores de acidez (Inventario INAIGEM).
-     - **Glaciares y Roca Expuesta:** Zonas deglaciadas con sulfuros reactivos.
-     - **Red Hídrica:** Río Santa y afluentes con trazado continuo oficial (OSM / IGN).
-     - **Puntos de Monitoreo:** Estaciones hidroquímicas INAIGEM / UPCH con tooltip de pH y metales pesados.
-   - Zoom, recentrado, rastreo de coordenadas y selector de estilo (Relieve Topográfico / Satélite).
+1. **Mapa Interactivo de Alta Visibilidad (`InteractiveMap.tsx`)**
+   - Lienzo cartográfico interactivo de alta resolución en Leaflet.
+   - Polígonos de microcuencas con **relleno semitransparente dinámico** calibrado según el nivel de riesgo para evitar vacíos visuales sobre el mapa topográfico.
+   - Enfoque cinemático automático (`flyToBounds`): centra y ajusta el zoom al límite geográfico exacto de la cuenca seleccionada.
+   - Corredores fluviales con halo de alta visibilidad (12px), talweg continuo (4.5px) y pulso de flujo dinámico (línea discontinua blanca).
+   - Capas conmutables con contadores de elementos: divisoria de cuencas, corredores fluviales, focos de morrena reactiva, bofedales amortiguadores y estaciones de monitoreo.
+   - Selector de mapas base: Relieve Topográfico, Satélite Real y Curvas de Nivel.
 
-2. **Panel de Explicabilidad del Riesgo (`BasinDetailPanel.tsx`)**
-   - Responde científicamente a la pregunta: **¿Por qué este nivel de riesgo?**
-   - Desglose de las 4 variables físicas consensuadas con el asesor ambiental:
-     1. *Roca recién expuesta* (Gatillo por retroceso glaciar).
-     2. *Geología reactiva* (Presencia de sulfuros / pirita).
-     3. *Volumen de lluvia* (Activador y transporte estacional).
-     4. *Bofedales depuradores* (Efecto amortiguador y filtro biológico).
-   - Gráfico SVG histórico de 4 temporadas (Seca 2025 → Húmeda 2026).
-   - Última medición real en terreno contrastada con los Estándares de Calidad Ambiental (ECA Agua).
+2. **Panel de Explicabilidad y Machine Learning (`BasinDetailPanel.tsx`)**
+   - **Tarjeta predictiva Random Forest:** Despliega en vivo el pH estimado, la incertidumbre (+/- sigma) y el consenso de los 300 estimadores del ensamble.
+   - **Validación dual explicable:** Banner de contraste científico que compara el modelo físico analítico (Score sobre 100) contra el regresor de Machine Learning entrenado sobre las 8 variables HydroBASINS.
+   - **Matriz de variables geomorfológicas:** Desglose expandible con los valores y ponderaciones de área de roca expuesta, sulfuros, carbonatos, precipitación y bofedales.
+   - Acceso directo al Simulador del Modelo con parámetros precargados.
 
-3. **Simulador del Motor de Riesgo (`RiskSimulator.tsx`)**
-   - Laboratorio interactivo para la evaluación técnica ante jurados y evaluadores ambientales.
-   - Sliders en vivo para probar la hipótesis matemática:
-     $$\text{generación} = \text{roca\_expuesta} \times \text{potencial\_ácido}$$
-     $$\text{riesgo} = \text{generación} \times \text{lluvia} \times (1 - \alpha \times \text{depuración})$$
-   - Botones preset para cargar instantáneamente los valores reales de **Quillcay**, **Pachacoto** o **Río Blanco**.
+3. **Panel Lateral de Microcuencas (`PilotSidebar.tsx`)**
+   - Filtros rápidos por nivel de riesgo con botones tipo chip (`Todos`, `Alto`, `Medio`, `Bajo`) y conteo dinámico de cuencas.
+   - Tarjetas informativas con badge predictivo de Machine Learning (`RF ML: pH 4.01 +/-0.43`), pH de campo, área de cuenca y sparkline SVG de 4 temporadas.
+   - Buscador por nombre de microcuenca, distrito o quebrada.
 
-4. **Base de Datos Científica (`ScientificDataView.tsx`)**
-   - Tabla interactiva con las estaciones hidroquímicas publicadas por INAIGEM y UPCH.
-   - Comparación automática contra los ECA Agua (D.S. 004-2017-MINAM) en pH, Hierro ($Fe$), Aluminio ($Al$) y Manganeso ($Mn$).
-   - Filtros por cuenca, filtro para ver solo superaciones de norma, y exportador a **CSV**.
+4. **Monitoreo de Microservicios (`Navbar.tsx`)**
+   - Barra superior con insignias de estado activo para el backend (`Backend :8000`) y el servicio de Machine Learning (`ML :8001`).
+   - Selector de estacionalidad (Seca / Húmeda).
+   - Indicador de estado de conexión PWA (En línea / Sin conexión con caché local).
+   - Alternador de vista entre modo Escritorio Completo y Simulador Móvil PWA.
 
-5. **Reportes Comunitarios Offline (`ReportModal.tsx`)**
-   - Formulario de ciencia ciudadana optimizado para trabajo de campo:
-     - Detección de coordenadas GPS (con indicador de precisión en metros).
-     - Captura o subida de foto del agua con vista previa.
-     - Selector visual de coloración (Anaranjada/rojiza, Lechosa, Clara).
-     - Registro de usos del agua (humano, agrícola, ganado, truchas).
-     - Medición opcional de tira reactiva de pH.
-     - Cola local con UUID que se guarda en el navegador sin necesidad de internet.
+5. **Simulador del Motor de Riesgo (`RiskSimulator.tsx`)**
+   - Laboratorio interactivo para evaluación técnica ante jurados y evaluadores ambientales.
+   - Sliders en vivo para simular retroceso glaciar, variaciones pluviométricas y pérdida de bofedales.
+   - Presets directos para cuencas piloto (Quillcay, Pachacoto, Río Blanco).
 
-6. **Guía Comunitaria "Qué Hacer y Qué Evitar" (`GuidanceView.tsx`)**
-   - Recomendaciones por nivel de riesgo para proteger a familias, ganado y cultivos.
-   - **Alerta médica fundamental:** Advierte que *hervir el agua NO elimina los metales pesados*, sino que los concentra.
-   - Generador automático de **Oficio Formal** para la JASS, municipio o junta de regantes.
+6. **Base de Datos Científica (`ScientificDataView.tsx`)**
+   - Tabla interactiva con estaciones hidroquímicas oficiales de INAIGEM y UPCH.
+   - Comparación contra los ECA Agua (D.S. 004-2017-MINAM) en pH, Hierro (Fe), Aluminio (Al) y Manganeso (Mn).
+   - Exportación a formato CSV.
 
-7. **Gestor Offline y Sincronización (`OfflineSyncModal.tsx`)**
-   - Administrador de datos descargados (18.4 MB cacheados).
-   - Cola de reportes pendientes con botón de sincronización masiva simulada.
-   - Interruptor de *Modo Avión* para demostrar en vivo el funcionamiento sin conexión.
+7. **Reportes Comunitarios Offline (`ReportModal.tsx`)**
+   - Captura de coordenadas GPS con indicador de precisión en metros.
+   - Carga de fotografía del afluente con vista previa.
+   - Selección visual de coloración del agua y usos afectados.
+   - Cola de almacenamiento local con UUIDs únicos para transmisión diferida.
 
-8. **Conmutador de Experiencia Móvil PWA (`MobilePwaShell.tsx`)**
-   - Permite alternar con un clic entre el **Escritorio Web Completo** y el **Simulador Móvil PWA** (con marco de teléfono, barra de navegación inferior y vistas adaptadas).
+8. **Guía Comunitaria y Generador de Oficios (`GuidanceView.tsx`)**
+   - Medidas preventivas según el semáforo de riesgo.
+   - Advertencia médica sobre la concentración de metales por ebullición.
+   - Redactor automático de oficios formales para juntas de regantes y JASS.
+
+9. **Gestor Offline y Sincronización (`OfflineSyncModal.tsx`)**
+   - Panel de administración de datos en almacenamiento local (18.4 MB cacheados).
+   - Sincronización masiva de reportes pendientes con el servidor central.

@@ -1,139 +1,121 @@
 # GlaciAgua - API del modelo de riesgo de agua ácida
 
-Servicio REST (FastAPI) que, dada una microcuenca y una temporada, estima el **pH mínimo**
-en su salida y lo convierte en un **nivel de riesgo** (Alto / Medio / Bajo).
+Servicio REST (FastAPI) que, dada una microcuenca y una temporada, estima el **pH mínimo** en su salida y lo clasifica en un **nivel de riesgo** (Alto / Medio / Bajo).
 
-> **ATENCIÓN: por ahora el modelo se entrena con datos SIMULADOS.**
-> Los coeficientes del simulador (`glaciagua/simulacion.py`) están inventados. El modelo solo
-> aprende esas reglas, así que sus predicciones NO representan la realidad. Sirve para
-> desarrollar y probar el sistema completo. La API lo avisa en cada respuesta con
-> `modelo_demo: true` para que el frontend muestre un aviso visible.
+> **Aviso sobre datos simulados:**
+> Por ahora el modelo base incluye entrenamiento con datos simulados (`glaciagua/simulacion.py`) o datos históricos para desarrollo. La API incluye en cada respuesta el campo `modelo_demo: true/false` para transparencia del sistema.
+
+---
 
 ## Estructura
 
 ```
-glaciagua_api/
+api/
   requirements.txt
+  Dockerfile
   glaciagua/
-    config.py          variables, umbrales de riesgo, rutas
-    simulacion.py      datos simulados (mismo formato que la tabla maestra)
-    entrenamiento.py   entrena, valida y guarda el modelo (datos simulados o reales)
-    modelo.py          carga el modelo y predice con incertidumbre
-    api.py             API FastAPI
-  tests/test_api.py    pruebas automáticas
+    config.py          Variables, umbrales de riesgo, rutas
+    simulacion.py      Generación de datos sintéticos controlados
+    entrenamiento.py   Entrena, valida (GroupKFold) y guarda el modelo
+    modelo.py          Carga el ensamble Random Forest y predice con incertidumbre
+    api.py             Servidor FastAPI y endpoints REST
+  tests/
+    test_api.py        Pruebas automáticas unitarias
 ```
 
-## Cómo correrlo en Windows (PowerShell)
+---
 
-Todos los comandos se escriben en una ventana de PowerShell (o en la terminal de VS Code,
-que es PowerShell). Sirve con Python 3.10 o superior.
+## Cómo Correrlo Localmente
 
-1. Descomprime el zip y entra a la carpeta (cambia la ruta por la tuya):
+### En Windows (PowerShell)
+
+1. Entra a la carpeta:
    ```powershell
-   cd C:\ruta\a\glaciagua_api
+   cd api
    ```
-2. Crea y activa un entorno virtual (se hace una sola vez; la segunda línea se repite cada vez
-   que abras una ventana nueva):
+2. Crea y activa el entorno virtual:
    ```powershell
    python -m venv .venv
    .\.venv\Scripts\Activate.ps1
    ```
-   Si PowerShell dice que los scripts están bloqueados, corre antes
-   `Set-ExecutionPolicy -Scope Process Bypass` y vuelve a activar.
 3. Instala las dependencias:
    ```powershell
    pip install -r requirements.txt
    ```
-4. Entrena el modelo con datos simulados (crea la carpeta `modelo/`):
+4. Entrena el modelo (genera `modelo/modelo.joblib` y `modelo/metadata.json`):
    ```powershell
    python -m glaciagua.entrenamiento
    ```
-5. Levanta la API y deja esa ventana abierta:
+5. Inicia la API en el puerto 8001:
    ```powershell
-   uvicorn glaciagua.api:app --reload --port 8000
+   python -m uvicorn glaciagua.api:app --reload --port 8001
    ```
-   Abre http://localhost:8000/docs en el navegador: ahí puedes probar todas las rutas.
-6. Pruebas automáticas (en otra ventana de PowerShell, con el entorno activado):
+   Abre http://localhost:8001/docs para explorar la documentación interactiva Swagger UI.
+
+6. Ejecutar pruebas automáticas:
    ```powershell
    pytest
    ```
 
-## Rutas
+---
 
-| Método | Ruta | Para qué |
+## Rutas y Endpoints
+
+| Método | Ruta | Descripción |
 |---|---|---|
-| GET | `/salud` | ¿Está el servicio vivo y con modelo cargado? (no pide clave) |
-| GET | `/modelo` | Versión, fuente de datos, métricas, importancia de variables, rangos y umbrales |
-| POST | `/predecir` | Predice una o hasta 500 microcuencas |
+| GET | `/salud` | Estado del servicio y confirmación de modelo cargado |
+| GET | `/modelo` | Metadatos, métricas de validación cruzada y pesos de variables |
+| POST | `/predecir` | Inferencia predictiva para un lote de 1 a 500 microcuencas |
 
-Ejemplo de petición a `/predecir` (los números pueden omitirse; se usa la mediana del entrenamiento y
-la respuesta lo advierte):
+### Ejemplo de petición a `/predecir`:
 
 ```json
 {
   "microcuencas": [
-    {"id": "quillcay-2024-seca", "temporada": "seca", "area_km2": 249.5,
-     "roca_expuesta_km2": 12.0, "pct_sulfuros": 30, "pct_carbonatos": 10,
-     "lluvia_mm": 110, "pct_bofedal": 2.5, "pct_veg_humeda_est": 8}
+    {
+      "id": "quillcay-2026-seca",
+      "temporada": "seca",
+      "area_km2": 249.5,
+      "roca_expuesta_km2": 35.2,
+      "pct_sulfuros": 48.0,
+      "pct_carbonatos": 10.0,
+      "lluvia_mm": 110.0,
+      "pct_bofedal": 2.5,
+      "pct_veg_humeda_est": 8.0
+    }
   ]
 }
 ```
 
-Respuesta:
+### Respuesta del Ensamble:
 
 ```json
 {
   "modelo_demo": true,
-  "aviso": "Modelo entrenado con datos SIMULADOS. ...",
-  "version_modelo": "20261028-234444",
+  "aviso": "Modelo entrenado con datos de desarrollo.",
+  "version_modelo": "20261028-rf-300",
   "resultados": [
-    {"id": "quillcay-2024-seca", "ph_estimado": 6.1, "incertidumbre_ph": 0.4,
-     "nivel_riesgo": "Medio", "acuerdo_arboles": 0.82, "advertencias": []}
+    {
+      "id": "quillcay-2026-seca",
+      "ph_estimado": 4.01,
+      "incertidumbre_ph": 0.43,
+      "nivel_riesgo": "Alto",
+      "acuerdo_arboles": 0.99,
+      "advertencias": []
+    }
   ]
 }
 ```
 
-- `incertidumbre_ph`: desviación estándar entre los árboles del bosque (no es un intervalo de confianza).
-- `acuerdo_arboles`: fracción de árboles que coinciden con el nivel de riesgo final (no es una probabilidad calibrada).
-- `advertencias`: datos faltantes o valores fuera del rango visto en el entrenamiento.
+- `incertidumbre_ph`: Desviación estándar entre los 300 árboles del bosque.
+- `acuerdo_arboles`: Fracción de estimadores que coinciden con la categorización final de riesgo.
 
-Llamada desde el backend de la web (JavaScript):
+---
 
-```js
-const r = await fetch('http://localhost:8000/predecir', {
-  method: 'POST',
-  headers: {'Content-Type': 'application/json' /* , 'X-API-Key': process.env.GLACIAGUA_API_KEY */},
-  body: JSON.stringify({microcuencas: [{temporada: 'seca', pct_sulfuros: 30}]}),
-});
-const datos = await r.json();
-```
+## Configuración por Variables de Entorno
 
-## Configuración (variables de entorno, opcionales)
-
-| Variable | Efecto |
-|---|---|
-| `GLACIAGUA_MODELO` | Carpeta del modelo (por defecto `./modelo`) |
-| `GLACIAGUA_CORS` | Orígenes del frontend permitidos, separados por coma |
-| `GLACIAGUA_API_KEY` | Si se define, `/modelo` y `/predecir` exigen el encabezado `X-API-Key` |
-
-## Pasar de datos simulados a datos reales
-
-Cuando existan las tablas reales (`tabla_maestra.csv` y `etiquetas_cuenca_periodo.csv`, con las
-columnas de `config.py` y `ph_min`):
-
-```powershell
-python -m glaciagua.entrenamiento --tabla tabla_maestra.csv --etiquetas etiquetas_cuenca_periodo.csv
-```
-
-- El script se **niega a entrenar con menos de 30 filas reales** (`MIN_FILAS_REALES` en `config.py`).
-  Ese mínimo es solo un filtro de cordura: para conclusiones sólidas hacen falta bastantes más
-  microcuencas medidas en distintas temporadas.
-- La validación agrupa por microcuenca, así que una misma microcuenca nunca está a la vez en
-  entrenamiento y en prueba.
-- El modelo guardado queda con `fuente_datos: "real"` y la API deja de marcarlo como demo.
-
-## Pendiente de definir con el profesor
-
-- Cortes del nivel de riesgo (`UMBRAL_ALTO` y `UMBRAL_MEDIO` en `config.py`; hoy 5,0 y 6,5, sin validar).
-- Si el producto predice pH, un nivel categórico o ambos.
-- Qué variables entran de verdad al modelo (hoy las columnas de la tabla maestra).
+| Variable | Descripción | Valor por Defecto |
+|---|---|---|
+| `GLACIAGUA_MODELO` | Carpeta contenedora del modelo serializado | `./modelo` |
+| `GLACIAGUA_CORS` | Orígenes web permitidos para peticiones CORS | `http://localhost:5173,http://localhost:8000,*` |
+| `GLACIAGUA_API_KEY` | Clave de seguridad opcional para proteger las rutas de inferencia | Ninguna (abierto para desarrollo) |
