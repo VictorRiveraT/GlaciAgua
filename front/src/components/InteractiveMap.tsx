@@ -3,6 +3,7 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { BasinData, RealMeasurement, RiskLevel, Season } from '../types'
 import { REAL_GEOGRAPHIC_FEATURES } from '../data/basinsData'
+import { CONNECTIVITY_POINTS } from '../data/connectivityData'
 import {
   FLUVIAL_HAZARD_CORRIDORS,
   FluvialHazardCorridor,
@@ -16,6 +17,7 @@ import {
   RotateCcw,
   Sparkles,
   Droplet,
+  Wifi,
   ShieldCheck,
   Compass,
   MapPin,
@@ -56,6 +58,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     glaciares: true,
     monitoreo: true,
     rios: true,
+    conectividad: false,
   })
 
   const [mouseCoords, setMouseCoords] = useState<{ lat: number; lng: number } | null>(null)
@@ -129,6 +132,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     const glaciaresGroup = L.layerGroup().addTo(map)
     const monitoreoGroup = L.layerGroup().addTo(map)
     const riosGroup = L.layerGroup().addTo(map)
+    const conectividadGroup = L.layerGroup()
 
     layersGroupRef.current = {
       cuencas: cuencasGroup,
@@ -138,6 +142,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       glaciares: glaciaresGroup,
       monitoreo: monitoreoGroup,
       rios: riosGroup,
+      conectividad: conectividadGroup,
     }
 
     // Observador de redimensionamiento para flexbox dinamico y colapso de sidebar
@@ -178,6 +183,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       glaciares: glaciaresGroup,
       monitoreo: monitoreoGroup,
       rios: riosGroup,
+      conectividad: conectividadGroup,
     } = layersGroupRef.current
 
     if (!cuencasGroup) return
@@ -190,6 +196,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     glaciaresGroup.clearLayers()
     monitoreoGroup.clearLayers()
     riosGroup.clearLayers()
+    conectividadGroup?.clearLayers()
 
     // 1. Líneas de Cuencas Hidrográficas (Divisoria de Aguas / Cresta)
     // Sin relleno para que la ortofoto satelital quede 100% limpia y nítida
@@ -628,6 +635,57 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
       monitoreoGroup.addLayer(marker)
     })
+
+    // 9. Puntos de Conectividad e Internet Rural
+    if (conectividadGroup) {
+      CONNECTIVITY_POINTS.forEach((pt) => {
+        let badgeBg = '#3346a8'
+        let badgeIcon = '📶'
+        if (pt.tipo === 'tambo_satelital') {
+          badgeBg = '#059669'
+          badgeIcon = '🏛️'
+        } else if (pt.tipo === 'zona_sombra') {
+          badgeBg = '#dc2626'
+          badgeIcon = '⚠️'
+        }
+
+        const icon = L.divIcon({
+          className: 'custom-wifi-marker',
+          html: `<div style="
+            background: ${badgeBg};
+            color: white;
+            border: 2px solid white;
+            border-radius: 999px;
+            padding: 2px 7px;
+            font-size: 9.5px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+            white-space: nowrap;
+            transform: translate(-50%, -50%);
+          ">
+            <span>${badgeIcon}</span>
+            <span>${pt.tieneWifiLibre ? 'WiFi Libre' : pt.tecnologia}</span>
+          </div>`,
+          iconSize: [0, 0],
+        })
+
+        const ptMarker = L.marker([pt.lat, pt.lng], { icon })
+        ptMarker.bindTooltip(
+          `<div style="font-family: 'DM Sans', sans-serif;">
+            <strong style="color: ${badgeBg}; font-size: 11px;">${pt.nombre}</strong>
+            <div style="font-size: 10px; color: #475569;">${pt.descripcion}</div>
+            <div style="font-size: 9.5px; color: #059669; font-weight: bold; margin-top: 2px;">
+              ${pt.tieneWifiLibre ? '✓ Acceso Gratuito a Internet' : 'Señal Móvil'}
+            </div>
+          </div>`,
+          { sticky: true }
+        )
+        conectividadGroup.addLayer(ptMarker)
+      })
+    }
   }, [basins, selectedBasin, season, measurements, dangerFilter])
 
   // Center and fit bounds on selected basin
@@ -782,6 +840,17 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
             title="Puntos de monitoreo científico INAIGEM y UPCH"
           >
             <Droplet size={12} /> Monitoreo
+          </button>
+          <button
+            onClick={() => toggleLayer('conectividad')}
+            className={`px-2.5 py-1 text-xs rounded-lg font-bold transition-all flex items-center gap-1 ${
+              layersState.conectividad
+                ? 'bg-emerald-50 text-[#059669] border border-emerald-300'
+                : 'text-[#667573] hover:bg-gray-100'
+            }`}
+            title="Puntos de internet satelital, tambos y WiFi libre para sincronizar reportes"
+          >
+            <Wifi size={12} /> Internet y Señal
           </button>
         </div>
       </div>

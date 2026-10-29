@@ -11,6 +11,7 @@ import { OfflineSyncModal } from './components/OfflineSyncModal'
 import { GlaciAguaApi } from './services/api'
 import {
   Loader2,
+  Wifi,
   MapPin,
   BookOpen,
   PlusCircle,
@@ -29,6 +30,9 @@ const GuidanceView = lazy(() =>
 )
 const ScientificDataView = lazy(() =>
   import('./components/ScientificDataView').then((m) => ({ default: m.ScientificDataView }))
+)
+const ConnectivityView = lazy(() =>
+  import('./components/ConnectivityView').then((m) => ({ default: m.ConnectivityView }))
 )
 
 const STORAGE_KEY_REPORTS = 'glaciagua_community_reports_v2'
@@ -86,7 +90,7 @@ export default function App() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false)
   const [offlineToast, setOfflineToast] = useState<string | null>(null)
   const [currentView, setCurrentView] = useState<
-    'mapa' | 'simulador' | 'reportar' | 'guia' | 'cientifico'
+    'mapa' | 'simulador' | 'reportar' | 'guia' | 'cientifico' | 'conectividad'
   >('mapa')
 
   const [isReportModalOpen, setIsReportModalOpen] = useState(false)
@@ -428,6 +432,21 @@ export default function App() {
             </Suspense>
           </div>
         )}
+
+        {/* Mapa de Conexión a Internet Rural y Tambos Satelitales */}
+        {currentView === 'conectividad' && (
+          <div className="w-full h-full overflow-hidden pb-16 lg:pb-0">
+            <Suspense
+              fallback={
+                <div className="h-full flex items-center justify-center gap-2 text-xs font-bold text-[#667573]">
+                  <Loader2 size={18} className="animate-spin text-[#3346a8]" /> Cargando mapa de conexión...
+                </div>
+              }
+            >
+              <ConnectivityView />
+            </Suspense>
+          </div>
+        )}
       </main>
 
       {/* Mobile Bottom Navigation Bar: Nativa, rápida e intuitiva (< lg) */}
@@ -450,6 +469,16 @@ export default function App() {
         >
           <BookOpen size={18} />
           <span className="text-[10px]">¿Agua Segura?</span>
+        </button>
+
+        <button
+          onClick={() => setCurrentView('conectividad')}
+          className={`flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-xl transition-all ${
+            currentView === 'conectividad' ? 'text-[#3346a8] font-bold' : 'text-[#667573]'
+          }`}
+        >
+          <Wifi size={18} />
+          <span className="text-[10px]">Internet</span>
         </button>
 
         <button

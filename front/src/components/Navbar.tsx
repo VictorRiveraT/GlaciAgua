@@ -15,8 +15,8 @@ import {
 } from 'lucide-react'
 
 interface NavbarProps {
-  currentView: 'mapa' | 'simulador' | 'reportar' | 'guia' | 'cientifico'
-  onSelectView: (view: 'mapa' | 'simulador' | 'reportar' | 'guia' | 'cientifico') => void
+  currentView: 'mapa' | 'simulador' | 'reportar' | 'guia' | 'cientifico' | 'conectividad'
+  onSelectView: (view: 'mapa' | 'simulador' | 'reportar' | 'guia' | 'cientifico' | 'conectividad') => void
   season: Season
   onSetSeason: (s: Season) => void
   isOnline: boolean
@@ -72,6 +72,18 @@ export const Navbar: React.FC<NavbarProps> = ({
           }`}
         >
           <BookOpen size={14} /> ¿Puedo Usar el Agua?
+        </button>
+
+        <button
+          onClick={() => onSelectView('conectividad')}
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+            currentView === 'conectividad'
+              ? 'bg-white text-[#3346a8] shadow-xs'
+              : 'text-[#667573] hover:text-[#172726]'
+          }`}
+          title="Mapa de señal celular, tambos satelitales y plazas con WiFi gratuito"
+        >
+          <Wifi size={14} /> Puntos de Internet
         </button>
 
         <button
