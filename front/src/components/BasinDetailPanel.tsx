@@ -5,21 +5,19 @@ import {
   CheckCircle2,
   Droplet,
   X,
-  Share2,
   PlusCircle,
   BookOpen,
-  TrendingUp,
-  Shield,
-  Layers,
   MapPin,
-  Clock,
   Sparkles,
   FlaskConical,
   Cpu,
-  Activity,
   Sliders,
   ChevronDown,
   ChevronUp,
+  ShieldAlert,
+  Flame,
+  FileText,
+  AlertOctagon,
   Scale,
 } from 'lucide-react'
 
@@ -40,537 +38,434 @@ export const BasinDetailPanel: React.FC<BasinDetailPanelProps> = ({
   onOpenGuidance,
   onOpenSimulator,
 }) => {
+  const [showTechnicalSection, setShowTechnicalSection] = useState(false)
   const [showMLFeatures, setShowMLFeatures] = useState(false)
+
   if (!basin) return null
 
-  const currentFactors = basin.factores[season]
   const currentRisk = basin.nivelRiesgo[season]
   const currentScore = basin.scoreRiesgo[season]
   const mlData = basin.prediccionML ? basin.prediccionML[season] : null
   const features = basin.featuresML
 
-  const getRiskBadge = (level: string) => {
-    switch (level) {
+  // Guía de uso cotidiano para familias, agricultores y ganaderos
+  const getUsageGuidance = () => {
+    switch (currentRisk) {
       case 'Alto':
         return {
-          bg: 'bg-red-50 text-[#bd3f3a] border-red-200',
-          icon: <AlertTriangle size={15} />,
-          badgeClass: 'risk-alto',
+          bannerBg: 'bg-red-500 text-white',
+          title: '¡PELIGRO! AGUA NO APTA PARA CONSUMO',
+          subtitle: 'Agua ácida con alta concentración de metales pesados (hierro y aluminio).',
+          human: {
+            status: 'NO BEBER NI COCINAR',
+            badgeBg: 'bg-red-100 text-red-800 border-red-300',
+            desc: 'Peligro grave para la salud de niños y adultos. Los metales dañan el estómago y los riñones.',
+            icon: <AlertOctagon size={16} className="text-red-700 shrink-0" />,
+          },
+          crops: {
+            status: 'EVITAR EN HORTALIZAS Y PAPAS',
+            badgeBg: 'bg-amber-100 text-amber-900 border-amber-300',
+            desc: 'La acidez quema las raíces tiernas y los metales se acumulan en la tierra de cultivo.',
+            icon: <AlertTriangle size={16} className="text-amber-700 shrink-0" />,
+          },
+          animals: {
+            status: 'NO DAR AL GANADO NI TRUCHAS',
+            badgeBg: 'bg-red-100 text-red-800 border-red-300',
+            desc: 'Causa cólicos, diarreas y bajo peso en vacas y ovejas. Tóxico para piscigranjas.',
+            icon: <AlertOctagon size={16} className="text-red-700 shrink-0" />,
+          },
         }
       case 'Medio':
         return {
-          bg: 'bg-amber-50 text-[#a86408] border-amber-200',
-          icon: <Droplet size={15} />,
-          badgeClass: 'risk-medio',
+          bannerBg: 'bg-amber-500 text-white',
+          title: 'PRECAUCIÓN: AGUA EN OBSERVACIÓN',
+          subtitle: 'Presenta acidez moderada. Evitar el consumo directo sin tratamiento.',
+          human: {
+            status: 'USAR SOLO AGUA DE CAPTACIÓN SEGURA',
+            badgeBg: 'bg-amber-100 text-amber-900 border-amber-300',
+            desc: 'No tomar directo de la acequia. Coordinar con la JASS para verificar la red de agua potable.',
+            icon: <AlertTriangle size={16} className="text-amber-700 shrink-0" />,
+          },
+          crops: {
+            status: 'APTO CON PRECAUCIÓN',
+            badgeBg: 'bg-amber-50 text-amber-800 border-amber-200',
+            desc: 'Monitorear si las hojas se ponen amarillentas o si el suelo presenta costras ocres.',
+            icon: <Droplet size={16} className="text-amber-600 shrink-0" />,
+          },
+          animals: {
+            status: 'USO MODERADO',
+            badgeBg: 'bg-amber-50 text-amber-800 border-amber-200',
+            desc: 'Preferir dar agua de manantiales limpios o fuentes que pasen por bofedales.',
+            icon: <Droplet size={16} className="text-amber-600 shrink-0" />,
+          },
         }
       default:
         return {
-          bg: 'bg-green-50 text-[#21835b] border-green-200',
-          icon: <CheckCircle2 size={15} />,
-          badgeClass: 'risk-bajo',
+          bannerBg: 'bg-emerald-600 text-white',
+          title: 'AGUA LIMPIA Y SEGURA',
+          subtitle: 'Cumple los estándares ambientales de calidad para la comunidad.',
+          human: {
+            status: 'APTA PARA CONSUMO (TRATAMIENTO JASS)',
+            badgeBg: 'bg-green-100 text-green-800 border-green-300',
+            desc: 'Agua de glaciar limpia. Apta para el hogar tras la cloración habitual de la JASS.',
+            icon: <CheckCircle2 size={16} className="text-green-700 shrink-0" />,
+          },
+          crops: {
+            status: 'EXCELENTE PARA RIEGO',
+            badgeBg: 'bg-green-100 text-green-800 border-green-300',
+            desc: 'Nutre la tierra y los pastizales sin riesgo de acidificación.',
+            icon: <CheckCircle2 size={16} className="text-green-700 shrink-0" />,
+          },
+          animals: {
+            status: 'SEGURA PARA ANIMALES',
+            badgeBg: 'bg-green-100 text-green-800 border-green-300',
+            desc: 'Agua pura para abrevadero de ganado y apta para truchas.',
+            icon: <CheckCircle2 size={16} className="text-green-700 shrink-0" />,
+          },
         }
     }
   }
 
-  const badgeInfo = getRiskBadge(currentRisk)
+  const usage = getUsageGuidance()
 
-  const getSampleVialInfo = () => {
+  // Aspecto visual y sensorial del agua en la quebrada
+  const getVisualWaterInfo = () => {
     if (basin.id === 'quillcay' || basin.ultimaMedicion.ph < 4.5) {
       return {
-        liquidColor: '#ea580c',
-        colorName: 'Agua Anaranjada - Rojiza (DAR Activo)',
-        chemicalReason:
-          'Precipitación masiva de hidróxidos férricos Fe(OH)₃ al oxidarse la pirita expuesta en cabecera.',
-        turbidity: 'Alta (óxidos en suspensión)',
-        safe: false,
+        colorName: 'Agua Anaranjada / Color Herrumbre',
+        colorHex: '#ea580c',
+        appearance: 'Rojiza y turbia. Piedras del río teñidas de óxido anaranjado.',
+        taste: 'Sabor agrio o a metal oxidado que raspa la garganta.',
       }
     }
     if (basin.id === 'pachacoto' || basin.ultimaMedicion.ph < 5.6) {
       return {
-        liquidColor: '#d97706',
-        colorName: 'Agua Ocre / Amarillenta',
-        chemicalReason:
-          'Contenido moderado de sulfatos de hierro y manganeso, parcialmente amortiguados por el bofedal Pumapampa.',
-        turbidity: 'Media',
-        safe: false,
+        colorName: 'Agua Amarillenta / Tono Ocre',
+        colorHex: '#d97706',
+        appearance: 'Turbidez moderada con polvo mineral ocre en las orillas.',
+        taste: 'Sabor ligeramente metálico o astringente.',
       }
     }
     if (basin.id === 'canray-chico') {
       return {
-        liquidColor: '#f59e0b',
-        colorName: 'Tonalidad Ámbar Pálida',
-        chemicalReason:
-          'Presencia leve de hierro de Quebrada Rurec diluida por aportes subterráneos.',
-        turbidity: 'Baja',
-        safe: false,
+        colorName: 'Agua Ámbar Clara',
+        colorHex: '#eab308',
+        appearance: 'Casi clara en el curso bajo, pero con manchas amarillas en las nacientes.',
+        taste: 'Sin olor perceptible, sabor ligeramente mineral.',
       }
     }
     return {
-      liquidColor: '#0ea5e9',
-      colorName: 'Agua Cristalina Pura (Línea Base)',
-      chemicalReason:
-        'Litología de granodiorita neutra sin sulfuros reactivos. Cumple todos los estándares ECA.',
-      turbidity: 'Nula (transparente)',
-      safe: true,
+      colorName: 'Agua Cristalina y Transparente',
+      colorHex: '#0ea5e9',
+      appearance: 'Totalmente transparente. Lecho del río con piedras limpias y vida acuática.',
+      taste: 'Sabor fresco de manantial glaciar.',
     }
   }
 
-  const sampleVial = getSampleVialInfo()
+  const visual = getVisualWaterInfo()
 
   return (
-    <aside className="w-full lg:w-[420px] bg-white border-l border-[#dfe7e5] flex flex-col h-full overflow-y-auto shadow-xl z-20 transition-all">
-      {/* Top Header */}
-      <div className="p-5 border-b border-[#dfe7e5] bg-[#fafbfb] sticky top-0 z-10">
+    <aside className="w-full lg:w-[440px] bg-white border-l border-[#dfe7e5] flex flex-col h-full overflow-y-auto shadow-xl z-20 transition-all select-none">
+      {/* Header con Ubicación Familiar */}
+      <div className="p-4 sm:p-5 border-b border-[#dfe7e5] bg-[#fafbfb] sticky top-0 z-10 shadow-2xs">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <span className="text-[10px] font-black tracking-wider uppercase text-[#3346a8] bg-[#edf0ff] px-2.5 py-0.5 rounded-full inline-block mb-1">
-              Microcuenca Priorizada
+            <span className="text-[10px] font-black uppercase text-[#3346a8] bg-[#edf0ff] px-2.5 py-0.5 rounded-full inline-block mb-1">
+              Microcuenca de Áncash
             </span>
             <h2 className="text-2xl font-black text-[#172726]">{basin.nombre}</h2>
-            <p className="text-xs text-[#667573] flex items-center gap-1 mt-0.5">
-              <MapPin size={12} className="text-[#3346a8]" />
-              {basin.distrito}, {basin.provincia} · {basin.areaKm2} km²
+            <p className="text-xs text-[#667573] flex items-center gap-1 mt-0.5 font-medium">
+              <MapPin size={13} className="text-[#3346a8]" />
+              {basin.distrito}, {basin.provincia}
+            </p>
+            <p className="text-[11px] text-[#475569] font-bold mt-1">
+              Quebradas: {basin.quebradasPrincipales.join(' · ')}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-200/60 transition-colors"
-            aria-label="Cerrar detalle"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-200 transition-colors"
+            title="Cerrar panel"
           >
             <X size={18} />
           </button>
         </div>
 
-        {/* Big Risk Indicator */}
-        <div className="mt-4 flex items-center justify-between p-3.5 rounded-2xl bg-white border border-[#dfe7e5] shadow-xs">
-          <div>
-            <span className="text-[11px] font-bold text-[#667573] block">Semáforo de Riesgo</span>
-            <span className="text-lg font-black text-[#172726]">
-              Nivel {currentRisk} ({currentScore} / 100)
-            </span>
+        {/* Semáforo del Agua Comunitario */}
+        <div className={`mt-3.5 p-3.5 rounded-2xl ${usage.bannerBg} shadow-sm`}>
+          <div className="flex items-center gap-2">
+            <span className="text-xl">⚠️</span>
+            <h3 className="text-sm font-black tracking-tight">{usage.title}</h3>
           </div>
-          <div
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border font-black text-sm ${badgeInfo.bg}`}
-          >
-            {badgeInfo.icon}
-            <span>Riesgo {currentRisk}</span>
-          </div>
+          <p className="text-xs opacity-95 mt-1 leading-snug font-medium">
+            {usage.subtitle}
+          </p>
         </div>
       </div>
 
-      {/* Main Content Body */}
-      <div className="p-5 space-y-6 flex-1">
-        {/* Machine Learning Model Card (Random Forest - API 8001) */}
-        {mlData && (
-          <section className="bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white p-4.5 rounded-2xl border border-slate-700/80 shadow-md space-y-3">
+      {/* Cuerpo Principal: Diseñado para Pobladores, Agricultores y Familias */}
+      <div className="p-4 sm:p-5 space-y-5 flex-1">
+        {/* Usos Cotidianos del Agua */}
+        <section className="space-y-2.5">
+          <h4 className="text-xs font-black uppercase tracking-wider text-[#172726] flex items-center gap-1.5">
+            <Droplet size={14} className="text-[#3346a8]" />
+            ¿Para qué se puede usar esta agua hoy?
+          </h4>
+
+          {/* 1. Consumo Humano */}
+          <div className="p-3 bg-white rounded-2xl border border-[#dfe7e5] shadow-2xs space-y-1">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="w-6 h-6 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold">
-                  <Cpu size={14} />
-                </span>
-                <div>
-                  <span className="text-[9.5px] uppercase font-black tracking-wider text-sky-400 block">
-                    Predicción Machine Learning
-                  </span>
-                  <h4 className="text-xs font-black text-slate-100">Random Forest (300 árboles)</h4>
-                </div>
-              </div>
-              <span className="text-[9.5px] bg-sky-950/90 text-sky-300 font-bold px-2 py-0.5 rounded-full border border-sky-600/50">
-                Puerto :8001
+              <span className="text-xs font-black text-[#172726] flex items-center gap-1.5">
+                🚰 Beber y Cocinar:
+              </span>
+              <span className={`text-[10px] font-black px-2 py-0.5 rounded-md border ${usage.human.badgeBg}`}>
+                {usage.human.status}
               </span>
             </div>
+            <p className="text-[11px] text-[#667573] leading-snug">
+              {usage.human.desc}
+            </p>
+          </div>
 
-            {/* Metrics Grid */}
-            <div className="grid grid-cols-2 gap-2.5 pt-1">
-              <div className="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700/60">
-                <span className="text-[10px] text-slate-400 font-bold block">pH Mínimo Estimado</span>
-                <div className="flex items-baseline gap-1 mt-0.5">
-                  <span className="text-xl font-black text-white">
-                    {mlData.ph_estimado.toFixed(2)}
-                  </span>
-                  <span className="text-[10.5px] text-slate-400 font-medium">
-                    ±{mlData.incertidumbre_ph.toFixed(2)}
-                  </span>
-                </div>
-                <span
-                  className={`text-[9px] font-black uppercase inline-block mt-0.5 ${
-                    mlData.ph_estimado < 5.0
-                      ? 'text-red-400'
-                      : mlData.ph_estimado < 6.5
-                      ? 'text-amber-400'
-                      : 'text-emerald-400'
-                  }`}
-                >
-                  {mlData.ph_estimado < 5.0 ? '● Ácido Crítico' : mlData.ph_estimado < 6.5 ? '● Ácido Moderado' : '● Neutro / Seguro'}
-                </span>
-              </div>
-
-              <div className="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700/60">
-                <span className="text-[10px] text-slate-400 font-bold block">Consenso del Ensamble</span>
-                <div className="flex items-baseline gap-1 mt-0.5">
-                  <span className="text-xl font-black text-sky-300">
-                    {Math.round(mlData.acuerdo_arboles * 100)}%
-                  </span>
-                </div>
-                <span className="text-[9px] text-slate-400 font-medium block mt-0.5">
-                  Riesgo IA: <strong className="text-white">{mlData.nivel_riesgo}</strong>
-                </span>
-              </div>
+          {/* 2. Riego de Cultivos */}
+          <div className="p-3 bg-white rounded-2xl border border-[#dfe7e5] shadow-2xs space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black text-[#172726] flex items-center gap-1.5">
+                🌾 Riego de Chacras:
+              </span>
+              <span className={`text-[10px] font-black px-2 py-0.5 rounded-md border ${usage.crops.badgeBg}`}>
+                {usage.crops.status}
+              </span>
             </div>
+            <p className="text-[11px] text-[#667573] leading-snug">
+              {usage.crops.desc}
+            </p>
+          </div>
 
-            {/* Dual Scientific Validation Comparison Banner */}
-            <div className="bg-slate-900/90 p-2.5 rounded-xl border border-slate-700/60 text-[11px] space-y-1">
-              <div className="flex items-center gap-1.5 text-sky-300 font-bold text-[10.5px]">
-                <Scale size={12} />
-                <span>Validación Dual: Modelo Físico vs Machine Learning</span>
-              </div>
-              <p className="text-slate-300 text-[10.5px] leading-relaxed">
-                El motor físico ({currentScore}/100, Nivel {currentRisk}) y el modelo predictivo de IA ({mlData.ph_estimado.toFixed(1)} pH) 
-                <strong> coinciden plenamente en nivel {currentRisk}</strong>, validando la hipótesis de drenaje ácido de roca.
+          {/* 3. Animales y Ganado */}
+          <div className="p-3 bg-white rounded-2xl border border-[#dfe7e5] shadow-2xs space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black text-[#172726] flex items-center gap-1.5">
+                🐄 Ganado y Truchas:
+              </span>
+              <span className={`text-[10px] font-black px-2 py-0.5 rounded-md border ${usage.animals.badgeBg}`}>
+                {usage.animals.status}
+              </span>
+            </div>
+            <p className="text-[11px] text-[#667573] leading-snug">
+              {usage.animals.desc}
+            </p>
+          </div>
+        </section>
+
+        {/* Alerta Médica Importante (Hervir el agua NO quita los metales) */}
+        {currentRisk !== 'Bajo' && (
+          <div className="bg-amber-50 border-2 border-amber-300 p-3.5 rounded-2xl flex items-start gap-3">
+            <span className="text-2xl shrink-0">🫖</span>
+            <div>
+              <strong className="text-xs font-black text-[#a86408] block uppercase tracking-tight">
+                ¡Aviso Importante de Salud!
+              </strong>
+              <p className="text-[11.5px] text-[#78350f] mt-1 leading-snug">
+                <strong>Hervir el agua NO elimina los metales pesados.</strong> Al hervirla, el agua se evapora y los metales (hierro, aluminio, plomo) se concentran más. Usa agua de red potabilizada o manantiales certificados por la JASS.
               </p>
             </div>
-
-            {/* Expandable 8 HydroBASINS Features */}
-            {features && (
-              <div className="pt-1">
-                <button
-                  onClick={() => setShowMLFeatures(!showMLFeatures)}
-                  className="w-full text-[10.5px] font-bold text-slate-300 hover:text-white flex items-center justify-between py-1 px-1 transition-colors"
-                >
-                  <span className="flex items-center gap-1">
-                    <Activity size={12} className="text-sky-400" />
-                    8 Variables HydroBASINS (Nivel 12)
-                  </span>
-                  {showMLFeatures ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-                </button>
-
-                {showMLFeatures && (
-                  <div className="mt-2 space-y-1.5 bg-slate-950/60 p-2.5 rounded-xl border border-slate-800 text-[10px] text-slate-300">
-                    <div className="flex justify-between py-0.5 border-b border-slate-800">
-                      <span className="text-slate-400">Área de cuenca:</span>
-                      <strong className="text-white">{features.area_km2} km²</strong>
-                    </div>
-                    <div className="flex justify-between py-0.5 border-b border-slate-800">
-                      <span className="text-slate-400">Roca expuesta (glaciar):</span>
-                      <strong className="text-sky-300">{features.roca_expuesta_km2} km² (11.3% imp.)</strong>
-                    </div>
-                    <div className="flex justify-between py-0.5 border-b border-slate-800">
-                      <span className="text-slate-400">Sulfuros oxidables (%):</span>
-                      <strong className="text-red-400">{features.pct_sulfuros}% (68.1% imp.)</strong>
-                    </div>
-                    <div className="flex justify-between py-0.5 border-b border-slate-800">
-                      <span className="text-slate-400">Carbonatos neutralizantes (%):</span>
-                      <strong className="text-emerald-400">{features.pct_carbonatos}% (6.9% imp.)</strong>
-                    </div>
-                    <div className="flex justify-between py-0.5 border-b border-slate-800">
-                      <span className="text-slate-400">Precipitación estacional:</span>
-                      <strong className="text-white">{features.lluvia_mm} mm (CHIRPS)</strong>
-                    </div>
-                    <div className="flex justify-between py-0.5 border-b border-slate-800">
-                      <span className="text-slate-400">Bofedales amortiguadores (%):</span>
-                      <strong className="text-emerald-300">{features.pct_bofedal}% (INAIGEM)</strong>
-                    </div>
-                    <div className="flex justify-between py-0.5">
-                      <span className="text-slate-400">Vegetación húmeda estimada (%):</span>
-                      <strong className="text-white">{features.pct_veg_humeda_est}% (Sentinel-2)</strong>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Quick Button to Simulator */}
-            {onOpenSimulator && (
-              <button
-                onClick={onOpenSimulator}
-                className="w-full py-1.5 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 text-[11px] font-bold flex items-center justify-center gap-1.5 transition-colors"
-              >
-                <Sliders size={13} />
-                Calibrar y simular esta cuenca
-              </button>
-            )}
-          </section>
+          </div>
         )}
 
-        {/* Physical Variables Breakdown ("¿Por qué este nivel?") */}
-        <section>
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#667573]">
-                Modelo Físico Explicable
-              </span>
-              <h3 className="text-base font-black text-[#172726]">¿Por qué este nivel?</h3>
-            </div>
-            <span className="text-[10px] bg-[#edf0ff] text-[#3346a8] font-bold px-2 py-0.5 rounded-md">
-              4 Variables
-            </span>
-          </div>
-
-          <div className="space-y-3.5 bg-[#fbfcfc] p-4 rounded-2xl border border-[#dfe7e5]">
-            {/* Variable 1: Roca Recién Expuesta */}
-            <div>
-              <div className="flex justify-between items-center text-xs mb-1">
-                <span className="font-bold text-[#172726] flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-[#bd3f3a]" />
-                  1. Roca recién expuesta (Gatillo)
-                </span>
-                <strong className="text-[#bd3f3a] font-black">{currentFactors.rocaExpuesta}%</strong>
-              </div>
-              <div className="w-full h-2 rounded-full bg-gray-200 overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-[#bd3f3a] transition-all duration-500"
-                  style={{ width: `${currentFactors.rocaExpuesta}%` }}
-                />
-              </div>
-              <p className="text-[11px] text-[#667573] mt-1">
-                Área deglaciada reciente detectada por satélite (Sentinel-2 e INAIGEM).
-              </p>
-            </div>
-
-            {/* Variable 2: Geología con Sulfuros */}
-            <div>
-              <div className="flex justify-between items-center text-xs mb-1">
-                <span className="font-bold text-[#172726] flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-[#a86408]" />
-                  2. Geología reactiva (Potencial ácido)
-                </span>
-                <strong className="text-[#a86408] font-black">{currentFactors.potencialAcido}%</strong>
-              </div>
-              <div className="w-full h-2 rounded-full bg-gray-200 overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-[#a86408] transition-all duration-500"
-                  style={{ width: `${currentFactors.potencialAcido}%` }}
-                />
-              </div>
-              <p className="text-[11px] text-[#667573] mt-1">
-                Presencia de pirita y sulfuros oxidables según cartas INGEMMET.
-              </p>
-            </div>
-
-            {/* Variable 3: Volumen de Lluvia */}
-            <div>
-              <div className="flex justify-between items-center text-xs mb-1">
-                <span className="font-bold text-[#172726] flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-[#3346a8]" />
-                  3. Volumen de lluvia (Activador y transporte)
-                </span>
-                <strong className="text-[#3346a8] font-black">{currentFactors.lluvia}%</strong>
-              </div>
-              <div className="w-full h-2 rounded-full bg-gray-200 overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-[#3346a8] transition-all duration-500"
-                  style={{ width: `${currentFactors.lluvia}%` }}
-                />
-              </div>
-              <p className="text-[11px] text-[#667573] mt-1">
-                Estacionalidad {season === 'seca' ? 'Seca (estiaje)' : 'Húmeda (lluvias intensas)'} (PISCO / SENAMHI).
-              </p>
-            </div>
-
-            {/* Variable 4: Depuración Natural por Bofedales */}
-            <div className="pt-2 border-t border-[#dfe7e5]">
-              <div className="flex justify-between items-center text-xs mb-1">
-                <span className="font-bold text-[#21835b] flex items-center gap-1">
-                  <Sparkles size={13} />
-                  4. Bofedales (Amortiguador natural)
-                </span>
-                <strong className="text-[#21835b] font-black">
-                  ↓ {currentFactors.bofedalDepuracion}%
-                </strong>
-              </div>
-              <div className="w-full h-2 rounded-full bg-gray-200 overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-[#21835b] transition-all duration-500"
-                  style={{ width: `${currentFactors.bofedalDepuracion}%` }}
-                />
-              </div>
-              <p className="text-[11px] text-[#21835b] mt-1 font-semibold flex items-center gap-1">
-                <CheckCircle2 size={12} />
-                Actúa como filtro: neutraliza pH y retiene metales pesados.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Diagnostic Summary */}
-        <section className="bg-amber-50/60 p-3.5 rounded-2xl border border-amber-200/80">
-          <span className="text-[10px] font-extrabold uppercase text-[#a86408] block mb-1">
-            Diagnóstico Hidrológico
+        {/* Aspecto Visual del Agua: Para que el poblador la reconozca */}
+        <section className="bg-[#f8faf9] p-3.5 rounded-2xl border border-[#dfe7e5] space-y-2">
+          <span className="text-[10px] font-black uppercase tracking-wider text-[#667573] block">
+            ¿Cómo reconocer esta agua a simple vista?
           </span>
-          <p className="text-xs text-[#172726] leading-relaxed">{basin.resumenDiagnostico}</p>
+          <div className="flex items-center gap-2.5">
+            <span
+              className="w-4 h-4 rounded-full shadow-xs shrink-0 border border-white"
+              style={{ backgroundColor: visual.colorHex }}
+            />
+            <strong className="text-xs font-black text-[#172726]">
+              {visual.colorName}
+            </strong>
+          </div>
+          <p className="text-[11px] text-[#475569] leading-snug">
+            <strong>Color y turbidez:</strong> {visual.appearance}
+          </p>
+          <p className="text-[11px] text-[#475569] leading-snug">
+            <strong>Olor y sabor:</strong> {visual.taste}
+          </p>
         </section>
 
-        {/* Real Ground-Truth Measurement (Etiqueta de Contraste) */}
-        <section className="bg-white p-4 rounded-2xl border border-[#dfe7e5] shadow-xs">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="w-8 h-8 rounded-xl bg-[#edf0ff] text-[#3346a8] flex items-center justify-center font-bold">
-              <Droplet size={17} />
-            </span>
-            <div>
-              <span className="text-[10px] text-[#667573] block uppercase font-bold">
-                Medición Real en Terreno
-              </span>
-              <h4 className="text-sm font-black text-[#172726]">
-                pH {basin.ultimaMedicion.ph.toFixed(1)} · {basin.ultimaMedicion.conductividad} µS/cm
-              </h4>
-            </div>
-          </div>
-          <div className="text-xs text-[#667573] space-y-1 mt-2 bg-[#f8faf9] p-2.5 rounded-xl border border-[#dfe7e5]">
-            <p>
-              <strong className="text-[#172726]">Metales dominantes:</strong>{' '}
-              {basin.ultimaMedicion.metalDominante}
-            </p>
-            <p>
-              <strong className="text-[#172726]">Fuente:</strong> {basin.ultimaMedicion.fuente} (
-              {basin.ultimaMedicion.fecha})
-            </p>
-          </div>
-        </section>
-
-        {/* Visual Water Sample Flask (Simulación Visual del Agua) */}
-        <section className="bg-white p-4 rounded-2xl border border-[#dfe7e5] shadow-xs">
-          <div className="flex items-center justify-between mb-2.5">
-            <span className="text-[10px] font-black uppercase tracking-wider text-[#3346a8] flex items-center gap-1.5">
-              <FlaskConical size={14} /> Muestra Visual del Agua en Quebrada
-            </span>
-            <span className="text-[9.5px] font-bold text-[#667573] bg-gray-100 px-2 py-0.5 rounded-full">
-              Simulación Geoquímica
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3.5 bg-[#f8faf9] p-3 rounded-xl border border-[#dfe7e5]">
-            {/* Animated Visual Flask */}
-            <div className="relative w-12 h-20 bg-white/70 rounded-b-2xl rounded-t-md border-2 border-slate-300 flex flex-col justify-end p-1 overflow-hidden shadow-inner shrink-0">
-              {/* Liquid level */}
-              <div
-                className="w-full rounded-b-xl transition-all duration-700 relative overflow-hidden"
-                style={{
-                  height: '75%',
-                  backgroundColor: sampleVial.liquidColor,
-                  opacity: 0.88,
-                }}
-              >
-                {/* Surface liquid wave reflection */}
-                <div className="absolute top-0 inset-x-0 h-1 bg-white/40" />
-                {/* Precipitate flakes at the bottom if acidic */}
-                {basin.ultimaMedicion.ph < 5.0 && (
-                  <div className="absolute bottom-0 inset-x-0 h-2 bg-amber-950/40 blur-[1px]" />
-                )}
-              </div>
-              {/* Measurement graduated lines */}
-              <div className="absolute top-3 left-1.5 w-1.5 h-[1px] bg-slate-400" />
-              <div className="absolute top-6 left-1.5 w-2 h-[1px] bg-slate-400" />
-              <div className="absolute top-9 left-1.5 w-1.5 h-[1px] bg-slate-400" />
-              <div className="absolute top-12 left-1.5 w-2 h-[1px] bg-slate-400" />
-              <div className="absolute top-15 left-1.5 w-1.5 h-[1px] bg-slate-400" />
-            </div>
-
-            {/* Chemical Water Explanation */}
-            <div className="space-y-1 text-xs">
-              <div className="flex items-center gap-1.5">
-                <span
-                  className="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs"
-                  style={{ backgroundColor: sampleVial.liquidColor }}
-                />
-                <strong className="text-sm font-black text-[#172726]">{sampleVial.colorName}</strong>
-              </div>
-              <p className="text-[11px] text-[#475569] leading-snug">
-                {sampleVial.chemicalReason}
+        {/* ¿Por qué está así el agua? Explicado en Lenguaje Sencillo */}
+        <section className="space-y-2">
+          <span className="text-[10px] font-black uppercase tracking-wider text-[#667573] block">
+            ¿Por qué se produce esta contaminación?
+          </span>
+          <div className="bg-white p-3.5 rounded-2xl border border-[#dfe7e5] space-y-2.5 text-xs text-[#334155]">
+            <div className="flex items-start gap-2">
+              <span className="font-black text-[#3346a8] shrink-0">1.</span>
+              <p className="leading-snug">
+                <strong>El hielo se derritió:</strong> El glaciar retrocedió y dejó al descubierto cerros de roca que contienen azufre y minerales ácidos.
               </p>
-              <div className="pt-1 text-[10px] font-bold text-[#667573] flex items-center gap-1">
-                <span>Turbidez: {sampleVial.turbidity}</span> · 
-                <span className={sampleVial.safe ? 'text-[#16a34a]' : 'text-[#dc2626]'}>
-                  {sampleVial.safe ? '✓ Cumple ECA natural' : '⚠️ No apta consumo directo'}
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="font-black text-[#3346a8] shrink-0">2.</span>
+              <p className="leading-snug">
+                <strong>Las lluvias mojan la roca:</strong> Al llover, el agua lava esos minerales y los arrastra quebrada abajo hacia el río Santa.
+              </p>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="font-black text-[#21835b] shrink-0">3.</span>
+              <p className="leading-snug">
+                <strong>Los bofedales ayudan:</strong> Los humedales altoandinos atrapan parte de la suciedad, pero no alcanzan cuando el deshielo es muy fuerte.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Botones de Acción para la Comunidad */}
+        <div className="pt-1 space-y-2">
+          <button
+            onClick={onOpenReport}
+            className="w-full min-h-[46px] rounded-2xl bg-[#3346a8] hover:bg-[#25368f] text-white text-xs font-black flex items-center justify-center gap-2 shadow-sm transition-all"
+          >
+            <PlusCircle size={16} />
+            Avisar sobre agua turbia en mi zona (Tomar Foto)
+          </button>
+
+          <button
+            onClick={onOpenGuidance}
+            className="w-full min-h-[42px] rounded-2xl bg-[#f0f4f3] hover:bg-[#e4eae8] text-[#172726] text-xs font-bold flex items-center justify-center gap-2 border border-[#dfe7e5] transition-all"
+          >
+            <BookOpen size={15} className="text-[#3346a8]" />
+            Ver consejos completos de salud y redactar oficio para la JASS
+          </button>
+        </div>
+
+        {/* Acordeón Plegable: Para Ingenieros, Jurado y Personal Técnico */}
+        <div className="pt-2 border-t border-[#dfe7e5]">
+          <button
+            onClick={() => setShowTechnicalSection(!showTechnicalSection)}
+            className="w-full py-2.5 px-3 rounded-xl bg-[#f8faf9] hover:bg-[#edf0ff] border border-[#dfe7e5] text-left flex items-center justify-between text-xs font-bold text-[#475569] transition-all"
+          >
+            <span className="flex items-center gap-1.5 text-[#3346a8]">
+              <FlaskConical size={14} />
+              <span>Ver Diagnóstico Técnico y Datos de Laboratorio (Jurado / Ingenieros)</span>
+            </span>
+            {showTechnicalSection ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+          </button>
+
+          {showTechnicalSection && (
+            <div className="mt-3 space-y-3 bg-[#0f172a] text-white p-4 rounded-2xl border border-slate-700 animate-in fade-in">
+              <div className="flex items-center justify-between border-b border-slate-700 pb-2">
+                <div className="flex items-center gap-1.5 text-sky-400 font-bold text-xs">
+                  <Cpu size={14} />
+                  <span>Modelo Predictivo Random Forest (83.6% precisión)</span>
+                </div>
+                <span className="text-[9px] bg-sky-950 text-sky-300 px-2 py-0.5 rounded-full border border-sky-600/50">
+                  Microservicio ML
                 </span>
               </div>
+
+              {mlData && (
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
+                    <span className="text-[10px] text-slate-400 block font-bold">pH de Salida Estimado</span>
+                    <strong className="text-base text-white">
+                      pH {mlData.ph_estimado.toFixed(2)}
+                    </strong>
+                    <span className="text-[10px] text-slate-400 block mt-0.5">
+                      Margen: ±{mlData.incertidumbre_ph.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
+                    <span className="text-[10px] text-slate-400 block font-bold">Consenso de Árboles</span>
+                    <strong className="text-base text-sky-300">
+                      {Math.round(mlData.acuerdo_arboles * 100)}%
+                    </strong>
+                    <span className="text-[10px] text-slate-400 block mt-0.5">
+                      Riesgo IA: {mlData.nivel_riesgo}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Contraste Físico vs IA */}
+              <div className="bg-slate-900/90 p-2.5 rounded-xl border border-slate-700/60 text-[10.5px] space-y-1">
+                <div className="flex items-center gap-1 text-sky-300 font-bold">
+                  <Scale size={12} />
+                  <span>Validación Dual: Motor Físico ({currentScore}/100) vs IA (pH {mlData?.ph_estimado})</span>
+                </div>
+                <p className="text-slate-300 leading-relaxed">
+                  Ambos modelos convergen en clasificación de riesgo <strong>{currentRisk}</strong>, validando la hipótesis física de drenaje ácido de roca.
+                </p>
+              </div>
+
+              {/* Botón para ver las 8 variables HydroBASINS */}
+              {features && (
+                <div>
+                  <button
+                    onClick={() => setShowMLFeatures(!showMLFeatures)}
+                    className="w-full text-[10.5px] font-bold text-slate-300 hover:text-white flex items-center justify-between py-1 transition-colors"
+                  >
+                    <span>Detalle de 8 variables HydroBASINS nivel 12</span>
+                    {showMLFeatures ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                  </button>
+
+                  {showMLFeatures && (
+                    <div className="mt-1 space-y-1 bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-[10px] text-slate-300">
+                      <div className="flex justify-between py-0.5 border-b border-slate-800">
+                        <span className="text-slate-400">Área de cuenca:</span>
+                        <span>{features.area_km2} km²</span>
+                      </div>
+                      <div className="flex justify-between py-0.5 border-b border-slate-800">
+                        <span className="text-slate-400">Roca expuesta (glaciar):</span>
+                        <span className="text-sky-300">{features.roca_expuesta_km2} km²</span>
+                      </div>
+                      <div className="flex justify-between py-0.5 border-b border-slate-800">
+                        <span className="text-slate-400">Sulfuros oxidables:</span>
+                        <span className="text-red-400">{features.pct_sulfuros}%</span>
+                      </div>
+                      <div className="flex justify-between py-0.5 border-b border-slate-800">
+                        <span className="text-slate-400">Carbonatos neutralizantes:</span>
+                        <span className="text-emerald-400">{features.pct_carbonatos}%</span>
+                      </div>
+                      <div className="flex justify-between py-0.5 border-b border-slate-800">
+                        <span className="text-slate-400">Lluvia estacional:</span>
+                        <span>{features.lluvia_mm} mm</span>
+                      </div>
+                      <div className="flex justify-between py-0.5">
+                        <span className="text-slate-400">Bofedales amortiguadores:</span>
+                        <span className="text-emerald-300">{features.pct_bofedal}%</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Última medición de campo INAIGEM / UPCH */}
+              <div className="bg-slate-800/60 p-2.5 rounded-xl border border-slate-700 text-[10.5px] space-y-0.5">
+                <span className="text-[10px] font-bold text-slate-400 block">Dato de Laboratorio en Campo:</span>
+                <p className="text-slate-200">
+                  pH medido: <strong>{basin.ultimaMedicion.ph.toFixed(1)}</strong> · Conductividad: <strong>{basin.ultimaMedicion.conductividad} µS/cm</strong>
+                </p>
+                <p className="text-slate-400 text-[10px]">
+                  Fuente: {basin.ultimaMedicion.fuente} ({basin.ultimaMedicion.fecha})
+                </p>
+              </div>
+
+              {/* Botón directo al simulador */}
+              {onOpenSimulator && (
+                <button
+                  onClick={onOpenSimulator}
+                  className="w-full py-1.5 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 text-[11px] font-bold flex items-center justify-center gap-1.5 transition-colors"
+                >
+                  <Sliders size={13} />
+                  Abrir Simulador del Modelo con esta cuenca
+                </button>
+              )}
             </div>
-          </div>
-        </section>
-
-        {/* Seasonal Historical Trend Chart */}
-        <section className="bg-white p-4 rounded-2xl border border-[#dfe7e5] shadow-xs">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <h4 className="text-sm font-black text-[#172726]">Evolución por Temporada</h4>
-              <span className="text-[11px] text-[#667573]">Últimas 4 temporadas monitoreadas</span>
-            </div>
-            <TrendingUp size={16} className="text-[#bd3f3a]" />
-          </div>
-
-          {/* SVG Trend Line */}
-          <div className="w-full h-20 pt-1">
-            <svg viewBox="0 0 340 70" className="w-full h-full overflow-visible">
-              <defs>
-                <linearGradient id="trendGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#bd3f3a" stopOpacity="0.25" />
-                  <stop offset="100%" stopColor="#bd3f3a" stopOpacity="0.0" />
-                </linearGradient>
-              </defs>
-              {/* Reference Grid lines */}
-              <line x1="10" y1="20" x2="330" y2="20" stroke="#f0f3f2" strokeWidth="1" />
-              <line x1="10" y1="50" x2="330" y2="50" stroke="#f0f3f2" strokeWidth="1" />
-
-              {/* Area and Line */}
-              <path
-                d="M 20 52 L 110 40 L 200 44 L 320 18 L 320 65 L 20 65 Z"
-                fill="url(#trendGradient)"
-              />
-              <path
-                d="M 20 52 L 110 40 L 200 44 L 320 18"
-                fill="none"
-                stroke="#bd3f3a"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-              />
-
-              {/* Points */}
-              <circle cx="20" cy="52" r="4" fill="white" stroke="#bd3f3a" strokeWidth="2" />
-              <circle cx="110" cy="40" r="4" fill="white" stroke="#bd3f3a" strokeWidth="2" />
-              <circle cx="200" cy="44" r="4" fill="white" stroke="#bd3f3a" strokeWidth="2" />
-              <circle cx="320" cy="18" r="4" fill="white" stroke="#bd3f3a" strokeWidth="2" />
-            </svg>
-          </div>
-          <div className="flex justify-between text-[10px] text-[#667573] font-bold px-1 mt-1 border-t border-[#f0f3f2] pt-1.5">
-            <span>Seca '25</span>
-            <span>Húm '25</span>
-            <span>Seca '26</span>
-            <span className="text-[#bd3f3a]">Húm '26 (Actual)</span>
-          </div>
-        </section>
-
-        {/* Affected Population & Tributaries */}
-        <section className="text-xs text-[#667573] space-y-2 bg-[#f8faf9] p-3.5 rounded-2xl border border-[#dfe7e5]">
-          <div>
-            <strong className="text-[#172726] block">Población usuaria del agua:</strong>
-            {basin.poblacionDependiente}
-          </div>
-          <div>
-            <strong className="text-[#172726] block">Quebradas tributarias:</strong>
-            {basin.quebradasPrincipales.join(' · ')}
-          </div>
-          <div>
-            <strong className="text-[#172726] block">Glaciares de cabecera:</strong>
-            {basin.glaciaresCabecera.join(' · ')}
-          </div>
-        </section>
-      </div>
-
-      {/* Action Footer */}
-      <div className="p-4 border-t border-[#dfe7e5] bg-white sticky bottom-0 z-10 flex gap-2">
-        <button
-          onClick={onOpenReport}
-          className="flex-1 min-h-[46px] rounded-xl bg-[#3346a8] hover:bg-[#25368f] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-xs"
-        >
-          <PlusCircle size={16} />
-          Reportar agua en esta cuenca
-        </button>
-        <button
-          onClick={onOpenGuidance}
-          className="px-4 min-h-[46px] rounded-xl border border-[#3346a8] text-[#3346a8] hover:bg-[#edf0ff] text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
-        >
-          <BookOpen size={16} />
-          Qué hacer
-        </button>
+          )}
+        </div>
       </div>
     </aside>
   )

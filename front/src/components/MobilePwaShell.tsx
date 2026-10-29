@@ -232,23 +232,27 @@ export const MobilePwaShell: React.FC<MobilePwaShellProps> = ({
                 </div>
               </div>
 
-              {/* Machine Learning Estimation */}
-              {activeBasin.prediccionML && (
-                <div className="bg-[#edf0ff] p-2.5 rounded-xl border border-[#c7d2fe] flex items-center justify-between text-[11px]">
-                  <div className="flex items-center gap-1.5 text-[#3346a8] font-bold">
-                    <span>RF ML:</span>
-                    <span className="font-black text-[#172726]">
-                      pH {activeBasin.prediccionML[season].ph_estimado.toFixed(2)}
-                    </span>
-                    <span className="text-[#64748b] text-[10px]">
-                      ±{activeBasin.prediccionML[season].incertidumbre_ph.toFixed(2)}
-                    </span>
-                  </div>
-                  <span className="text-[10px] font-black text-[#21835b] bg-white px-2 py-0.5 rounded-md shadow-2xs">
-                    {Math.round(activeBasin.prediccionML[season].acuerdo_arboles * 100)}% ac.
-                  </span>
-                </div>
-              )}
+              {/* Resumen de uso claro para la comunidad */}
+              <div
+                className={`p-2.5 rounded-xl border text-[11px] font-bold flex items-center justify-between ${
+                  activeBasin.nivelRiesgo[season] === 'Alto'
+                    ? 'bg-red-50 text-[#bd3f3a] border-red-200'
+                    : activeBasin.nivelRiesgo[season] === 'Medio'
+                    ? 'bg-amber-50 text-[#a86408] border-amber-200'
+                    : 'bg-green-50 text-[#21835b] border-green-200'
+                }`}
+              >
+                <span>
+                  {activeBasin.nivelRiesgo[season] === 'Alto'
+                    ? '🚫 No beber · Agua ácida'
+                    : activeBasin.nivelRiesgo[season] === 'Medio'
+                    ? '⚠️ Agua en observación'
+                    : '✅ Agua limpia de glaciar'}
+                </span>
+                <span className="text-[10px] bg-white px-2 py-0.5 rounded-md shadow-2xs font-black">
+                  {season === 'seca' ? 'Época Seca' : 'Lluvias'}
+                </span>
+              </div>
 
               <div className="pt-2 border-t border-[#dfe7e5] flex gap-2">
                 <button

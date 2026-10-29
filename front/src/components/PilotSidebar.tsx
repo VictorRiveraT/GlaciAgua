@@ -158,28 +158,33 @@ export const PilotSidebar: React.FC<PilotSidebarProps> = ({
 
         {/* Risk Level Filter Chips */}
         <div className="flex items-center gap-1.5 pt-1">
-          {(['Todos', 'Alto', 'Medio', 'Bajo'] as const).map((lvl) => {
-            const count = lvl === 'Todos' 
+          {[
+            { id: 'Todos', label: 'Todas' },
+            { id: 'Alto', label: 'Peligro' },
+            { id: 'Medio', label: 'Cuidado' },
+            { id: 'Bajo', label: 'Limpia' },
+          ].map((item) => {
+            const count = item.id === 'Todos' 
               ? basins.length 
-              : basins.filter((b) => b.nivelRiesgo[season] === lvl).length
-            const isSelected = riskFilter === lvl
+              : basins.filter((b) => b.nivelRiesgo[season] === item.id).length
+            const isSelected = riskFilter === item.id
             return (
               <button
-                key={lvl}
-                onClick={() => setRiskFilter(lvl)}
+                key={item.id}
+                onClick={() => setRiskFilter(item.id as any)}
                 className={`flex-1 py-1 rounded-lg text-[10.5px] font-bold transition-all flex items-center justify-center gap-1 ${
                   isSelected
-                    ? lvl === 'Alto'
+                    ? item.id === 'Alto'
                       ? 'bg-[#bd3f3a] text-white shadow-xs'
-                      : lvl === 'Medio'
+                      : item.id === 'Medio'
                       ? 'bg-[#a86408] text-white shadow-xs'
-                      : lvl === 'Bajo'
+                      : item.id === 'Bajo'
                       ? 'bg-[#21835b] text-white shadow-xs'
                       : 'bg-[#3346a8] text-white shadow-xs'
                     : 'bg-[#f0f4f3] text-[#667573] hover:bg-[#e4eae8]'
                 }`}
               >
-                <span>{lvl}</span>
+                <span>{item.label}</span>
                 <span className={`text-[9px] px-1 rounded-full ${isSelected ? 'bg-black/20 text-white' : 'bg-white text-[#667573]'}`}>
                   {count}
                 </span>
@@ -290,26 +295,31 @@ export const PilotSidebar: React.FC<PilotSidebarProps> = ({
                 </div>
               </div>
 
-              {/* Machine Learning Prediction Badge */}
-              {basin.prediccionML && (
-                <div className="mt-2 pt-1.5 border-t border-dashed border-[#e8eceb] flex items-center justify-between text-[10px]">
-                  <div className="flex items-center gap-1.5 text-[#475569]">
-                    <div className="flex items-center gap-1 bg-[#edf0ff] text-[#3346a8] px-1.5 py-0.5 rounded font-bold">
-                      <Cpu size={10} />
-                      <span>RF ML</span>
-                    </div>
-                    <span className="font-semibold">
-                      pH <strong className="text-[#172726]">{basin.prediccionML[season].ph_estimado.toFixed(2)}</strong>
-                    </span>
-                    <span className="text-[#94a3b8] text-[9px]">
-                      ±{basin.prediccionML[season].incertidumbre_ph.toFixed(2)}
-                    </span>
-                  </div>
-                  <span className="text-[9px] font-black text-[#21835b] bg-[#e8f5ed] px-1.5 py-0.5 rounded">
-                    {basin.prediccionML[season].acuerdo_arboles}% ac.
-                  </span>
-                </div>
-              )}
+              {/* Estado directo para la comunidad */}
+              <div className="mt-2 pt-1.5 border-t border-dashed border-[#e8eceb] flex items-center justify-between text-[10.5px]">
+                <span
+                  className={`font-black flex items-center gap-1 ${
+                    currentRisk === 'Alto'
+                      ? 'text-[#bd3f3a]'
+                      : currentRisk === 'Medio'
+                      ? 'text-[#a86408]'
+                      : 'text-[#21835b]'
+                  }`}
+                >
+                  {currentRisk === 'Alto'
+                    ? '🚫 No beber · Agua ácida'
+                    : currentRisk === 'Medio'
+                    ? '⚠️ Consumo con cuidado'
+                    : '✅ Agua limpia de glaciar'}
+                </span>
+                <span className="text-[9.5px] text-[#64748b] font-medium">
+                  {currentRisk === 'Alto'
+                    ? 'Color óxido'
+                    : currentRisk === 'Medio'
+                    ? 'Tono ocre'
+                    : 'Cristalina'}
+                </span>
+              </div>
             </button>
           )
         })}

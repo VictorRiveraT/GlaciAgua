@@ -11,8 +11,7 @@ import {
   WifiOff,
   Smartphone,
   Monitor,
-  HardDrive,
-  Cpu,
+  ShieldCheck,
 } from 'lucide-react'
 
 interface NavbarProps {
@@ -53,17 +52,17 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="flex items-center gap-1.5">
               <span className="text-lg font-black text-[#172726] tracking-tight">GlaciAgua</span>
               <span className="hidden sm:inline-block text-[10px] font-black uppercase text-[#3346a8] bg-[#edf0ff] px-2 py-0.5 rounded-md">
-                PWA Áncash
+                Comunidades Áncash
               </span>
             </div>
             <span className="text-[11px] text-[#667573] block -mt-0.5 hidden md:block">
-              Alerta temprana de drenaje ácido · Cordillera Blanca
+              Alerta ciudadana de agua de deshielo y metales pesados
             </span>
           </div>
         </button>
       </div>
 
-      {/* Main Navigation Tabs */}
+      {/* Main Navigation Tabs: Diseñadas para personas comunes */}
       <nav className="hidden xl:flex items-center gap-1 bg-[#f4f7f6] p-1 rounded-2xl border border-[#dfe7e5]">
         <button
           onClick={() => onSelectView('mapa')}
@@ -73,29 +72,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               : 'text-[#667573] hover:text-[#172726]'
           }`}
         >
-          <MapPin size={14} /> Mapa & Cuencas
-        </button>
-
-        <button
-          onClick={() => onSelectView('simulador')}
-          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-            currentView === 'simulador'
-              ? 'bg-white text-[#3346a8] shadow-xs'
-              : 'text-[#667573] hover:text-[#172726]'
-          }`}
-        >
-          <Sliders size={14} /> Simulador del Modelo
-        </button>
-
-        <button
-          onClick={() => onSelectView('cientifico')}
-          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-            currentView === 'cientifico'
-              ? 'bg-white text-[#3346a8] shadow-xs'
-              : 'text-[#667573] hover:text-[#172726]'
-          }`}
-        >
-          <FlaskConical size={14} /> Mediciones INAIGEM / UPCH
+          <MapPin size={14} /> Mapa de Quebradas
         </button>
 
         <button
@@ -106,7 +83,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               : 'text-[#667573] hover:text-[#172726]'
           }`}
         >
-          <BookOpen size={14} /> Qué Hacer / Evitar
+          <BookOpen size={14} /> ¿Puedo Usar el Agua? (Guía)
         </button>
 
         <button
@@ -117,23 +94,43 @@ export const Navbar: React.FC<NavbarProps> = ({
               : 'text-[#3346a8] hover:bg-white'
           }`}
         >
-          <PlusCircle size={14} /> Reportar Agua
+          <PlusCircle size={14} /> Avisar Agua Sucia (Reportar)
+        </button>
+
+        <div className="w-[1px] h-4 bg-gray-300 mx-1" />
+
+        {/* Pestañas para evaluación técnica y jurado */}
+        <button
+          onClick={() => onSelectView('simulador')}
+          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+            currentView === 'simulador'
+              ? 'bg-white text-[#3346a8] shadow-xs'
+              : 'text-[#667573] hover:text-[#172726]'
+          }`}
+          title="Laboratorio de simulación para jurados y evaluadores"
+        >
+          <Sliders size={13} /> Simulador
+        </button>
+
+        <button
+          onClick={() => onSelectView('cientifico')}
+          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+            currentView === 'cientifico'
+              ? 'bg-white text-[#3346a8] shadow-xs'
+              : 'text-[#667573] hover:text-[#172726]'
+          }`}
+          title="Base de datos de laboratorio INAIGEM y UPCH"
+        >
+          <FlaskConical size={13} /> Datos INAIGEM
         </button>
       </nav>
 
-      {/* Right Controls: Cluster Health, Season, Offline, and Display Mode */}
+      {/* Right Controls: Community Badge, Season, Offline, and Display Mode */}
       <div className="flex items-center gap-2">
-        {/* Microservices Cluster Health */}
-        <div className="hidden lg:flex items-center gap-2 px-2.5 py-1.5 bg-[#f8faf9] rounded-xl border border-[#dfe7e5] text-[11px] select-none shadow-2xs">
-          <div className="flex items-center gap-1.5 text-[#21835b]" title="GlaciAgua Backend FastAPI (:8000) Conectado">
-            <span className="w-2 h-2 rounded-full bg-[#21835b]"></span>
-            <span className="font-bold">Backend :8000</span>
-          </div>
-          <span className="text-[#cbd5e1]">|</span>
-          <div className="flex items-center gap-1.5 text-[#3346a8]" title="Microservicio ML RandomForest (:8001) Activo">
-            <Cpu size={13} className="text-[#3346a8]" />
-            <span className="font-bold">ML :8001</span>
-          </div>
+        {/* Friendly Community Badge */}
+        <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-[#edf0ff] text-[#3346a8] rounded-xl text-xs font-bold border border-[#c7d2fe]">
+          <ShieldCheck size={14} />
+          <span>Vigilancia Activa</span>
         </div>
 
         {/* Season Selector */}
@@ -143,6 +140,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
               season === 'seca' ? 'bg-[#3346a8] text-white shadow-xs' : 'text-[#667573]'
             }`}
+            title="Época de estiaje / seca (Mayo a Septiembre)"
           >
             Seca
           </button>
@@ -151,8 +149,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
               season === 'humeda' ? 'bg-[#3346a8] text-white shadow-xs' : 'text-[#667573]'
             }`}
+            title="Época de lluvias (Octubre a Abril)"
           >
-            Húmeda
+            Lluvias
           </button>
         </div>
 
@@ -164,12 +163,12 @@ export const Navbar: React.FC<NavbarProps> = ({
               ? 'bg-[#e8f5ed] text-[#21835b] border-green-200 hover:bg-green-100'
               : 'bg-amber-50 text-[#a86408] border-amber-200 hover:bg-amber-100'
           }`}
-          title="Gestor de sincronización offline"
+          title="Gestor de sincronización sin conexión"
         >
           {isOnline ? <Wifi size={14} /> : <WifiOff size={14} />}
-          <span className="hidden md:inline">{isOnline ? 'En línea' : 'Sin conexión'}</span>
+          <span className="hidden md:inline">{isOnline ? 'En línea' : 'Sin internet'}</span>
           {pendingReportsCount > 0 && (
-            <span className="w-5 h-5 rounded-full bg-[#a86408] text-white text-[10px] flex items-center justify-center font-black">
+            <span className="w-5 h-5 rounded-full bg-[#a86408] text-white text-[10px] flex items-center justify-center font-black animate-pulse">
               {pendingReportsCount}
             </span>
           )}
@@ -179,11 +178,11 @@ export const Navbar: React.FC<NavbarProps> = ({
         <button
           onClick={onToggleDisplayMode}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#fafbfb] hover:bg-[#edf0ff] text-[#3346a8] border border-[#dfe7e5] transition-all"
-          title="Alternar entre interfaz de escritorio y simulador móvil PWA"
+          title="Alternar entre interfaz de escritorio y simulador móvil de bolsillo"
         >
           {displayMode === 'desktop' ? <Smartphone size={15} /> : <Monitor size={15} />}
           <span className="hidden sm:inline">
-            {displayMode === 'desktop' ? 'Ver como Móvil PWA' : 'Ver Escritorio'}
+            {displayMode === 'desktop' ? 'Ver en Celular' : 'Ver Escritorio'}
           </span>
         </button>
       </div>
