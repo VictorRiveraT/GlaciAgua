@@ -5,7 +5,6 @@ import {
   Droplet,
   CheckCircle2,
   Shield,
-  Search,
   ChevronLeft,
   ChevronRight,
   TrendingUp,
@@ -19,8 +18,6 @@ interface PilotSidebarProps {
   selectedBasin: BasinData | null
   onSelectBasin: (basin: BasinData) => void
   season: Season
-  searchTerm: string
-  onSearchChange: (val: string) => void
   isCollapsed: boolean
   onToggleCollapse: () => void
 }
@@ -30,23 +27,13 @@ export const PilotSidebar: React.FC<PilotSidebarProps> = ({
   selectedBasin,
   onSelectBasin,
   season,
-  searchTerm,
-  onSearchChange,
   isCollapsed,
   onToggleCollapse,
 }) => {
   const [riskFilter, setRiskFilter] = useState<'Todos' | 'Alto' | 'Medio' | 'Bajo'>('Todos')
 
   const filteredBasins = basins.filter((b) => {
-    const matchesSearch =
-      b.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      b.distrito.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      b.quebradasPrincipales.some((q) => q.toLowerCase().includes(searchTerm.toLowerCase()))
-
-    const matchesRisk =
-      riskFilter === 'Todos' || b.nivelRiesgo[season] === riskFilter
-
-    return matchesSearch && matchesRisk
+    return riskFilter === 'Todos' || b.nivelRiesgo[season] === riskFilter
   })
 
   const getRiskColor = (level: string) => {
@@ -129,31 +116,16 @@ export const PilotSidebar: React.FC<PilotSidebarProps> = ({
       <div className="p-4 border-b border-[#dfe7e5] bg-white space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-[10px] font-black uppercase tracking-wider text-[#3346a8] block">
-              Piloto Cordillera Blanca
-            </span>
-            <h2 className="text-xl font-black text-[#172726]">Microcuencas</h2>
+            <h2 className="text-xl font-black text-[#172726]">Cuencas</h2>
           </div>
 
           <button
             onClick={onToggleCollapse}
             className="w-8 h-8 rounded-xl bg-[#fafbfb] hover:bg-[#edf0ff] text-[#667573] hover:text-[#3346a8] border border-[#dfe7e5] flex items-center justify-center transition-colors shadow-xs"
-            title="Colapsar barra lateral (modo mapa cinemático)"
+            title="Colapsar barra lateral"
           >
             <ChevronLeft size={16} />
           </button>
-        </div>
-
-        {/* Search */}
-        <div className="relative">
-          <Search size={14} className="absolute left-3 top-2.5 text-[#667573]" />
-          <input
-            type="text"
-            placeholder="Buscar quebrada o cuenca..."
-            value={searchTerm}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-8 pr-3 py-2 rounded-xl border border-[#dfe7e5] bg-[#fafbfb] text-xs text-[#172726] focus:outline-[#3346a8] transition-all"
-          />
         </div>
 
         {/* Risk Level Filter Chips */}

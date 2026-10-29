@@ -45,15 +45,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Droplet size={20} className="sm:w-5.5 sm:h-5.5" />
           </div>
           <div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-base sm:text-lg font-black text-[#172726] tracking-tight">GlaciAgua</span>
-              <span className="text-[10px] font-black uppercase text-[#3346a8] bg-[#edf0ff] px-2 py-0.5 rounded-md hidden sm:inline-block">
-                Áncash
-              </span>
-            </div>
-            <span className="text-[11px] text-[#667573] block -mt-0.5 hidden md:block">
-              Vigilancia comunitaria de agua y drenaje ácido
-            </span>
+            <span className="text-lg sm:text-xl font-black text-[#172726] tracking-tight">GlaciAgua</span>
           </div>
         </button>
       </div>

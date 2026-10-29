@@ -82,7 +82,6 @@ export default function App() {
     return PILOT_BASINS[0]
   })
 
-  const [searchTerm, setSearchTerm] = useState<string>('')
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false)
   const [offlineToast, setOfflineToast] = useState<string | null>(null)
@@ -260,8 +259,6 @@ export default function App() {
                 selectedBasin={selectedBasin}
                 onSelectBasin={(b) => setSelectedBasin(b)}
                 season={season}
-                searchTerm={searchTerm}
-                onSearchChange={setSearchTerm}
                 isCollapsed={isSidebarCollapsed}
                 onToggleCollapse={() => setIsSidebarCollapsed((prev) => !prev)}
               />
