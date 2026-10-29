@@ -22,7 +22,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.model_selection import GroupKFold
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder, FunctionTransformer
 
 from . import config as cfg
 from .simulacion import simular
@@ -74,18 +74,23 @@ def buscar_dataset_simulado():
     return None
 
 
-def construir_pipeline(n_arboles=300, semilla=42):
+def construir_pipeline(n_arboles=400, semilla=42):
+    features_totales = cfg.FEATURES_NUM + cfg.FEATURES_DERIVADAS
     pre = ColumnTransformer([
-        ('num', SimpleImputer(strategy='median'), cfg.FEATURES_NUM),
+        ('num', SimpleImputer(strategy='median'), features_totales),
         ('cat', OneHotEncoder(categories=[cfg.TEMPORADAS], handle_unknown='ignore',
                               sparse_output=False), [cfg.FEATURE_CAT]),
     ])
-    rf = RandomForestRegressor(n_estimators=n_arboles, min_samples_leaf=3,
+    rf = RandomForestRegressor(n_estimators=n_arboles, min_samples_leaf=2, max_depth=16,
                                n_jobs=-1, random_state=semilla)
-    return Pipeline([('pre', pre), ('rf', rf)])
+    return Pipeline([
+        ('fe', FunctionTransformer(cfg.agregar_features_geoquimicas, validate=False)),
+        ('pre', pre),
+        ('rf', rf)
+    ])
 
 
-def entrenar(df, fuente, n_arboles=300, semilla=42):
+def entrenar(df, fuente, n_arboles=400, semilla=42):
     """Devuelve (pipeline_entrenado, metadata). La validación agrupa por microcuenca:
     una misma microcuenca nunca está a la vez en entrenamiento y en prueba."""
     columnas = cfg.FEATURES_NUM + [cfg.FEATURE_CAT]
@@ -120,6 +125,7 @@ def entrenar(df, fuente, n_arboles=300, semilla=42):
         'n_microcuencas': int(grupos.nunique()),
         'variable_objetivo': cfg.TARGET,
         'features_num': cfg.FEATURES_NUM,
+        'features_derivadas': cfg.FEATURES_DERIVADAS,
         'feature_cat': cfg.FEATURE_CAT,
         'umbrales_riesgo': {'alto_menor_que': cfg.UMBRAL_ALTO, 'medio_menor_que': cfg.UMBRAL_MEDIO},
         'metricas_validacion': {

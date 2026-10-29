@@ -29,9 +29,16 @@ class ModeloRiesgo:
 
     def predecir(self, df):
         """df con las columnas FEATURES_NUM + 'temporada' (los números pueden venir vacíos)."""
-        X = df[cfg.FEATURES_NUM + [cfg.FEATURE_CAT]]
-        pre, rf = self.pipeline.named_steps['pre'], self.pipeline.named_steps['rf']
-        Xt = pre.transform(X)
+        X = df.copy()
+        for c in cfg.FEATURES_NUM:
+            if c not in X.columns:
+                X[c] = np.nan
+        if cfg.FEATURE_CAT not in X.columns:
+            X[cfg.FEATURE_CAT] = 'seca'
+        X = X[cfg.FEATURES_NUM + [cfg.FEATURE_CAT]]
+
+        rf = self.pipeline.named_steps['rf']
+        Xt = self.pipeline[:-1].transform(X)
         por_arbol = np.stack([t.predict(Xt) for t in rf.estimators_])     # (árboles, filas)
         ph = por_arbol.mean(axis=0)
         sd = por_arbol.std(axis=0)
