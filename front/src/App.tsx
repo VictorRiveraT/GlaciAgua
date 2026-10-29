@@ -218,7 +218,7 @@ export default function App() {
   const pendingReports = reports.filter((r) => !r.sincronizado)
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#eef2f1] text-[#172726] font-sans">
+    <div className="h-screen h-[100dvh] w-screen w-full flex flex-col bg-[#eef2f1] text-[#172726] font-sans overflow-hidden">
       {/* Top Navigation Bar: Limpia, sin botones de demo ni saturación */}
       <Navbar
         currentView={currentView}
@@ -250,11 +250,11 @@ export default function App() {
       )}
 
       {/* Main View Container con diseño 100% responsivo nativo */}
-      <main className="flex-1 flex overflow-hidden relative">
+      <main className="flex-1 min-h-0 w-full flex overflow-hidden relative">
         {currentView === 'mapa' && (
-          <div className="w-full h-full flex flex-row overflow-hidden relative">
+          <div className="w-full h-full flex-1 min-h-0 flex flex-row overflow-hidden relative">
             {/* Desktop Left Sidebar: Sólo visible en pantallas grandes (>= lg) */}
-            <div className="hidden lg:flex h-full">
+            <div className="hidden lg:flex h-full min-h-0 shrink-0">
               <PilotSidebar
                 basins={PILOT_BASINS}
                 selectedBasin={selectedBasin}
@@ -268,7 +268,7 @@ export default function App() {
             </div>
 
             {/* Central Interactive Satellite Map (100% del espacio en móvil y tablet) */}
-            <div className="flex-1 h-full min-h-[350px] relative overflow-hidden">
+            <div className="flex-1 h-full min-h-0 w-full relative overflow-hidden flex flex-col">
               {/* Barra flotante de selección rápida para teléfonos móviles (< lg) */}
               <div className="lg:hidden absolute top-3 inset-x-3 z-20 flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
                 {PILOT_BASINS.map((b) => {

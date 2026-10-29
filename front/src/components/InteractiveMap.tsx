@@ -91,6 +91,10 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     if (!mapContainerRef.current) return
     if (mapInstanceRef.current) return
 
+    if ((mapContainerRef.current as any)._leaflet_id) {
+      delete (mapContainerRef.current as any)._leaflet_id
+    }
+
     const map = L.map(mapContainerRef.current, {
       center: [-9.52, -77.45],
       zoom: 11,
@@ -136,7 +140,24 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       rios: riosGroup,
     }
 
+    // Observador de redimensionamiento para flexbox dinamico y colapso de sidebar
+    const resizeObserver = new ResizeObserver(() => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.invalidateSize()
+      }
+    })
+    if (mapContainerRef.current) {
+      resizeObserver.observe(mapContainerRef.current)
+    }
+
+    // Ticks para recalcular tamano de viewport inmediatamente tras montarse
+    const t1 = setTimeout(() => map.invalidateSize(), 150)
+    const t2 = setTimeout(() => map.invalidateSize(), 500)
+
     return () => {
+      clearTimeout(t1)
+      clearTimeout(t2)
+      resizeObserver.disconnect()
       map.remove()
       mapInstanceRef.current = null
     }
@@ -631,9 +652,9 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   }
 
   return (
-    <div className="relative w-full h-full flex flex-col overflow-hidden select-none">
+    <div className="relative w-full h-full flex-1 min-h-0 flex flex-col overflow-hidden select-none">
       {/* Real Map Container */}
-      <div ref={mapContainerRef} className="w-full h-full z-0 bg-[#e2e8f0]" />
+      <div ref={mapContainerRef} className="absolute inset-0 z-0 bg-[#0f172a]" />
 
       {/* Top Floating Control Bar */}
       <div className="absolute top-4 left-4 z-20 flex flex-wrap items-center gap-2 max-w-[calc(100%-80px)] pointer-events-auto">

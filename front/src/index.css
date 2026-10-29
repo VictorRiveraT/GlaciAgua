@@ -23,8 +23,17 @@
   --radius: 12px;
 }
 
-body {
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
   margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body {
   font-family: 'DM Sans', sans-serif;
   background-color: var(--canvas);
   color: var(--ink);
