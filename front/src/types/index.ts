@@ -83,6 +83,38 @@ export interface BasinData {
   }
   poligonoPuntos: [number, number][] // [x, y] coordenadas normalizadas para mapa vectorial
   poligonoGeo: [number, number][] // [lat, lng] coordenadas geográficas reales para Leaflet
+  featuresML?: {
+    area_km2: number
+    roca_expuesta_km2: number
+    pct_sulfuros: number
+    pct_carbonatos: number
+    lluvia_mm: number
+    pct_bofedal: number
+    pct_veg_humeda_est: number
+  }
+  prediccionML?: {
+    seca: {
+      ph_estimado: number
+      incertidumbre_ph: number
+      nivel_riesgo: RiskLevel
+      acuerdo_arboles: number
+    }
+    humeda: {
+      ph_estimado: number
+      incertidumbre_ph: number
+      nivel_riesgo: RiskLevel
+      acuerdo_arboles: number
+    }
+  }
+}
+
+export interface MLPredictionInfo {
+  id?: string
+  ph_estimado: number
+  incertidumbre_ph: number
+  nivel_riesgo: RiskLevel
+  acuerdo_arboles: number
+  advertencias?: string[]
 }
 
 export interface CommunityReport {

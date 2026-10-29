@@ -70,6 +70,29 @@ export const PILOT_BASINS: BasinData[] = [
     ],
     // Coordenadas geográficas reales de alta resolución (divisoria de aguas topográfica)
     poligonoGeo: QUILLCAY_DETAILED_BOUNDARY,
+    featuresML: {
+      area_km2: 249.5,
+      roca_expuesta_km2: 35.2,
+      pct_sulfuros: 48.0,
+      pct_carbonatos: 10.0,
+      lluvia_mm: 120.0,
+      pct_bofedal: 28.0,
+      pct_veg_humeda_est: 32.0,
+    },
+    prediccionML: {
+      seca: {
+        ph_estimado: 4.01,
+        incertidumbre_ph: 0.43,
+        nivel_riesgo: 'Alto',
+        acuerdo_arboles: 0.99,
+      },
+      humeda: {
+        ph_estimado: 4.25,
+        incertidumbre_ph: 0.38,
+        nivel_riesgo: 'Alto',
+        acuerdo_arboles: 0.96,
+      },
+    },
   },
   {
     id: 'pachacoto',
@@ -132,6 +155,29 @@ export const PILOT_BASINS: BasinData[] = [
     ],
     // Coordenadas geográficas reales de alta resolución (divisoria de aguas topográfica)
     poligonoGeo: PACHACOTO_DETAILED_BOUNDARY,
+    featuresML: {
+      area_km2: 202.8,
+      roca_expuesta_km2: 22.4,
+      pct_sulfuros: 42.0,
+      pct_carbonatos: 12.0,
+      lluvia_mm: 110.0,
+      pct_bofedal: 45.0,
+      pct_veg_humeda_est: 42.0,
+    },
+    prediccionML: {
+      seca: {
+        ph_estimado: 4.49,
+        incertidumbre_ph: 0.37,
+        nivel_riesgo: 'Alto',
+        acuerdo_arboles: 0.97,
+      },
+      humeda: {
+        ph_estimado: 4.85,
+        incertidumbre_ph: 0.42,
+        nivel_riesgo: 'Alto',
+        acuerdo_arboles: 0.88,
+      },
+    },
   },
   {
     id: 'canray-chico',
@@ -193,6 +239,29 @@ export const PILOT_BASINS: BasinData[] = [
     ],
     // Coordenadas geográficas reales de alta resolución (divisoria de aguas topográfica)
     poligonoGeo: CANRAY_CHICO_DETAILED_BOUNDARY,
+    featuresML: {
+      area_km2: 94.2,
+      roca_expuesta_km2: 11.5,
+      pct_sulfuros: 28.0,
+      pct_carbonatos: 18.0,
+      lluvia_mm: 95.0,
+      pct_bofedal: 42.0,
+      pct_veg_humeda_est: 38.0,
+    },
+    prediccionML: {
+      seca: {
+        ph_estimado: 6.72,
+        incertidumbre_ph: 0.82,
+        nivel_riesgo: 'Bajo',
+        acuerdo_arboles: 0.59,
+      },
+      humeda: {
+        ph_estimado: 6.25,
+        incertidumbre_ph: 0.74,
+        nivel_riesgo: 'Medio',
+        acuerdo_arboles: 0.65,
+      },
+    },
   },
   {
     id: 'rio-blanco',
@@ -254,6 +323,29 @@ export const PILOT_BASINS: BasinData[] = [
     ],
     // Coordenadas geográficas reales de alta resolución (divisoria de aguas topográfica)
     poligonoGeo: RIO_BLANCO_DETAILED_BOUNDARY,
+    featuresML: {
+      area_km2: 178.4,
+      roca_expuesta_km2: 6.8,
+      pct_sulfuros: 12.0,
+      pct_carbonatos: 34.0,
+      lluvia_mm: 130.0,
+      pct_bofedal: 62.0,
+      pct_veg_humeda_est: 58.0,
+    },
+    prediccionML: {
+      seca: {
+        ph_estimado: 7.53,
+        incertidumbre_ph: 0.31,
+        nivel_riesgo: 'Bajo',
+        acuerdo_arboles: 1.0,
+      },
+      humeda: {
+        ph_estimado: 7.35,
+        incertidumbre_ph: 0.35,
+        nivel_riesgo: 'Bajo',
+        acuerdo_arboles: 1.0,
+      },
+    },
   },
 ]
 

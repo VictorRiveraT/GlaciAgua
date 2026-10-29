@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { BasinData, Season } from '../types'
 import {
   AlertTriangle,
@@ -10,6 +10,8 @@ import {
   ChevronRight,
   TrendingUp,
   Sparkles,
+  Cpu,
+  Filter,
 } from 'lucide-react'
 
 interface PilotSidebarProps {
@@ -33,12 +35,19 @@ export const PilotSidebar: React.FC<PilotSidebarProps> = ({
   isCollapsed,
   onToggleCollapse,
 }) => {
-  const filteredBasins = basins.filter(
-    (b) =>
+  const [riskFilter, setRiskFilter] = useState<'Todos' | 'Alto' | 'Medio' | 'Bajo'>('Todos')
+
+  const filteredBasins = basins.filter((b) => {
+    const matchesSearch =
       b.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
       b.distrito.toLowerCase().includes(searchTerm.toLowerCase()) ||
       b.quebradasPrincipales.some((q) => q.toLowerCase().includes(searchTerm.toLowerCase()))
-  )
+
+    const matchesRisk =
+      riskFilter === 'Todos' || b.nivelRiesgo[season] === riskFilter
+
+    return matchesSearch && matchesRisk
+  })
 
   const getRiskColor = (level: string) => {
     switch (level) {
@@ -146,6 +155,38 @@ export const PilotSidebar: React.FC<PilotSidebarProps> = ({
             className="w-full pl-8 pr-3 py-2 rounded-xl border border-[#dfe7e5] bg-[#fafbfb] text-xs text-[#172726] focus:outline-[#3346a8] transition-all"
           />
         </div>
+
+        {/* Risk Level Filter Chips */}
+        <div className="flex items-center gap-1.5 pt-1">
+          {(['Todos', 'Alto', 'Medio', 'Bajo'] as const).map((lvl) => {
+            const count = lvl === 'Todos' 
+              ? basins.length 
+              : basins.filter((b) => b.nivelRiesgo[season] === lvl).length
+            const isSelected = riskFilter === lvl
+            return (
+              <button
+                key={lvl}
+                onClick={() => setRiskFilter(lvl)}
+                className={`flex-1 py-1 rounded-lg text-[10.5px] font-bold transition-all flex items-center justify-center gap-1 ${
+                  isSelected
+                    ? lvl === 'Alto'
+                      ? 'bg-[#bd3f3a] text-white shadow-xs'
+                      : lvl === 'Medio'
+                      ? 'bg-[#a86408] text-white shadow-xs'
+                      : lvl === 'Bajo'
+                      ? 'bg-[#21835b] text-white shadow-xs'
+                      : 'bg-[#3346a8] text-white shadow-xs'
+                    : 'bg-[#f0f4f3] text-[#667573] hover:bg-[#e4eae8]'
+                }`}
+              >
+                <span>{lvl}</span>
+                <span className={`text-[9px] px-1 rounded-full ${isSelected ? 'bg-black/20 text-white' : 'bg-white text-[#667573]'}`}>
+                  {count}
+                </span>
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       {/* Basin Cards List with Sparklines & Heavy Metal Tags */}
@@ -248,6 +289,27 @@ export const PilotSidebar: React.FC<PilotSidebarProps> = ({
                   <span className="text-[8.5px] text-[#667573] font-bold">4 temporadas</span>
                 </div>
               </div>
+
+              {/* Machine Learning Prediction Badge */}
+              {basin.prediccionML && (
+                <div className="mt-2 pt-1.5 border-t border-dashed border-[#e8eceb] flex items-center justify-between text-[10px]">
+                  <div className="flex items-center gap-1.5 text-[#475569]">
+                    <div className="flex items-center gap-1 bg-[#edf0ff] text-[#3346a8] px-1.5 py-0.5 rounded font-bold">
+                      <Cpu size={10} />
+                      <span>RF ML</span>
+                    </div>
+                    <span className="font-semibold">
+                      pH <strong className="text-[#172726]">{basin.prediccionML[season].ph_estimado.toFixed(2)}</strong>
+                    </span>
+                    <span className="text-[#94a3b8] text-[9px]">
+                      ±{basin.prediccionML[season].incertidumbre_ph.toFixed(2)}
+                    </span>
+                  </div>
+                  <span className="text-[9px] font-black text-[#21835b] bg-[#e8f5ed] px-1.5 py-0.5 rounded">
+                    {basin.prediccionML[season].acuerdo_arboles}% ac.
+                  </span>
+                </div>
+              )}
             </button>
           )
         })}

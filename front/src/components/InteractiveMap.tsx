@@ -218,11 +218,13 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       const color = getRiskColor(risk)
       const isSelected = selectedBasin?.id === basin.id
 
-      // Polígono perimetral de divisoria de aguas: sin relleno para evitar tintar el relieve y sin tooltip pegajoso
+      // Polígono perimetral de divisoria de aguas con relleno semitransparente cartográfico
       const polygon = L.polygon(basin.poligonoGeo, {
         color: isSelected ? color : '#64748b',
-        fill: false,
-        weight: isSelected ? 2.5 : 1.4,
+        fill: true,
+        fillColor: color,
+        fillOpacity: isSelected ? 0.22 : 0.08,
+        weight: isSelected ? 3.4 : 1.6,
         dashArray: isSelected ? undefined : '6, 6',
       })
 
@@ -289,11 +291,11 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         setSelectedCorridor(corridor)
       }
 
-      // Halo de Peligro Fluvial (Ribbon de afectación ribereña con bordes redondeados y unión continua)
+      // Halo de Peligro Fluvial (Ribbon de alta visibilidad con bordes redondeados)
       const hazardHalo = L.polyline(corridor.thalweg, {
         color: corridor.color,
-        weight: 8,
-        opacity: 0.38,
+        weight: 12,
+        opacity: 0.52,
         lineCap: 'round',
         lineJoin: 'round',
       })
@@ -301,8 +303,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       // Cauce Central Activo (Talweg)
       const thalwegLine = L.polyline(corridor.thalweg, {
         color: corridor.color,
-        weight: 3.2,
-        opacity: 0.95,
+        weight: 4.5,
+        opacity: 1.0,
         lineCap: 'round',
         lineJoin: 'round',
       })
@@ -310,9 +312,9 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       // Pulso de Flujo Dinámico (Línea discontinua que resalta la corriente)
       const flowPulse = L.polyline(corridor.thalweg, {
         color: '#ffffff',
-        weight: 1.6,
-        dashArray: '6, 14',
-        opacity: 0.8,
+        weight: 2.2,
+        dashArray: '8, 14',
+        opacity: 0.95,
         lineCap: 'round',
         lineJoin: 'round',
       })
@@ -592,12 +594,21 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     })
   }, [basins, selectedBasin, season, measurements, dangerFilter])
 
-  // Center on selected basin
+  // Center and fit bounds on selected basin
   useEffect(() => {
     if (!selectedBasin || !mapInstanceRef.current) return
-    mapInstanceRef.current.flyTo([selectedBasin.centroide.lat, selectedBasin.centroide.lng], 11, {
-      duration: 1.2,
-    })
+    if (selectedBasin.poligonoGeo && selectedBasin.poligonoGeo.length > 0) {
+      const bounds = L.latLngBounds(selectedBasin.poligonoGeo)
+      mapInstanceRef.current.flyToBounds(bounds, {
+        padding: [50, 50],
+        maxZoom: 13,
+        duration: 1.2,
+      })
+    } else {
+      mapInstanceRef.current.flyTo([selectedBasin.centroide.lat, selectedBasin.centroide.lng], 12, {
+        duration: 1.2,
+      })
+    }
   }, [selectedBasin])
 
   const focusLocation = (lat: number, lng: number, zoom = 12) => {
@@ -767,6 +778,25 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
       {/* Right Zoom Controls */}
       <div className="absolute top-4 right-4 z-20 flex flex-col gap-1.5 bg-white/95 backdrop-blur-md p-1.5 rounded-2xl shadow-lg border border-[#dfe7e5] pointer-events-auto">
+        {selectedBasin && (
+          <button
+            onClick={() => {
+              if (selectedBasin.poligonoGeo?.length) {
+                mapInstanceRef.current?.flyToBounds(L.latLngBounds(selectedBasin.poligonoGeo), {
+                  padding: [50, 50],
+                  maxZoom: 13,
+                  duration: 1.2,
+                })
+              } else {
+                focusLocation(selectedBasin.centroide.lat, selectedBasin.centroide.lng, 12)
+              }
+            }}
+            className="w-8 h-8 rounded-xl flex items-center justify-center bg-[#edf0ff] text-[#3346a8] hover:bg-[#3346a8] hover:text-white transition-colors shadow-xs"
+            title={`Centrar en Cuenca ${selectedBasin.nombre}`}
+          >
+            <MapPin size={16} />
+          </button>
+        )}
         <button
           onClick={() => mapInstanceRef.current?.zoomIn()}
           className="w-8 h-8 rounded-xl flex items-center justify-center text-[#172726] hover:bg-[#edf0ff] hover:text-[#3346a8] transition-colors"

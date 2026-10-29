@@ -177,6 +177,7 @@ export default function App() {
                   onClose={() => setSelectedBasin(null)}
                   onOpenReport={() => setIsReportModalOpen(true)}
                   onOpenGuidance={() => setCurrentView('guia')}
+                  onOpenSimulator={() => setCurrentView('simulador')}
                 />
               </div>
             )}

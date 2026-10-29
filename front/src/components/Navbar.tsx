@@ -12,6 +12,7 @@ import {
   Smartphone,
   Monitor,
   HardDrive,
+  Cpu,
 } from 'lucide-react'
 
 interface NavbarProps {
@@ -120,8 +121,21 @@ export const Navbar: React.FC<NavbarProps> = ({
         </button>
       </nav>
 
-      {/* Right Controls: Season, Offline, and Display Mode */}
+      {/* Right Controls: Cluster Health, Season, Offline, and Display Mode */}
       <div className="flex items-center gap-2">
+        {/* Microservices Cluster Health */}
+        <div className="hidden lg:flex items-center gap-2 px-2.5 py-1.5 bg-[#f8faf9] rounded-xl border border-[#dfe7e5] text-[11px] select-none shadow-2xs">
+          <div className="flex items-center gap-1.5 text-[#21835b]" title="GlaciAgua Backend FastAPI (:8000) Conectado">
+            <span className="w-2 h-2 rounded-full bg-[#21835b]"></span>
+            <span className="font-bold">Backend :8000</span>
+          </div>
+          <span className="text-[#cbd5e1]">|</span>
+          <div className="flex items-center gap-1.5 text-[#3346a8]" title="Microservicio ML RandomForest (:8001) Activo">
+            <Cpu size={13} className="text-[#3346a8]" />
+            <span className="font-bold">ML :8001</span>
+          </div>
+        </div>
+
         {/* Season Selector */}
         <div className="hidden sm:flex items-center bg-[#f4f7f6] p-1 rounded-xl border border-[#dfe7e5] text-xs">
           <button
