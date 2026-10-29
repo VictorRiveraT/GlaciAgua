@@ -170,8 +170,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     monitoreoGroup.clearLayers()
     riosGroup.clearLayers()
 
-    // 1. Polígonos de Cuencas Generales (Línea de cresta / divisoria de aguas topográfica)
-    // Se estila de forma cartográfica sutil para permitir apreciar plenamente el relieve 3D y las curvas de nivel
+    // 1. Líneas de Cuencas Hidrográficas (Divisoria de Aguas / Cresta)
+    // Sin relleno para que la ortofoto satelital quede 100% limpia y nítida
     basins.forEach((basin) => {
       if (!basin.poligonoGeo || basin.poligonoGeo.length === 0) return
 
@@ -179,14 +179,27 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       const color = getRiskColor(risk)
       const isSelected = selectedBasin?.id === basin.id
 
-      // Polígono perimetral de divisoria de aguas con relleno semitransparente cartográfico
+      // Casing / Sombra oscura inferior para asegurar máximo contraste sobre nieve, roca o ciudad
+      const casing = L.polygon(basin.poligonoGeo, {
+        color: '#020617',
+        fill: false,
+        weight: isSelected ? 6.5 : 4.5,
+        opacity: isSelected ? 0.95 : 0.8,
+        lineCap: 'round',
+        lineJoin: 'round',
+        interactive: false,
+      })
+      cuencasGroup.addLayer(casing)
+
+      // Trazo principal de alta visibilidad (Cian eléctrico si está seleccionada, azul cielo si no)
       const polygon = L.polygon(basin.poligonoGeo, {
-        color: isSelected ? color : '#64748b',
-        fill: true,
-        fillColor: color,
-        fillOpacity: isSelected ? 0.22 : 0.08,
-        weight: isSelected ? 3.4 : 1.6,
-        dashArray: isSelected ? undefined : '6, 6',
+        color: isSelected ? '#00f0ff' : '#38bdf8',
+        fill: false,
+        weight: isSelected ? 3.5 : 2.5,
+        opacity: 1.0,
+        dashArray: isSelected ? undefined : '10, 6',
+        lineCap: 'round',
+        lineJoin: 'round',
       })
 
       polygon.on('click', () => {
@@ -194,17 +207,17 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       })
 
       polygon.on('mouseover', () => {
-        polygon.setStyle({ weight: 2.5, color: color })
+        polygon.setStyle({ weight: 4.2, color: '#00f0ff' })
       })
 
       polygon.on('mouseout', () => {
         polygon.setStyle({
-          weight: isSelected ? 2.5 : 1.4,
-          color: isSelected ? color : '#64748b',
+          weight: isSelected ? 3.5 : 2.5,
+          color: isSelected ? '#00f0ff' : '#38bdf8',
         })
       })
 
-      polygon.bindTooltip(`Cuenca ${basin.nombre} (Divisoria Topográfica)`, {
+      polygon.bindTooltip(`Cuenca ${basin.nombre} · Límite Hidrográfico`, {
         sticky: false,
         direction: 'center',
       })
@@ -241,8 +254,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       cuencasGroup.addLayer(centerMarker)
     })
 
-    // 2. Corredores Fluviales de Peligro Geoquímico (DAR) de Alta Fidelidad
-    // Siguen de manera milimétrica (sub-metro) las coordenadas oficiales de OpenStreetMap / IGN
+    // 2. Corredores Fluviales y Subcuencas Hidrográficas
+    // Trazos vectoriales definidos con casing oscuro para máxima claridad sin halos borrosos
     const corridorsToRender = FLUVIAL_HAZARD_CORRIDORS.filter(
       (c) => dangerFilter === 'all' || c.nivelPeligro === dangerFilter
     )
@@ -252,43 +265,43 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         setSelectedCorridor(corridor)
       }
 
-      // Halo de Peligro Fluvial (Ribbon de alta visibilidad con bordes redondeados)
-      const hazardHalo = L.polyline(corridor.thalweg, {
-        color: corridor.color,
-        weight: 12,
-        opacity: 0.52,
+      // Borde de contraste oscuro para delimitar el cauce sobre la ortofoto
+      const riverCasing = L.polyline(corridor.thalweg, {
+        color: '#020617',
+        weight: 5.4,
+        opacity: 0.85,
         lineCap: 'round',
         lineJoin: 'round',
+        interactive: false,
       })
 
-      // Cauce Central Activo (Talweg)
+      // Cauce Central Activo con color vivo según nivel de riesgo
       const thalwegLine = L.polyline(corridor.thalweg, {
         color: corridor.color,
-        weight: 4.5,
+        weight: 3.2,
         opacity: 1.0,
         lineCap: 'round',
         lineJoin: 'round',
       })
 
-      // Pulso de Flujo Dinámico (Línea discontinua que resalta la corriente)
+      // Pulso de flujo dinámico sutil
       const flowPulse = L.polyline(corridor.thalweg, {
         color: '#ffffff',
-        weight: 2.2,
-        dashArray: '8, 14',
-        opacity: 0.95,
+        weight: 1.5,
+        dashArray: '10, 18',
+        opacity: 0.85,
         lineCap: 'round',
         lineJoin: 'round',
       })
 
-      hazardHalo.on('click', handleSelect)
       thalwegLine.on('click', handleSelect)
       flowPulse.on('click', handleSelect)
 
-      hazardHalo.on('mouseover', () => {
-        hazardHalo.setStyle({ opacity: 0.65, weight: 11 })
+      thalwegLine.on('mouseover', () => {
+        thalwegLine.setStyle({ weight: 4.5 })
       })
-      hazardHalo.on('mouseout', () => {
-        hazardHalo.setStyle({ opacity: 0.38, weight: 8 })
+      thalwegLine.on('mouseout', () => {
+        thalwegLine.setStyle({ weight: 3.2 })
       })
 
       const popupContent = `
@@ -314,25 +327,74 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         </div>
       `
 
-      hazardHalo.bindTooltip(popupContent, { sticky: true })
       thalwegLine.bindTooltip(popupContent, { sticky: true })
 
-      corredoresGroup.addLayer(hazardHalo)
+      corredoresGroup.addLayer(riverCasing)
       corredoresGroup.addLayer(thalwegLine)
       corredoresGroup.addLayer(flowPulse)
+
+      // Insignia identificadora de subcuenca en cabecera
+      const originCoord = corridor.thalweg[0]
+      if (originCoord) {
+        const subbasinBadge = L.marker(originCoord, {
+          icon: L.divIcon({
+            className: 'custom-subbasin-badge',
+            html: `<div style="
+              background: rgba(15, 23, 42, 0.92);
+              color: #ffffff;
+              border: 1px solid rgba(255, 255, 255, 0.35);
+              border-left: 3.5px solid ${corridor.color};
+              border-radius: 6px;
+              padding: 2px 7px;
+              font-size: 9.5px;
+              font-weight: 800;
+              white-space: nowrap;
+              display: flex;
+              align-items: center;
+              gap: 4px;
+              box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+              transform: translate(-50%, -100%);
+            ">
+              <span style="font-size: 9px; opacity: 0.85;">Subcuenca:</span>
+              <strong style="color: #f8fafc;">${corridor.quebrada}</strong>
+            </div>`,
+            iconSize: [0, 0],
+          }),
+        })
+        subbasinBadge.on('click', handleSelect)
+        corredoresGroup.addLayer(subbasinBadge)
+      }
     })
 
-    // 3. Hotspots de Peligro Activo: Focos de Drenaje Ácido de Roca (DAR) en Frentes Glaciares
+    // 3. Focos de Drenaje Ácido de Roca (DAR) en Frentes Glaciares
+    // Se elimina el polígono rojo para no tapar la montaña, manteniendo un pin nítido
     DAR_HAZARD_HOTSPOTS.forEach((spot) => {
-      const hotspotPolygon = L.polygon(spot.coords, {
-        color: '#b91c1c',
-        fillColor: '#dc2626',
-        fillOpacity: 0.48,
-        weight: 2.2,
-        dashArray: '3, 3',
+      const centerCoord = spot.coords[0]
+      const hazardBadge = L.marker(centerCoord, {
+        icon: L.divIcon({
+          className: 'custom-hazard-icon',
+          html: `<div style="
+            background: #dc2626;
+            color: white;
+            border: 2px solid white;
+            border-radius: 999px;
+            padding: 3px 8px;
+            font-size: 10px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.5);
+            white-space: nowrap;
+            transform: translate(-50%, -50%);
+          ">
+            <span>🔥</span> Foco DAR pH ${spot.ph}
+          </div>`,
+          iconSize: [0, 0],
+        }),
       })
 
-      hotspotPolygon.bindTooltip(
+      hazardBadge.bindTooltip(
         `<div style="font-family: 'DM Sans', sans-serif; max-width: 230px;">
           <div style="display: flex; align-items: center; gap: 4px; color: #b91c1c; font-weight: 900; font-size: 10px; text-transform: uppercase;">
             <span>🔥</span> Foco de Drenaje Ácido de Roca (DAR)
@@ -348,47 +410,39 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         { sticky: true }
       )
 
-      hotspotsGroup.addLayer(hotspotPolygon)
+      hotspotsGroup.addLayer(hazardBadge)
+    })
 
-      // Center warning flame badge on hotspot
-      const centerCoord = spot.coords[0]
-      const hazardBadge = L.marker(centerCoord, {
+    // 4. Bofedales (Humedales de Fondo de Valle)
+    // Se elimina el polígono verde que cubría el valle, reemplazado por un marcador ecológico limpio
+    REAL_VALLEY_BOFEDALES.forEach((bof) => {
+      const centerCoord = bof.coords[0]
+      const cleanName = bof.nombre.replace('Bofedal de ', '').replace('Bofedales del ', '').replace('Humedal Aluvial ', '')
+      const bofBadge = L.marker(centerCoord, {
         icon: L.divIcon({
-          className: 'custom-hazard-icon',
+          className: 'custom-bof-icon',
           html: `<div style="
-            background: #dc2626;
+            background: #047857;
             color: white;
-            border: 2px solid white;
+            border: 1.5px solid white;
             border-radius: 999px;
-            padding: 2px 7px;
+            padding: 2.5px 8px;
             font-size: 9.5px;
-            font-weight: 900;
+            font-weight: 800;
             display: flex;
             align-items: center;
             gap: 3px;
-            box-shadow: 0 4px 10px rgba(220, 38, 38, 0.4);
+            box-shadow: 0 3px 8px rgba(4, 120, 87, 0.4);
             white-space: nowrap;
             transform: translate(-50%, -50%);
           ">
-            <span>🔥</span> Foco DAR pH ${spot.ph}
+            <span>🌿</span> Bofedal ${cleanName}
           </div>`,
           iconSize: [0, 0],
         }),
       })
 
-      hotspotsGroup.addLayer(hazardBadge)
-    })
-
-    // 4. Bofedales Realistas (Filtros Naturales de Fondo de Valle)
-    REAL_VALLEY_BOFEDALES.forEach((bof) => {
-      const bofPolygon = L.polygon(bof.coords, {
-        color: '#059669',
-        fillColor: '#10b981',
-        fillOpacity: 0.48,
-        weight: 1.8,
-      })
-
-      bofPolygon.bindTooltip(
+      bofBadge.bindTooltip(
         `<div style="font-family: 'DM Sans', sans-serif;">
           <div style="display: flex; align-items: center; gap: 4px; color: #047857; font-weight: 900; font-size: 10px; text-transform: uppercase;">
             <span>🌿</span> Bofedal (Humedal Amortiguador)
@@ -404,7 +458,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         { sticky: true }
       )
 
-      bofedalesGroup.addLayer(bofPolygon)
+      bofedalesGroup.addLayer(bofBadge)
     })
 
     // 5. Glaciares y Crestas Nevadas
