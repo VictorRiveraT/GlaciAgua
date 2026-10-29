@@ -23,6 +23,7 @@ interface OfflineSyncModalProps {
   pendingReports: CommunityReport[]
   onSyncAll: () => void
   onClearCache: () => void
+  onOpenConnectivity?: () => void
 }
 
 export const OfflineSyncModal: React.FC<OfflineSyncModalProps> = ({
@@ -33,6 +34,7 @@ export const OfflineSyncModal: React.FC<OfflineSyncModalProps> = ({
   pendingReports,
   onSyncAll,
   onClearCache,
+  onOpenConnectivity,
 }) => {
   if (!isOpen) return null
 
@@ -83,7 +85,7 @@ export const OfflineSyncModal: React.FC<OfflineSyncModalProps> = ({
               </div>
               <div>
                 <strong className="text-sm font-black text-[#172726] block">
-                  {isOnline ? 'Conexión a Internet Activa' : 'Modo Sin Conexión (Simulado)'}
+                  {isOnline ? 'Conexión a Internet Activa' : 'Modo Fuera de Línea (Campo)'}
                 </strong>
                 <span className="text-xs text-[#667573]">
                   {isOnline ? 'Sincronización en segundo plano lista' : 'Trabajando con datos locales'}
@@ -99,7 +101,7 @@ export const OfflineSyncModal: React.FC<OfflineSyncModalProps> = ({
                   : 'bg-[#3346a8] text-white border-[#3346a8]'
               }`}
             >
-              {isOnline ? 'Simular Modo Avión' : 'Reconectar'}
+              {isOnline ? 'Desconectar Red' : 'Reconectar'}
             </button>
           </div>
 
@@ -188,6 +190,32 @@ export const OfflineSyncModal: React.FC<OfflineSyncModalProps> = ({
             )}
           </div>
 
+          {onOpenConnectivity && (
+            <button
+              onClick={() => {
+                onClose()
+                onOpenConnectivity()
+              }}
+              className="w-full py-2.5 px-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-[#059669] text-xs font-bold border border-emerald-200 transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
+            >
+              <Wifi size={14} />
+              <span>¿Necesitas señal? Ver mapa de Tambos y WiFi Libre cercanos →</span>
+            </button>
+          )}
+
+          {onOpenConnectivity && (
+            <button
+              onClick={() => {
+                onClose()
+                onOpenConnectivity()
+              }}
+              className="w-full py-2.5 px-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-[#059669] text-xs font-bold border border-emerald-200 transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
+            >
+              <Wifi size={14} />
+              <span>¿Necesitas señal? Ver mapa de Tambos y WiFi Libre cercanos →</span>
+            </button>
+          )}
+
           {/* Offline Technical Explainer */}
           <div className="bg-[#edf0ff] p-4 rounded-2xl border border-[#3346a8]/20 text-xs text-[#172726] space-y-1.5">
             <h4 className="font-bold text-[#3346a8] flex items-center gap-1.5">

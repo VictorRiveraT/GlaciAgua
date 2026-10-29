@@ -111,7 +111,12 @@ export const PilotSidebar: React.FC<PilotSidebarProps> = ({
     <aside className="w-80 lg:w-84 bg-[#f7f9f8] border-r border-[#dfe7e5] flex flex-col h-full shrink-0 select-none transition-all z-20">
       {/* Sidebar Header */}
       <div className="p-4 border-b border-[#dfe7e5] bg-white flex items-center justify-between">
-        <h2 className="text-xl font-black text-[#172726]">Cuencas</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-xl font-black text-[#172726]">Cuencas</h2>
+          <span className="text-[10px] font-black uppercase text-[#3346a8] bg-[#edf0ff] px-2 py-0.5 rounded-full">
+            4 Monitoreadas
+          </span>
+        </div>
 
         <button
           onClick={onToggleCollapse}

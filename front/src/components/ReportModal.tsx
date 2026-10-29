@@ -3,6 +3,7 @@ import { CommunityReport } from '../types'
 import {
   X,
   Camera,
+  Navigation,
   MapPin,
   CheckCircle2,
   Clock,
@@ -54,6 +55,34 @@ export const ReportModal: React.FC<ReportModalProps> = ({
     }
   }
 
+  const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number; precisionM: number } | null>(null)
+  const [capturingGps, setCapturingGps] = useState(false)
+
+  const handleCaptureGps = () => {
+    if (!navigator.geolocation) {
+      alert('Tu dispositivo no soporta geolocalización satelital.')
+      return
+    }
+
+    setCapturingGps(true)
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setGpsCoords({
+          lat: parseFloat(pos.coords.latitude.toFixed(5)),
+          lng: parseFloat(pos.coords.longitude.toFixed(5)),
+          precisionM: Math.round(pos.coords.accuracy || 7),
+        })
+        setCapturingGps(false)
+      },
+      (err) => {
+        setCapturingGps(false)
+        console.warn('GPS capture error:', err)
+        alert('No se pudo fijar satélite GPS en este instante. Se usarán las coordenadas de la quebrada.')
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    )
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -61,11 +90,13 @@ export const ReportModal: React.FC<ReportModalProps> = ({
       id: `rep-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
       cuencaId: quebrada.includes('Pachacoto') ? 'pachacoto' : 'quillcay',
       quebrada,
-      coordenadas: {
-        lat: -9.512,
-        lng: -77.456,
-        precisionM: 6.5,
-      },
+      coordenadas: gpsCoords || (quebrada.includes('Pastoruri')
+        ? { lat: -9.921, lng: -77.195, precisionM: 10 }
+        : quebrada.includes('Shallap')
+        ? { lat: -9.524, lng: -77.388, precisionM: 10 }
+        : quebrada.includes('Rurec')
+        ? { lat: -9.635, lng: -77.47, precisionM: 10 }
+        : { lat: -9.512, lng: -77.456, precisionM: 8 }),
       fecha: new Date().toISOString().split('T')[0],
       colorAgua,
       olorSabor,
@@ -150,9 +181,20 @@ export const ReportModal: React.FC<ReportModalProps> = ({
           <form onSubmit={handleSubmit} className="p-6 space-y-5">
             {/* Step 1: Ubicación */}
             <div className="space-y-2">
-              <label className="text-xs font-black uppercase text-[#172726] flex items-center gap-1.5">
-                <MapPin size={15} className="text-[#3346a8]" /> 1. Ubicación y Quebrada
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-black uppercase text-[#172726] flex items-center gap-1.5">
+                  <MapPin size={15} className="text-[#3346a8]" /> 1. Ubicación y Quebrada
+                </label>
+                <button
+                  type="button"
+                  onClick={handleCaptureGps}
+                  disabled={capturingGps}
+                  className="text-[11px] font-bold text-[#3346a8] hover:text-[#25368f] bg-[#edf0ff] hover:bg-[#e0e7ff] px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
+                >
+                  <Navigation size={12} className={capturingGps ? 'animate-spin' : ''} />
+                  <span>{capturingGps ? 'Obteniendo GPS...' : 'Fijar mi GPS real'}</span>
+                </button>
+              </div>
               <select
                 value={quebrada}
                 onChange={(e) => setQuebrada(e.target.value)}
@@ -166,9 +208,16 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                 <option value="Río Santa (Puente Huaraz)">Río Santa (Zona urbana Huaraz)</option>
                 <option value="Quebrada Rurec (Canray Chico)">Quebrada Rurec (Olleros)</option>
               </select>
-              <div className="flex items-center gap-2 text-[11px] text-[#21835b] bg-[#e8f5ed] px-3 py-1.5 rounded-lg border border-[#21835b]/20">
-                <CheckCircle2 size={13} /> GPS fijado: -9.512, -77.456 (Precisión ±6.5 m)
-              </div>
+              {gpsCoords ? (
+                <div className="flex items-center gap-2 text-[11px] text-[#21835b] bg-[#e8f5ed] px-3 py-1.5 rounded-lg border border-[#21835b]/20">
+                  <CheckCircle2 size={13} /> GPS satelital fijado: {gpsCoords.lat}, {gpsCoords.lng} (Margen ±{gpsCoords.precisionM} m)
+                </div>
+              ) : (
+                <div className="flex items-center justify-between text-[11px] text-[#667573] bg-[#f8faf9] px-3 py-1.5 rounded-lg border border-[#dfe7e5]">
+                  <span>Coordenadas aproximadas de la quebrada</span>
+                  <span className="text-[#3346a8] font-bold cursor-pointer" onClick={handleCaptureGps}>Toca "Fijar mi GPS real"</span>
+                </div>
+              )}
             </div>
 
             {/* Step 2: Foto del agua */}

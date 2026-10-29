@@ -4,6 +4,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   Droplet,
+  Wifi,
   X,
   PlusCircle,
   BookOpen,
@@ -28,6 +29,7 @@ interface BasinDetailPanelProps {
   onOpenReport: () => void
   onOpenGuidance: () => void
   onOpenSimulator?: () => void
+  onOpenConnectivity?: () => void
 }
 
 export const BasinDetailPanel: React.FC<BasinDetailPanelProps> = ({
@@ -37,6 +39,7 @@ export const BasinDetailPanel: React.FC<BasinDetailPanelProps> = ({
   onOpenReport,
   onOpenGuidance,
   onOpenSimulator,
+  onOpenConnectivity,
 }) => {
   const [showTechnicalSection, setShowTechnicalSection] = useState(false)
   const [showMLFeatures, setShowMLFeatures] = useState(false)
@@ -171,7 +174,7 @@ export const BasinDetailPanel: React.FC<BasinDetailPanelProps> = ({
         <div className="flex items-start justify-between gap-3">
           <div>
             <span className="text-[10px] font-black uppercase text-[#3346a8] bg-[#edf0ff] px-2.5 py-0.5 rounded-full inline-block mb-1">
-              Microcuenca de Áncash
+              Microcuenca Hidrográfica
             </span>
             <h2 className="text-2xl font-black text-[#172726]">{basin.nombre}</h2>
             <p className="text-xs text-[#667573] flex items-center gap-1 mt-0.5 font-medium">
@@ -339,6 +342,16 @@ export const BasinDetailPanel: React.FC<BasinDetailPanelProps> = ({
             <BookOpen size={15} className="text-[#3346a8]" />
             Ver consejos completos de salud y redactar oficio para la JASS
           </button>
+
+          {onOpenConnectivity && (
+            <button
+              onClick={onOpenConnectivity}
+              className="w-full min-h-[40px] rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-[#059669] text-xs font-bold flex items-center justify-center gap-2 border border-emerald-200 transition-all shadow-2xs"
+            >
+              <Wifi size={14} />
+              Ver puntos con internet y señal cerca de esta cuenca
+            </button>
+          )}
         </div>
 
         {/* Acordeón Plegable: Para Ingenieros, Jurado y Personal Técnico */}

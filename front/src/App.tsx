@@ -319,6 +319,7 @@ export default function App() {
                   onOpenReport={() => setIsReportModalOpen(true)}
                   onOpenGuidance={() => setCurrentView('guia')}
                   onOpenSimulator={() => setCurrentView('simulador')}
+                  onOpenConnectivity={() => setCurrentView('conectividad')}
                 />
               </div>
             )}
@@ -380,6 +381,7 @@ export default function App() {
                       onOpenReport={() => setIsReportModalOpen(true)}
                       onOpenGuidance={() => setCurrentView('guia')}
                       onOpenSimulator={() => setCurrentView('simulador')}
+                  onOpenConnectivity={() => setCurrentView('conectividad')}
                     />
                   </div>
                 )}
@@ -518,6 +520,7 @@ export default function App() {
         pendingReports={pendingReports}
         onSyncAll={handleSyncAll}
         onClearCache={handleClearCache}
+        onOpenConnectivity={() => setCurrentView('conectividad')}
       />
     </div>
   )
