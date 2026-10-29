@@ -14,7 +14,6 @@ import {
   ZoomIn,
   ZoomOut,
   RotateCcw,
-  Mountain,
   Sparkles,
   Droplet,
   ShieldCheck,
@@ -45,9 +44,6 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<L.Map | null>(null)
   const layersGroupRef = useRef<{ [key: string]: L.LayerGroup }>({})
-  const baseLayersRef = useRef<{ [key: string]: L.TileLayer }>({})
-
-  const [baseMapStyle, setBaseMapStyle] = useState<'topo' | 'satelite' | 'opentopo'>('topo')
   const [legendOpen, setLegendOpen] = useState(false)
   const [dangerFilter, setDangerFilter] = useState<'all' | 'Critico' | 'Alto' | 'Medio' | 'Bajo'>('all')
   const [selectedCorridor, setSelectedCorridor] = useState<FluvialHazardCorridor | null>(null)
@@ -99,43 +95,23 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       center: [-9.52, -77.45],
       zoom: 11,
       minZoom: 8,
-      maxZoom: 18,
+      maxZoom: 22,
       zoomControl: false,
     })
 
     mapInstanceRef.current = map
 
-    // 1. ESRI World Topo Map (Relieve Real con curvas y sombras 3D)
-    const topoLayer = L.tileLayer(
-      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
-      {
-        attribution: 'Tiles &copy; Esri, DeLorme, USGS, IGN Perú',
-        maxZoom: 18,
-      }
-    )
-
-    // 2. ESRI World Imagery (Satélite Real)
+    // Satélite Real HD de Máxima Resolución (Google Hybrid: Imágenes satelitales ópticas + toponimia oficial)
     const satLayer = L.tileLayer(
-      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      'https://mt{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
       {
-        attribution: 'Tiles &copy; Esri, Maxar, Earthstar Geographics',
-        maxZoom: 18,
+        subdomains: ['0', '1', '2', '3'],
+        attribution: 'Imágenes Satelitales &copy; Google, Maxar Technologies, CNES/Airbus',
+        maxZoom: 22,
+        maxNativeZoom: 20,
       }
     )
-
-    // 3. OpenTopoMap (Curvas de nivel en metros)
-    const openTopoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-      attribution: 'Map &copy; OpenTopoMap (CC-BY-SA)',
-      maxZoom: 17,
-    })
-
-    baseLayersRef.current = {
-      topo: topoLayer,
-      satelite: satLayer,
-      opentopo: openTopoLayer,
-    }
-
-    topoLayer.addTo(map)
+    satLayer.addTo(map)
 
     map.on('mousemove', (e: L.LeafletMouseEvent) => {
       setMouseCoords({ lat: e.latlng.lat, lng: e.latlng.lng })
@@ -166,22 +142,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     }
   }, [])
 
-  // Switch Base Map Style
-  useEffect(() => {
-    const map = mapInstanceRef.current
-    if (!map) return
 
-    Object.values(baseLayersRef.current).forEach((layer) => {
-      if (map.hasLayer(layer)) {
-        map.removeLayer(layer)
-      }
-    })
-
-    const selectedTile = baseLayersRef.current[baseMapStyle]
-    if (selectedTile) {
-      selectedTile.addTo(map)
-    }
-  }, [baseMapStyle])
 
   // Update Vector Layers
   useEffect(() => {
@@ -622,38 +583,12 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
       {/* Top Floating Control Bar */}
       <div className="absolute top-4 left-4 z-20 flex flex-wrap items-center gap-2 max-w-[calc(100%-80px)] pointer-events-auto">
-        {/* Base Map Style Switcher */}
-        <div className="bg-white/95 backdrop-blur-md rounded-2xl p-1 shadow-lg border border-[#dfe7e5] flex items-center">
-          <button
-            onClick={() => setBaseMapStyle('topo')}
-            className={`px-3 py-1.5 text-xs rounded-xl font-black transition-all flex items-center gap-1.5 ${
-              baseMapStyle === 'topo'
-                ? 'bg-[#3346a8] text-white shadow-xs'
-                : 'text-[#667573] hover:text-[#172726]'
-            }`}
-          >
-            <Mountain size={14} /> Relieve Topográfico
-          </button>
-          <button
-            onClick={() => setBaseMapStyle('satelite')}
-            className={`px-3 py-1.5 text-xs rounded-xl font-black transition-all flex items-center gap-1.5 ${
-              baseMapStyle === 'satelite'
-                ? 'bg-[#172726] text-white shadow-xs'
-                : 'text-[#667573] hover:text-[#172726]'
-            }`}
-          >
-            <Compass size={14} /> Satélite Real
-          </button>
-          <button
-            onClick={() => setBaseMapStyle('opentopo')}
-            className={`px-3 py-1.5 text-xs rounded-xl font-black transition-all flex items-center gap-1.5 ${
-              baseMapStyle === 'opentopo'
-                ? 'bg-[#0f766e] text-white shadow-xs'
-                : 'text-[#667573] hover:text-[#172726]'
-            }`}
-          >
-            Curvas de Nivel
-          </button>
+        {/* Satélite Real HD Exclusivo con Alta Precisión (Zoom hasta nivel 22) */}
+        <div className="bg-[#172726]/95 text-white backdrop-blur-md rounded-2xl px-3.5 py-1.5 shadow-lg border border-slate-700/60 flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <Compass size={14} className="text-emerald-400" />
+          <span className="text-xs font-black tracking-wide">Satélite Real HD</span>
+          <span className="text-[10px] text-slate-300 border-l border-slate-600 pl-2 font-medium">Zoom máx. 22</span>
         </div>
 
         {/* Hazard Level Quick Filter Pills */}

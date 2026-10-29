@@ -57,12 +57,14 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // 2. Teselas del mapa cartográfico (ESRI Topo, Satélite, OpenTopoMap, OSM): Cache-First
+  // 2. Teselas del mapa cartográfico (Satélite Google, ESRI, OSM): Cache-First
   if (
     url.hostname.includes('tile.') ||
     url.hostname.includes('openstreetmap') ||
     url.hostname.includes('opentopomap') ||
-    url.hostname.includes('arcgisonline.com')
+    url.hostname.includes('arcgisonline.com') ||
+    url.hostname.includes('google.com') ||
+    url.hostname.includes('googleapis.com')
   ) {
     event.respondWith(
       caches.open(TILE_CACHE).then((cache) => {
