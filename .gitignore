@@ -61,13 +61,26 @@ desktop.ini
 *.swo
 
 # Database
+*.db
+*.sqlite3
 Backend/*.db
 Backend/*.sqlite3
+backend/*.db
+backend/*.sqlite3
 
-# Non-code assets & scratch scripts
+# Non-code assets, raw data & scratch scripts
 Documentos/
 Figma/
 scripts/
+docs/
+data_simulada/
 *.docx
 *.pptx
 *.pdf
+*.xlsx
+*.xls
+
+# ML Model artifacts & caches
+api/modelo/*.joblib
+api/.pytest_cache/
+.pytest_cache/

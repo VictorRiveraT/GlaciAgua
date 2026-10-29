@@ -1,0 +1,62 @@
+services:
+  # 1. Microservicio de Machine Learning (Random Forest Predictor)
+  api:
+    container_name: glaciagua-ml-api
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - GLACIAGUA_CORS=*
+    volumes:
+      - ./api/modelo:/app/modelo
+      - ./data_simulada:/app/data_simulada:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/salud')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+    networks:
+      - glaciagua-net
+
+  # 2. Backend Orquestador FastAPI (Cuencas, Reportes, SQLite, Proxy ML)
+  backend:
+    container_name: glaciagua-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - ML_API_URL=http://api:8001
+    volumes:
+      - ./backend/glaciagua.db:/app/glaciagua.db
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - glaciagua-net
+
+  # 3. Frontend PWA (React 19 + TypeScript + Leaflet servido con Nginx)
+  front:
+    container_name: glaciagua-front
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - glaciagua-net
+
+networks:
+  glaciagua-net:
+    driver: bridge

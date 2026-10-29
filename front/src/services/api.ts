@@ -18,13 +18,38 @@ export class GlaciAguaApi {
   }
 
   /**
+   * Verifica el estado del microservicio de Machine Learning
+   */
+  static async getMLSalud(): Promise<{ estado: string; modelo_cargado: boolean; modelo_demo?: boolean }> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/ml/salud`, { signal: AbortSignal.timeout(2500) })
+      if (res.ok) return await res.json()
+      return { estado: 'error', modelo_cargado: false }
+    } catch {
+      return { estado: 'desconectado', modelo_cargado: false }
+    }
+  }
+
+  /**
+   * Obtiene la información técnica del modelo de Machine Learning
+   */
+  static async getMLModeloInfo(): Promise<any> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/ml/modelo`, { signal: AbortSignal.timeout(3000) })
+      if (res.ok) return await res.json()
+      return null
+    } catch {
+      return null
+    }
+  }
+
+  /**
    * Obtiene las microcuencas desde la API o fallback a datos locales
    */
   static async getCuencas(): Promise<BasinData[]> {
     try {
       const res = await fetch(`${API_BASE_URL}/cuencas`, { signal: AbortSignal.timeout(3000) })
       if (!res.ok) throw new Error('API offline')
-      // Mapear campos de API a formato frontend
       return PILOT_BASINS
     } catch {
       return PILOT_BASINS
@@ -49,7 +74,7 @@ export class GlaciAguaApi {
   }
 
   /**
-   * Ejecuta el motor de riesgo físico en el backend
+   * Ejecuta el motor de riesgo físico en el backend y consulta el microservicio ML
    */
   static async simularRiesgo(params: {
     rocaExpuesta: number
@@ -57,6 +82,9 @@ export class GlaciAguaApi {
     lluvia: number
     bofedal: number
     alpha?: number
+    areaKm2?: number
+    pctCarbonatos?: number
+    temporada?: 'seca' | 'humeda'
   }) {
     try {
       const res = await fetch(`${API_BASE_URL}/simular`, {
@@ -68,8 +96,11 @@ export class GlaciAguaApi {
           lluvia: params.lluvia,
           bofedal: params.bofedal,
           alpha: params.alpha ?? 0.75,
+          area_km2: params.areaKm2 ?? 249.5,
+          pct_carbonatos: params.pctCarbonatos ?? 10.0,
+          temporada: params.temporada ?? 'seca',
         }),
-        signal: AbortSignal.timeout(3000),
+        signal: AbortSignal.timeout(3500),
       })
       if (res.ok) {
         return await res.json()
@@ -83,6 +114,7 @@ export class GlaciAguaApi {
       return {
         score_normalizado: score,
         nivel_riesgo: score >= 65 ? 'Alto' : score >= 35 ? 'Medio' : 'Bajo',
+        prediccion_ml: null,
       }
     }
   }
@@ -99,9 +131,9 @@ export class GlaciAguaApi {
           id: reporte.id,
           cuenca_id: reporte.cuencaId,
           quebrada: reporte.quebrada,
-          lat: reporte.coordenadas.lat,
-          lng: reporte.coordenadas.lng,
-          precision_m: reporte.coordenadas.precisionM,
+          lat: reporte.coordenadas?.lat ?? 0,
+          lng: reporte.coordenadas?.lng ?? 0,
+          precision_m: reporte.coordenadas?.precisionM ?? 10,
           color_agua: reporte.colorAgua,
           olor_sabor: reporte.olorSabor,
           usos_afectados: reporte.usosAfectados,
@@ -109,16 +141,16 @@ export class GlaciAguaApi {
           tiene_foto: reporte.tieneFoto,
           foto_base64: reporte.fotoUrl,
           comentarios: reporte.comentarios,
-          simulado: reporte.simulado ?? true,
+          simulado: reporte.simulado,
         }),
         signal: AbortSignal.timeout(4000),
       })
 
       if (res.ok) {
         const data = await res.json()
-        return { success: true, mensaje: data.mensaje }
+        return { success: true, mensaje: data.mensaje || 'Reporte registrado exitosamente.' }
       }
-      return { success: false, mensaje: 'Error al enviar reporte al servidor' }
+      return { success: false, mensaje: 'Error al enviar reporte al servidor.' }
     } catch {
       return { success: false, mensaje: 'Sin conexión con el servidor. Guardado en cola local.' }
     }

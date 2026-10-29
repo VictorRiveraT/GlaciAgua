@@ -24,6 +24,9 @@ class SimulacionRequest(BaseModel):
     lluvia: float = Field(default=60.0, ge=0, le=100)
     bofedal: float = Field(default=30.0, ge=0, le=100)
     alpha: float = Field(default=0.75, ge=0.0, le=1.0, description="Factor de eficiencia depuradora del humedal")
+    area_km2: Optional[float] = Field(default=249.5, gt=0)
+    pct_carbonatos: Optional[float] = Field(default=10.0, ge=0, le=100)
+    temporada: Optional[Literal["seca", "humeda"]] = "seca"
 
 class SimulacionResponse(BaseModel):
     generacion_potencial: float
@@ -33,6 +36,22 @@ class SimulacionResponse(BaseModel):
     nivel_riesgo: RiskLevelEnum
     formula_desglose: str
     diagnostico: str
+    # Enriquecimiento opcional con predicción ML
+    prediccion_ml: Optional[Dict[str, Any]] = None
+
+class MLPrediccionItem(BaseModel):
+    id: Optional[str] = None
+    ph_estimado: float
+    incertidumbre_ph: float
+    nivel_riesgo: Literal["Alto", "Medio", "Bajo"]
+    acuerdo_arboles: float
+    advertencias: List[str] = Field(default_factory=list)
+
+class MLBatchResponse(BaseModel):
+    modelo_demo: bool
+    aviso: Optional[str] = None
+    version_modelo: str
+    resultados: List[MLPrediccionItem]
 
 class ReporteCreate(BaseModel):
     id: str = Field(..., description="UUID generado en el cliente para garantizar idempotencia offline")

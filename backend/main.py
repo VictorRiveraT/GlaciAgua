@@ -15,6 +15,7 @@ from models.schemas import (
 from services.risk_engine import RiskEngine
 from services.data_service import DataService
 from services.db import init_db, insertar_reporte, obtener_reportes
+from services.ml_client import MLClient
 
 # Inicializar base de datos SQLite
 init_db()
@@ -22,7 +23,7 @@ init_db()
 app = FastAPI(
     title="GlaciAgua API",
     description="API REST de Alerta Temprana de Drenaje Ácido de Roca (DAR) en la Cordillera Blanca (Huaraz, Áncash)",
-    version="1.0.0",
+    version="1.1.0",
 )
 
 # Configuración de CORS para permitir peticiones desde el frontend de Vite
@@ -44,16 +45,19 @@ app.add_middleware(
 def root():
     return {
         "proyecto": "GlaciAgua",
-        "descripcion": "Sistema de alerta temprana comunitaria para agua de deshielo y drenaje ácido",
+        "descripcion": "Sistema de alerta temprana comunitaria para agua de deshielo y drenaje acido",
         "cuencas_piloto": ["Quillcay (Huaraz)", "Pachacoto (Pastoruri)", "Canray Chico", "Río Blanco"],
-        "version": "1.0.0",
+        "version": "1.1.0",
         "docs": "/docs",
         "endpoints": {
             "cuencas": "/cuencas",
-            "geojson": "/cuencas/geojson",
+            "geojson": "/cuencas/exportar/geojson",
             "mediciones": "/mediciones",
             "simular": "/simular",
-            "reportes": "/reportes"
+            "reportes": "/reportes",
+            "ml_salud": "/ml/salud",
+            "ml_modelo": "/ml/modelo",
+            "ml_predecir": "/ml/predecir",
         }
     }
 
@@ -88,23 +92,71 @@ def listar_mediciones(
     """Retorna las estaciones de monitoreo hidroquímico con datos de pH, conductividad y metales pesados."""
     return DataService.listar_mediciones(cuenca_id=cuenca_id, solo_afectadas=solo_afectadas)
 
-# 3. Motor de Riesgo (Simulador Ambiental)
+# 3. Motor de Riesgo (Simulador Ambiental Físico + Predictivo ML)
 @app.post("/simular", response_model=SimulacionResponse, tags=["Motor de Riesgo"])
-def simular_riesgo(request: SimulacionRequest):
+async def simular_riesgo(request: SimulacionRequest):
     """
     Calcula el riesgo de agua ácida según la fórmula física consensuada:
     generacion = roca_expuesta × potencial_acido
     riesgo = generacion × lluvia × (1 - alpha × bofedal)
+    
+    Y consulta de forma complementaria el microservicio de Machine Learning
+    para contrastar la hipótesis física con la estimación de pH por Random Forest.
     """
-    return RiskEngine.calcular_riesgo(
+    resultado_fisico = RiskEngine.calcular_riesgo(
         roca_expuesta=request.roca_expuesta,
         potencial_acido=request.potencial_acido,
         lluvia=request.lluvia,
         bofedal=request.bofedal,
         alpha=request.alpha,
     )
+    
+    # Consulta complementaria al microservicio ML
+    microcuenca_ml = {
+        "id": "simulacion-live",
+        "temporada": request.temporada or "seca",
+        "area_km2": request.area_km2 or 249.5,
+        "roca_expuesta_km2": round((request.roca_expuesta / 100.0) * (request.area_km2 or 249.5) * 0.15, 2),
+        "pct_sulfuros": request.potencial_acido,
+        "pct_carbonatos": request.pct_carbonatos or 10.0,
+        "lluvia_mm": round((request.lluvia / 100.0) * 200.0, 1),
+        "pct_bofedal": round((request.bofedal / 100.0) * 15.0, 2),
+        "pct_veg_humeda_est": round((request.bofedal / 100.0) * 20.0, 2),
+    }
 
-# 4. Reportes Comunitarios Offline
+    ml_resp = await MLClient.predecir_microcuencas([microcuenca_ml])
+    prediccion_ml = None
+    if ml_resp.get("resultados"):
+        prediccion_ml = ml_resp["resultados"][0]
+
+    return SimulacionResponse(
+        generacion_potencial=resultado_fisico.generacion_potencial,
+        amortiguacion_factor=resultado_fisico.amortiguacion_factor,
+        riesgo_bruto=resultado_fisico.riesgo_bruto,
+        score_normalizado=resultado_fisico.score_normalizado,
+        nivel_riesgo=resultado_fisico.nivel_riesgo,
+        formula_desglose=resultado_fisico.formula_desglose,
+        diagnostico=resultado_fisico.diagnostico,
+        prediccion_ml=prediccion_ml,
+    )
+
+# 4. Microservicio de Machine Learning (Proxy / Integración)
+@app.get("/ml/salud", tags=["Machine Learning"])
+async def ml_salud():
+    """Verifica si el microservicio de Machine Learning está en línea y con el modelo cargado."""
+    return await MLClient.verificar_salud()
+
+@app.get("/ml/modelo", tags=["Machine Learning"])
+async def ml_modelo_info():
+    """Obtiene metadata, importancia de variables y métricas de validación del Random Forest."""
+    return await MLClient.obtener_info_modelo()
+
+@app.post("/ml/predecir", tags=["Machine Learning"])
+async def ml_predecir(microcuencas: List[Dict[str, Any]]):
+    """Envía un lote de microcuencas al microservicio de ML para estimar pH e incertidumbre."""
+    return await MLClient.predecir_microcuencas(microcuencas)
+
+# 5. Reportes Comunitarios Offline
 @app.post("/reportes", response_model=ReporteResponse, status_code=status.HTTP_201_CREATED, tags=["Ciencia Ciudadana"])
 def registrar_reporte(reporte: ReporteCreate):
     """
@@ -112,7 +164,6 @@ def registrar_reporte(reporte: ReporteCreate):
     Implementa idempotencia por UUID para evitar duplicados cuando el cliente reintenta la sincronización offline.
     """
     nuevo = insertar_reporte(reporte.model_dump())
-
     mensaje = "Reporte guardado exitosamente." if nuevo else "Reporte ya existía previamente (idempotente por UUID)."
 
     return ReporteResponse(
