@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import './index.css'
+import { I18nProvider } from './i18n/I18nContext'
 
 // Registro del Service Worker para capacidades PWA Offline-First
 if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
@@ -26,6 +27,8 @@ if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <I18nProvider>
+      <App />
+    </I18nProvider>
   </React.StrictMode>,
 )
