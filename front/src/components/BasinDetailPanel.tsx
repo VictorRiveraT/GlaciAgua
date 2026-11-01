@@ -57,10 +57,10 @@ export const BasinDetailPanel: React.FC<BasinDetailPanelProps> = ({
       case 'Alto':
         return {
           bannerBg: 'bg-red-500 text-white',
-          title: '¡PELIGRO! AGUA NO APTA PARA CONSUMO',
-          subtitle: 'Agua ácida con alta concentración de metales pesados (hierro y aluminio).',
+          title: 'ALERTA: AGUA CON POSIBLE ACIDEZ',
+          subtitle: 'Esta quebrada puede presentar acidez y metales. Evita usarla y avisa a tu junta de agua o municipio.',
           human: {
-            status: 'NO BEBER NI COCINAR',
+            status: 'EVITAR CONSUMO FAMILIAR',
             badgeBg: 'bg-red-100 text-red-800 border-red-300',
             desc: 'Peligro grave para la salud de niños y adultos. Los metales dañan el estómago y los riñones.',
             icon: <AlertOctagon size={16} className="text-red-700 shrink-0" />,
@@ -72,7 +72,7 @@ export const BasinDetailPanel: React.FC<BasinDetailPanelProps> = ({
             icon: <AlertTriangle size={16} className="text-amber-700 shrink-0" />,
           },
           animals: {
-            status: 'NO DAR AL GANADO NI TRUCHAS',
+            status: 'EVITAR DAR AL GANADO',
             badgeBg: 'bg-red-100 text-red-800 border-red-300',
             desc: 'Causa cólicos, diarreas y bajo peso en vacas y ovejas. Tóxico para piscigranjas.',
             icon: <AlertOctagon size={16} className="text-red-700 shrink-0" />,
@@ -105,10 +105,10 @@ export const BasinDetailPanel: React.FC<BasinDetailPanelProps> = ({
       default:
         return {
           bannerBg: 'bg-emerald-600 text-white',
-          title: 'AGUA LIMPIA Y SEGURA',
-          subtitle: 'Cumple los estándares ambientales de calidad para la comunidad.',
+          title: 'MENOR RIESGO DE ACIDEZ',
+          subtitle: 'Priorización y alerta temprana. No certifica potabilidad. Tratar según indicaciones de la JASS.',
           human: {
-            status: 'APTA PARA CONSUMO (TRATAMIENTO JASS)',
+            status: 'TRATAMIENTO REGULAR CON TU JASS',
             badgeBg: 'bg-green-100 text-green-800 border-green-300',
             desc: 'Agua de glaciar limpia. Apta para el hogar tras la cloración habitual de la JASS.',
             icon: <CheckCircle2 size={16} className="text-green-700 shrink-0" />,
@@ -120,7 +120,7 @@ export const BasinDetailPanel: React.FC<BasinDetailPanelProps> = ({
             icon: <CheckCircle2 size={16} className="text-green-700 shrink-0" />,
           },
           animals: {
-            status: 'SEGURA PARA ANIMALES',
+            status: 'USO HABITUAL PARA GANADO',
             badgeBg: 'bg-green-100 text-green-800 border-green-300',
             desc: 'Agua pura para abrevadero de ganado y apta para truchas.',
             icon: <CheckCircle2 size={16} className="text-green-700 shrink-0" />,
