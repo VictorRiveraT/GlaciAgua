@@ -130,13 +130,28 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     }
 
     // Default center and zoom showing all 4 basins of Callejón de Huaylas
+    // En móviles < 640px, encuadre directo a los bounds de las 4 cuencas con margen seguro
+    const isMobile = window.innerWidth < 640
+    const allBasinsBounds: L.LatLngBoundsExpression = [
+      [-10.05, -77.65], // Suroeste (Pachacoto y Río Blanco)
+      [-9.35, -77.05],  // Noreste (Quillcay)
+    ]
+
     const map = L.map(mapContainerRef.current, {
-      center: [-9.50, -77.45],
-      zoom: 10,
+      zoomControl: false,
+      zoomSnap: 0.5,
       minZoom: 8,
       maxZoom: 22,
-      zoomControl: false,
     })
+
+    if (isMobile) {
+      map.fitBounds(allBasinsBounds, {
+        paddingTopLeft: [12, 60],
+        paddingBottomRight: [12, 110],
+      })
+    } else {
+      map.setView([-9.55, -77.45], 10)
+    }
 
     mapInstanceRef.current = map
 
@@ -621,14 +636,15 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
       {/* Top Floating Control Bar - Simplified & Accessible */}
       <div className="absolute top-3 left-3 right-16 z-20 flex flex-wrap items-center gap-2 pointer-events-auto">
-        {/* Layer Manager Modal Toggle Button (Min 48px tactile) */}
+        {/* Layer Manager Modal Toggle Button (Min 44px tactile) */}
         <button
           onClick={() => setLayersModalOpen(true)}
-          className="touch-target bg-white/95 hover:bg-white text-slate-800 backdrop-blur-md rounded-2xl px-4 py-2.5 shadow-lg border border-slate-200 font-bold text-sm flex items-center gap-2 transition-transform active:scale-95"
-          aria-label="Abrir panel de capas del mapa"
+          className="touch-target min-h-[44px] bg-white/95 hover:bg-white text-slate-800 backdrop-blur-md rounded-2xl px-3 sm:px-4 py-2 shadow-lg border border-slate-200 font-bold text-sm flex items-center gap-2 transition-transform active:scale-95"
+          aria-label={t('map_layers')}
+          title={t('map_layers')}
         >
-          <Layers size={18} className="text-blue-700" />
-          <span>{t('map_layers')}</span>
+          <Layers size={18} className="text-blue-700 shrink-0" />
+          <span className="hidden sm:inline">{t('map_layers')}</span>
           {activeAdvancedCount > 0 && (
             <span className="bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full font-black">
               {activeAdvancedCount}
@@ -639,22 +655,23 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         {/* Legend Button */}
         <button
           onClick={() => setLegendOpen(!legendOpen)}
-          className="touch-target bg-white/95 hover:bg-white text-slate-800 backdrop-blur-md rounded-2xl px-3.5 py-2.5 shadow-lg border border-slate-200 font-bold text-sm flex items-center gap-1.5 transition-transform active:scale-95"
-          aria-label="Ver leyenda de colores"
+          className="touch-target min-h-[44px] bg-white/95 hover:bg-white text-slate-800 backdrop-blur-md rounded-2xl px-3 sm:px-3.5 py-2 shadow-lg border border-slate-200 font-bold text-sm flex items-center gap-1.5 transition-transform active:scale-95"
+          aria-label={t('legend')}
+          title={t('legend')}
         >
-          <Info size={16} className="text-slate-600" />
-          <span>{t('legend')}</span>
+          <Info size={16} className="text-slate-600 shrink-0" />
+          <span className="hidden sm:inline">{t('legend')}</span>
         </button>
 
         {/* Cautious Permanent Disclaimer Pill */}
-        <div className="hidden lg:flex items-center gap-1.5 bg-amber-50/95 backdrop-blur-md border border-amber-300 text-amber-900 text-xs font-semibold px-3 py-2 rounded-2xl shadow-sm">
+        <div className="hidden md:flex items-center gap-1.5 bg-amber-50/95 backdrop-blur-md border border-amber-300 text-amber-900 text-xs font-semibold px-3 py-2 rounded-2xl shadow-sm">
           <AlertTriangle size={14} className="text-amber-700 shrink-0" />
           <span>{t('disclaimer_short')}</span>
         </div>
       </div>
 
       {/* Right Zoom & View Controls */}
-      <div className="absolute top-3 right-3 z-20 flex flex-col gap-2 bg-white/95 backdrop-blur-md p-1.5 rounded-2xl shadow-lg border border-slate-200 pointer-events-auto">
+      <div className="absolute top-3 right-3 z-20 flex flex-col gap-1.5 bg-white/95 backdrop-blur-md p-1.5 rounded-2xl shadow-lg border border-slate-200 pointer-events-auto">
         {selectedBasin && (
           <button
             onClick={() => {
@@ -669,7 +686,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 focusLocation(selectedBasin.centroide.lat, selectedBasin.centroide.lng, 11)
               }
             }}
-            className="touch-target rounded-xl flex items-center justify-center bg-blue-100 text-blue-800 hover:bg-blue-700 hover:text-white transition-colors"
+            className="touch-target w-11 h-11 rounded-xl flex items-center justify-center bg-blue-100 text-blue-800 hover:bg-blue-700 hover:text-white transition-colors"
             title={`Centrar en Cuenca ${selectedBasin.nombre}`}
             aria-label={`Centrar en Cuenca ${selectedBasin.nombre}`}
           >
@@ -678,7 +695,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         )}
         <button
           onClick={() => mapInstanceRef.current?.zoomIn()}
-          className="touch-target rounded-xl flex items-center justify-center text-slate-800 hover:bg-slate-100 transition-colors"
+          className="touch-target w-11 h-11 rounded-xl flex items-center justify-center text-slate-800 hover:bg-slate-100 transition-colors"
           title="Acercar mapa"
           aria-label="Acercar mapa"
         >
@@ -686,15 +703,32 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         </button>
         <button
           onClick={() => mapInstanceRef.current?.zoomOut()}
-          className="touch-target rounded-xl flex items-center justify-center text-slate-800 hover:bg-slate-100 transition-colors"
+          className="touch-target w-11 h-11 rounded-xl flex items-center justify-center text-slate-800 hover:bg-slate-100 transition-colors"
           title="Alejar mapa"
           aria-label="Alejar mapa"
         >
           <ZoomOut size={20} />
         </button>
         <button
-          onClick={() => focusLocation(-9.50, -77.45, 10)}
-          className="touch-target rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors"
+          onClick={() => {
+            const isMobile = window.innerWidth < 640
+            if (isMobile) {
+              mapInstanceRef.current?.fitBounds(
+                [
+                  [-10.05, -77.65],
+                  [-9.35, -77.05],
+                ],
+                {
+                  paddingTopLeft: [12, 60],
+                  paddingBottomRight: [12, 110],
+                  animate: true,
+                }
+              )
+            } else {
+              focusLocation(-9.55, -77.45, 10)
+            }
+          }}
+          className="touch-target w-11 h-11 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors"
           title="Ver todas las cuencas"
           aria-label="Restablecer vista general"
         >

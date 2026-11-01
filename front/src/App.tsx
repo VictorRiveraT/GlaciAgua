@@ -333,33 +333,33 @@ export default function App() {
             {/* Mobile Bottom Sheet Drawer (< lg) */}
             {selectedBasin && (
               <div
-                className={`lg:hidden fixed inset-x-0 bottom-14 z-40 bg-white rounded-t-3xl shadow-2xl border-t border-[#cbd5e1] transition-all duration-300 flex flex-col ${
-                  isMobileDrawerExpanded ? 'max-h-[80vh]' : 'max-h-20'
+                className={`lg:hidden fixed inset-x-0 bottom-16 z-40 bg-white rounded-t-3xl shadow-2xl border-t border-[#cbd5e1] transition-all duration-300 flex flex-col ${
+                  isMobileDrawerExpanded ? 'max-h-[75vh]' : 'max-h-14'
                 }`}
               >
                 <div
                   onClick={() => setIsMobileDrawerExpanded((prev) => !prev)}
-                  className="w-full py-2.5 px-4 flex items-center justify-between cursor-pointer bg-[#f8fafc] rounded-t-3xl border-b border-[#e2e8f0]"
+                  className="touch-target w-full py-2.5 px-4 flex items-center justify-between cursor-pointer bg-[#f8fafc] rounded-t-3xl border-b border-[#e2e8f0] select-none"
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2.5 truncate">
                     <span
-                      className={`w-3 h-3 rounded-full ${
+                      className={`w-3.5 h-3.5 rounded-full ring-2 ring-white shadow-xs shrink-0 ${
                         selectedBasin.nivelRiesgo[season] === 'Alto'
-                          ? 'bg-[#991b1b]'
+                          ? 'bg-[#dc2626]'
                           : selectedBasin.nivelRiesgo[season] === 'Medio'
-                          ? 'bg-[#92400e]'
-                          : 'bg-[#166534]'
+                          ? 'bg-[#d97706]'
+                          : 'bg-[#16a34a]'
                       }`}
                     />
-                    <strong className="text-sm font-black text-[#0f172a]">
+                    <strong className="text-sm font-black text-[#0f172a] truncate max-w-[170px]">
                       {selectedBasin.nombre}
                     </strong>
-                    <span className="text-xs text-[#64748b]">
-                      (Riesgo {selectedBasin.nivelRiesgo[season]})
+                    <span className="text-xs font-bold text-[#475569] hidden sm:inline">
+                      · {selectedBasin.nivelRiesgo[season] === 'Alto' ? 'Alerta' : selectedBasin.nivelRiesgo[season] === 'Medio' ? 'Precaución' : 'Menor riesgo'}
                     </span>
                   </div>
-                  <span className="text-xs font-black text-[#1e3a8a]">
-                    {isMobileDrawerExpanded ? 'Cerrar' : 'Ver Ficha'}
+                  <span className="text-xs font-black text-[#1e3a8a] bg-[#eff6ff] border border-blue-200 px-3 py-1 rounded-xl shrink-0">
+                    {isMobileDrawerExpanded ? '▼ Bajar' : '▲ Ver más'}
                   </span>
                 </div>
 
@@ -368,7 +368,7 @@ export default function App() {
                     <BasinDetailPanel
                       basin={selectedBasin}
                       season={season}
-                      onClose={() => setSelectedBasin(null)}
+                      onClose={() => setIsMobileDrawerExpanded(false)}
                       onOpenReport={() => setIsReportModalOpen(true)}
                       onOpenGuidance={() => setCurrentView('guia')}
                       onOpenSimulator={() => setCurrentView('simulador')}
