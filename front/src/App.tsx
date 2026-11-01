@@ -12,6 +12,7 @@ import { ReportModal } from './components/ReportModal'
 import { OfflineSyncModal } from './components/OfflineSyncModal'
 import { OnboardingModal } from './components/OnboardingModal'
 import { CommunityHelpModal } from './components/CommunityHelpModal'
+import { OfficialLetterModal } from './components/OfficialLetterModal'
 import { AdminPortalModal } from './components/AdminPortalModal'
 import { GlaciAguaApi } from './services/api'
 import { useI18n } from './i18n/I18nContext'
@@ -108,6 +109,7 @@ export default function App() {
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false)
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false)
   const [isAdminPortalOpen, setIsAdminPortalOpen] = useState(false)
+  const [isOficioModalOpen, setIsOficioModalOpen] = useState(false)
   const [isMobileDrawerExpanded, setIsMobileDrawerExpanded] = useState(false)
 
   // Mostrar bienvenida la primera vez
@@ -394,7 +396,7 @@ export default function App() {
                 </div>
               }
             >
-              <GuidanceView />
+              <GuidanceView onOpenOficio={() => setIsOficioModalOpen(true)} />
             </Suspense>
           </div>
         )}
@@ -570,6 +572,12 @@ export default function App() {
       <CommunityHelpModal
         isOpen={isHelpModalOpen}
         onClose={() => setIsHelpModalOpen(false)}
+      />
+
+      <OfficialLetterModal
+        isOpen={isOficioModalOpen}
+        onClose={() => setIsOficioModalOpen(false)}
+        initialBasinName={selectedBasin?.nombre || 'Quillcay'}
       />
 
       <AdminPortalModal

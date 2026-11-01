@@ -799,5 +799,57 @@
   "btn_hide_more_details": {
     "text": "Detallesta pakay",
     "_revisar": true
+  },
+  "oficio_modal_title": {
+    "text": "Autoridapaq ofisiota qellqay",
+    "_revisar": true
+  },
+  "oficio_step1_title": {
+    "text": "1. Mayuta y sasakayta akray",
+    "_revisar": true
+  },
+  "oficio_step2_title": {
+    "text": "2. Shutikita y fechata qellqay",
+    "_revisar": true
+  },
+  "oficio_step3_title": {
+    "text": "3. Allichasqa ofisio",
+    "_revisar": true
+  },
+  "oficio_btn_copy": {
+    "text": "Ofisiota kanchiy",
+    "_revisar": true
+  },
+  "oficio_btn_print": {
+    "text": "Imprimir / PDF waqaychay",
+    "_revisar": true
+  },
+  "oficio_btn_whatsapp": {
+    "text": "WhatsApp-pa apatsiy",
+    "_revisar": true
+  },
+  "oficio_label_basin": {
+    "text": "Mayu:",
+    "_revisar": true
+  },
+  "oficio_label_reason": {
+    "text": "¿Ima sasatataq yakucho rikanki?",
+    "_revisar": true
+  },
+  "oficio_label_name": {
+    "text": "Shutiki o directivopa:",
+    "_revisar": true
+  },
+  "oficio_label_to": {
+    "text": "¿Pimantaq apatsinki?",
+    "_revisar": true
+  },
+  "oficio_label_date": {
+    "text": "Fecha:",
+    "_revisar": true
+  },
+  "oficio_disclaimer": {
+    "text": "Comunidadpa willakuynin. Manam certificado potabilidadchu.",
+    "_revisar": true
   }
 }

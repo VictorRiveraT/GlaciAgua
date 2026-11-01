@@ -201,5 +201,18 @@
   "avoid_hervir_metales": "Hervir no lo arregla",
   "avoid_animales_riego": "No des a animales ni riegues",
   "btn_see_more_details": "Ver más detalles y explicaciones",
-  "btn_hide_more_details": "Ocultar detalles"
+  "btn_hide_more_details": "Ocultar detalles",
+  "oficio_modal_title": "Redactar oficio para autoridades",
+  "oficio_step1_title": "1. Elige tu quebrada y motivo",
+  "oficio_step2_title": "2. Escribe tu nombre y fecha",
+  "oficio_step3_title": "3. Tu carta formal lista",
+  "oficio_btn_copy": "Copiar texto",
+  "oficio_btn_print": "Imprimir o Guardar PDF",
+  "oficio_btn_whatsapp": "Compartir por WhatsApp",
+  "oficio_label_basin": "Quebrada o microcuenca:",
+  "oficio_label_reason": "¿Qué problema ves en el agua?",
+  "oficio_label_name": "Tu nombre o directivo comunal:",
+  "oficio_label_to": "¿A quién va dirigida la carta?",
+  "oficio_label_date": "Fecha:",
+  "oficio_disclaimer": "Dato referencial comunitario. No certifica potabilidad."
 }
