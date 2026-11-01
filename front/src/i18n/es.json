@@ -1,4 +1,8 @@
 {
+  "_metadata": {
+    "variante": "Español estándar de Áncash / Perú",
+    "estado": "Validado para comunicación comunitaria"
+  },
   "app_name": "GlaciAgua",
   "app_tagline": "Alerta de Agua en la Cordillera Blanca",
   "disclaimer": "Priorización y alerta temprana comunitaria. No certifica potabilidad. Consulta a tu junta de agua o municipio.",
