@@ -32,6 +32,27 @@ def init_db():
             fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS mediciones_campo (
+            id TEXT PRIMARY KEY,
+            cuenca_id TEXT NOT NULL,
+            quebrada TEXT,
+            periodo TEXT NOT NULL,
+            temporada TEXT NOT NULL,
+            area_km2 REAL,
+            roca_expuesta_km2 REAL,
+            pct_sulfuros REAL,
+            pct_carbonatos REAL,
+            lluvia_mm REAL,
+            pct_bofedal REAL,
+            pct_veg_humeda_est REAL,
+            ph_min REAL NOT NULL,
+            conductividad REAL,
+            metales_texto TEXT,
+            responsable TEXT,
+            fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
     conn.commit()
     conn.close()
 
@@ -66,7 +87,7 @@ def insertar_reporte(reporte_data: Dict[str, Any]) -> bool:
         1 if reporte_data.get("tiene_foto") else 0,
         reporte_data.get("foto_base64", ""),
         reporte_data.get("comentarios", ""),
-        1 if reporte_data.get("simulado", True) else 0
+        1 if reporte_data.get("simulado", False) else 0
     ))
 
     rows_affected = cursor.rowcount
@@ -92,3 +113,46 @@ def obtener_reportes() -> List[Dict[str, Any]]:
         result.append(r)
 
     return result
+
+def insertar_medicion_campo(medicion: Dict[str, Any]) -> bool:
+    """Inserta una medición científica/campo realizada por ingenieros."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT OR REPLACE INTO mediciones_campo (
+            id, cuenca_id, quebrada, periodo, temporada,
+            area_km2, roca_expuesta_km2, pct_sulfuros, pct_carbonatos,
+            lluvia_mm, pct_bofedal, pct_veg_humeda_est, ph_min,
+            conductividad, metales_texto, responsable
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        medicion["id"],
+        medicion["cuenca_id"],
+        medicion.get("quebrada", ""),
+        medicion["periodo"],
+        medicion["temporada"],
+        medicion.get("area_km2"),
+        medicion.get("roca_expuesta_km2"),
+        medicion.get("pct_sulfuros"),
+        medicion.get("pct_carbonatos"),
+        medicion.get("lluvia_mm"),
+        medicion.get("pct_bofedal"),
+        medicion.get("pct_veg_humeda_est"),
+        medicion["ph_min"],
+        medicion.get("conductividad"),
+        medicion.get("metales_texto", ""),
+        medicion.get("responsable", "Ing. Ambiental")
+    ))
+    rows = cursor.rowcount
+    conn.commit()
+    conn.close()
+    return rows > 0
+
+def obtener_mediciones_campo() -> List[Dict[str, Any]]:
+    """Obtiene todas las mediciones de campo registradas en SQLite."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM mediciones_campo ORDER BY fecha_registro DESC")
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(r) for r in rows]

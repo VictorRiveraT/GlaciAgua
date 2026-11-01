@@ -85,7 +85,16 @@ export class GlaciAguaApi {
     areaKm2?: number
     pctCarbonatos?: number
     temporada?: 'seca' | 'humeda'
-  }) {
+  }): Promise<{
+    score_normalizado: number
+    nivel_riesgo: RiskLevel
+    prediccion_ml?: {
+      ph_estimado: number
+      incertidumbre_ph: number
+      acuerdo_arboles: number
+      nivel_riesgo: string
+    } | null
+  }> {
     try {
       const res = await fetch(`${API_BASE_URL}/simular`, {
         method: 'POST',
@@ -100,13 +109,20 @@ export class GlaciAguaApi {
           pct_carbonatos: params.pctCarbonatos ?? 10.0,
           temporada: params.temporada ?? 'seca',
         }),
-        signal: AbortSignal.timeout(3500),
+        signal: AbortSignal.timeout(5000),
       })
+
       if (res.ok) {
-        return await res.json()
+        const data = await res.json()
+        return {
+          score_normalizado: data.score_normalizado,
+          nivel_riesgo: data.nivel_riesgo as RiskLevel,
+          prediccion_ml: data.prediccion_ml,
+        }
       }
+      throw new Error('Simulation endpoint failed')
     } catch {
-      // Fallback a cálculo local
+      // Fallback a cálculo físico local si el backend está caído
       const gen = (params.rocaExpuesta / 100) * (params.potencialAcido / 100)
       const amort = Math.max(0, 1 - (params.alpha ?? 0.75) * (params.bofedal / 100))
       const raw = gen * (params.lluvia / 100) * amort
@@ -153,6 +169,84 @@ export class GlaciAguaApi {
       return { success: false, mensaje: 'Error al enviar reporte al servidor.' }
     } catch {
       return { success: false, mensaje: 'Sin conexión con el servidor. Guardado en cola local.' }
+    }
+  }
+
+  // ==========================================
+  // Métodos de Administración e Ingeniería
+  // ==========================================
+
+  static async adminLogin(username: string, password: string): Promise<{ success: boolean; usuario?: any; error?: string }> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+        signal: AbortSignal.timeout(4000),
+      })
+      if (res.ok) {
+        return await res.json()
+      }
+      const err = await res.json().catch(() => ({ detail: 'Credenciales inválidas' }))
+      return { success: false, error: err.detail || 'Error de autenticación' }
+    } catch {
+      return { success: false, error: 'No se pudo conectar con el servidor backend (:8000).' }
+    }
+  }
+
+  static async getMedicionesCampo(): Promise<any[]> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/mediciones`, { signal: AbortSignal.timeout(4000) })
+      if (res.ok) return await res.json()
+      return []
+    } catch {
+      return []
+    }
+  }
+
+  static async guardarMedicionCampo(data: any): Promise<{ success: boolean; id?: string; error?: string }> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/mediciones`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+        signal: AbortSignal.timeout(5000),
+      })
+      if (res.ok) return await res.json()
+      return { success: false, error: 'Error al registrar medición' }
+    } catch (e: any) {
+      return { success: false, error: e.message }
+    }
+  }
+
+  static async reentrenarModelo(params: {
+    aumentar_con_fisica: boolean
+    n_sinteticos: number
+    n_arboles: number
+    filas_adicionales?: any[]
+  }): Promise<{ exito: boolean; mensaje: string; version_nueva?: string; metricas?: any; error?: string }> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/reentrenar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params),
+        signal: AbortSignal.timeout(60000),
+      })
+      if (res.ok) return await res.json()
+      const err = await res.json().catch(() => ({ detail: 'Fallo al reentrenar' }))
+      return { exito: false, mensaje: err.detail || 'Error en reentrenamiento' }
+    } catch {
+      return { exito: false, mensaje: 'Error al comunicar con el backend de reentrenamiento.' }
+    }
+  }
+
+  static async getPlantillaCSV(): Promise<{ contenido_csv: string; nombre_archivo: string } | null> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/plantilla-csv`, { signal: AbortSignal.timeout(3000) })
+      if (res.ok) return await res.json()
+      return null
+    } catch {
+      return null
     }
   }
 }

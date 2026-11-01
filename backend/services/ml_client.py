@@ -71,3 +71,27 @@ class MLClient:
                 "detalle": str(e),
                 "resultados": []
             }
+    @classmethod
+    async def reentrenar(cls, payload: Dict[str, Any]) -> Dict[str, Any]:
+        """Solicita el reentrenamiento del modelo al microservicio de ML."""
+        try:
+            async with httpx.AsyncClient(timeout=45.0) as client:
+                resp = await client.post(
+                    f"{ML_API_URL}/reentrenar",
+                    json=payload,
+                    headers=cls._get_headers()
+                )
+                if resp.status_code == 200:
+                    return resp.json()
+                logger.error(f"Error en respuesta de reentrenamiento: {resp.status_code} - {resp.text}")
+                return {
+                    "exito": False,
+                    "error": f"Error del servicio ML ({resp.status_code}): {resp.text}"
+                }
+        except Exception as e:
+            logger.warning(f"Microservicio ML no disponible para reentrenar en {ML_API_URL}: {e}")
+            return {
+                "exito": False,
+                "error": f"Fallo de conexión al reentrenar: {str(e)}"
+            }
+

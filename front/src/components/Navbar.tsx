@@ -4,6 +4,7 @@ import { LanguageSelector } from './LanguageSelector'
 import { useI18n } from '../i18n/I18nContext'
 import {
   Droplet,
+  Cpu,
   MapPin,
   BookOpen,
   Wifi,
@@ -24,6 +25,7 @@ interface NavbarProps {
   onOpenSync: () => void
   pendingReportsCount: number
   onOpenReport: () => void
+  onOpenAdmin?: () => void
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -35,6 +37,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenSync,
   pendingReportsCount,
   onOpenReport,
+  onOpenAdmin,
 }) => {
   const { t } = useI18n()
 
@@ -133,6 +136,19 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
           <span>{t('btn_report_water')}</span>
         </button>
+
+        {/* Acceso a Portal de Ingeniería / Admin */}
+        {onOpenAdmin && (
+          <button
+            type="button"
+            onClick={onOpenAdmin}
+            className="hidden md:flex touch-target items-center gap-1.5 px-2.5 py-1.5 rounded-2xl text-xs font-black text-slate-700 hover:text-blue-800 bg-slate-100 hover:bg-blue-50 border border-slate-300 transition-all shadow-2xs"
+            title="Portal de Ingeniería Ambiental, Datos y Re-entrenamiento"
+          >
+            <Cpu size={14} className="text-blue-700" />
+            <span>Ingeniería</span>
+          </button>
+        )}
 
         {/* Selector de Idioma Español / Quechua */}
         <LanguageSelector />

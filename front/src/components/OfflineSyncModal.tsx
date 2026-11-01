@@ -91,16 +91,21 @@ export const OfflineSyncModal: React.FC<OfflineSyncModalProps> = ({
               </div>
             </div>
 
-            <button
-              onClick={onToggleOnline}
-              className={`touch-target px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
-                isOnline
-                  ? 'bg-white text-[#bd3f3a] border-red-200 hover:bg-red-50'
-                  : 'bg-white text-[#21835b] border-green-200 hover:bg-green-50'
-              }`}
-            >
-              {isOnline ? 'Simular Offline' : 'Activar Online'}
-            </button>
+            <div className="text-right">
+              <span className="text-[10px] font-bold text-[#667573] block mb-0.5">
+                Prueba en campo:
+              </span>
+              <button
+                onClick={onToggleOnline}
+                className={`touch-target px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
+                  isOnline
+                    ? 'bg-white text-[#bd3f3a] border-red-200 hover:bg-red-50'
+                    : 'bg-white text-[#21835b] border-green-200 hover:bg-green-50'
+                }`}
+              >
+                {isOnline ? 'Simular Sin Señal' : 'Restablecer En Línea'}
+              </button>
+            </div>
           </div>
 
           {/* Pending Reports List */}

@@ -10,7 +10,7 @@ Variables de entorno (todas opcionales):
 """
 import os
 import secrets
-from typing import Literal, Optional
+from typing import Literal, Optional, List, Dict, Any
 
 import pandas as pd
 from fastapi import Depends, FastAPI, Header, HTTPException
@@ -53,9 +53,40 @@ class RespuestaPrediccion(BaseModel):
     resultados: list[PrediccionOut]
 
 
+class FilaReentrenamiento(BaseModel):
+    cuenca_id: str
+    temporada: Literal['seca', 'humeda']
+    periodo: Optional[str] = None
+    area_km2: Optional[float] = None
+    roca_expuesta_km2: Optional[float] = None
+    pct_sulfuros: Optional[float] = None
+    pct_carbonatos: Optional[float] = None
+    lluvia_mm: Optional[float] = None
+    pct_bofedal: Optional[float] = None
+    pct_veg_humeda_est: Optional[float] = None
+    ph_min: float = Field(..., ge=1.0, le=14.0)
+
+
+class ReentrenarIn(BaseModel):
+    filas_reales: Optional[List[FilaReentrenamiento]] = None
+    aumentar_con_fisica: bool = True
+    n_sinteticos: int = Field(default=80, ge=10, le=500)
+    n_arboles: int = Field(default=250, ge=50, le=500)
+
+
+class ReentrenarOut(BaseModel):
+    exito: bool
+    mensaje: str
+    version_nueva: str
+    fuente_datos: str
+    n_filas: int
+    n_microcuencas: int
+    metricas: Dict[str, Any]
+
+
 def crear_app(dir_modelo=None):
     dir_modelo = dir_modelo or os.getenv('GLACIAGUA_MODELO', str(cfg.DIR_MODELO))
-    app = FastAPI(title='GlaciAgua - API de riesgo de agua ácida', version='0.1.0')
+    app = FastAPI(title='GlaciAgua - API de riesgo de agua ácida', version='0.2.0')
 
     origenes = [o.strip() for o in os.getenv(
         'GLACIAGUA_CORS', 'http://localhost:3000,http://localhost:5173,http://localhost:8000,http://127.0.0.1:8000,*').split(',') if o.strip()]
@@ -102,6 +133,44 @@ def crear_app(dir_modelo=None):
             r['id'] = f['id']
         return {'modelo_demo': m.es_demo, 'aviso': m.meta.get('aviso'),
                 'version_modelo': m.meta['version'], 'resultados': resultados}
+
+    @app.post('/reentrenar', response_model=ReentrenarOut, dependencies=[Depends(verificar)])
+    def reentrenar(entrada: ReentrenarIn):
+        from .entrenamiento import entrenar, guardar
+        from .simulacion import simular
+
+        dfs = []
+        fuente = 'simulado'
+
+        if entrada.filas_reales and len(entrada.filas_reales) > 0:
+            df_reales = pd.DataFrame([f.model_dump() for f in entrada.filas_reales])
+            dfs.append(df_reales)
+            fuente = 'real' if not entrada.aumentar_con_fisica else 'hibrido'
+
+        if entrada.aumentar_con_fisica or len(dfs) == 0:
+            df_sim = simular(n_microcuencas=entrada.n_sinteticos)
+            dfs.append(df_sim)
+
+        df_total = pd.concat(dfs, ignore_index=True)
+        if len(df_total) < 10:
+            raise HTTPException(status_code=400, detail="Cantidad insuficiente de datos para entrenar.")
+
+        pipeline_nuevo, meta_nueva = entrenar(df_total, fuente=fuente, n_arboles=entrada.n_arboles)
+        guardar(pipeline_nuevo, meta_nueva, dir_modelo)
+
+        # Recarga inmediata en memoria
+        estado['modelo'] = ModeloRiesgo.cargar(dir_modelo)
+        estado['error'] = None
+
+        return {
+            'exito': True,
+            'mensaje': f'Modelo re-entrenado exitosamente con {meta_nueva["n_filas"]} filas (modo: {fuente}).',
+            'version_nueva': meta_nueva['version'],
+            'fuente_datos': fuente,
+            'n_filas': meta_nueva['n_filas'],
+            'n_microcuencas': meta_nueva['n_microcuencas'],
+            'metricas': meta_nueva['metricas_validacion'],
+        }
 
     return app
 
