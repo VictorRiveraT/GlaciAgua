@@ -111,6 +111,7 @@ export default function App() {
   const [isAdminPortalOpen, setIsAdminPortalOpen] = useState(false)
   const [isOficioModalOpen, setIsOficioModalOpen] = useState(false)
   const [isMobileDrawerExpanded, setIsMobileDrawerExpanded] = useState(false)
+  const [isDetailsExpanded, setIsDetailsExpanded] = useState(false)
 
   // Mostrar bienvenida la primera vez
   useEffect(() => {
@@ -313,7 +314,11 @@ export default function App() {
                 selectedBasin={selectedBasin}
                 onSelectBasin={(b) => {
                   setSelectedBasin(b)
+                }}
+                onOpenDetails={(b) => {
+                  setSelectedBasin(b)
                   setIsMobileDrawerExpanded(true)
+                  setIsDetailsExpanded(true)
                 }}
                 season={season}
                 measurements={REAL_MEASUREMENTS}
@@ -326,11 +331,15 @@ export default function App() {
                 <BasinDetailPanel
                   basin={selectedBasin}
                   season={season}
-                  onClose={() => setSelectedBasin(null)}
+                  onClose={() => {
+                    setSelectedBasin(null)
+                    setIsDetailsExpanded(false)
+                  }}
                   onOpenReport={() => setIsReportModalOpen(true)}
                   onOpenGuidance={() => setCurrentView('guia')}
                   onOpenSimulator={() => setCurrentView('simulador')}
                   onOpenConnectivity={() => setCurrentView('conectividad')}
+                  forceShowDetails={isDetailsExpanded}
                 />
               </div>
             )}
@@ -373,11 +382,15 @@ export default function App() {
                     <BasinDetailPanel
                       basin={selectedBasin}
                       season={season}
-                      onClose={() => setIsMobileDrawerExpanded(false)}
+                      onClose={() => {
+                        setIsMobileDrawerExpanded(false)
+                        setIsDetailsExpanded(false)
+                      }}
                       onOpenReport={() => setIsReportModalOpen(true)}
                       onOpenGuidance={() => setCurrentView('guia')}
                       onOpenSimulator={() => setCurrentView('simulador')}
                       onOpenConnectivity={() => setCurrentView('conectividad')}
+                      forceShowDetails={isDetailsExpanded}
                     />
                   </div>
                 )}

@@ -42,6 +42,7 @@ interface InteractiveMapProps {
   onSelectBasin: (basin: BasinData) => void
   season: Season
   measurements: RealMeasurement[]
+  onOpenDetails?: (basin: BasinData) => void
 }
 
 export const InteractiveMap: React.FC<InteractiveMapProps> = ({
@@ -50,6 +51,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   onSelectBasin,
   season,
   measurements,
+  onOpenDetails,
 }) => {
   const { t } = useI18n()
   const mapContainerRef = useRef<HTMLDivElement>(null)
@@ -60,6 +62,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   const [dangerFilter, setDangerFilter] = useState<'all' | 'Critico' | 'Alto' | 'Medio' | 'Bajo'>('all')
   const [selectedCorridor, setSelectedCorridor] = useState<FluvialHazardCorridor | null>(null)
   const [geoJsonPolygons, setGeoJsonPolygons] = useState<Record<string, LatLngCoord[]> | null>(null)
+  const [sheetBasin, setSheetBasin] = useState<BasinData | null>(null)
 
   // Default layers: cuencas and rios only. Others are hidden by default to prevent visual clutter
   const [layersState, setLayersState] = useState({
@@ -275,6 +278,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
       polygon.on('click', () => {
         onSelectBasin(basin)
+        setSheetBasin(basin)
       })
 
       polygon.on('mouseover', () => {
@@ -323,7 +327,10 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         }),
       })
 
-      centerMarker.on('click', () => onSelectBasin(basin))
+      centerMarker.on('click', () => {
+        onSelectBasin(basin)
+        setSheetBasin(basin)
+      })
       cuencasGroup.addLayer(centerMarker)
     })
 
@@ -1004,11 +1011,11 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         </div>
       )}
       {/* Tap/Click Bottom Sheet para Cuenca: panel inferior con nombre, icono-estado, 1 frase y botón "Ver más" */}
-      {selectedBasin && (
+      {sheetBasin && (
         <>
           <div
-            onClick={() => onSelectBasin(null as any)}
-            className="fixed inset-0 z-20 bg-black/25 backdrop-blur-2xs transition-opacity"
+            onClick={() => setSheetBasin(null)}
+            className="absolute inset-0 z-20 bg-black/25 backdrop-blur-2xs transition-opacity"
             aria-hidden="true"
           />
 
@@ -1027,13 +1034,13 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                   id="map-sheet-basin-title"
                   className="text-lg sm:text-xl font-black text-[#0f172a] leading-tight"
                 >
-                  Cuenca {selectedBasin.nombre}
+                  Cuenca {sheetBasin.nombre}
                 </h3>
               </div>
 
               <button
                 type="button"
-                onClick={() => onSelectBasin(null as any)}
+                onClick={() => setSheetBasin(null)}
                 className="touch-target w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors"
                 aria-label="Cerrar panel de cuenca"
               >
@@ -1045,9 +1052,9 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
               <div className="w-12 h-12 shrink-0">
                 <Illustration
                   name={
-                    selectedBasin.nivelRiesgo[season] === 'Alto'
+                    sheetBasin.nivelRiesgo[season] === 'Alto'
                       ? 'gota_enferma'
-                      : selectedBasin.nivelRiesgo[season] === 'Medio'
+                      : sheetBasin.nivelRiesgo[season] === 'Medio'
                       ? 'gota_preocupada'
                       : 'gota_tranquila'
                   }
@@ -1057,23 +1064,23 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
               <div className="flex-1 min-w-0">
                 <span
                   className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md inline-block mb-0.5 ${
-                    selectedBasin.nivelRiesgo[season] === 'Alto'
+                    sheetBasin.nivelRiesgo[season] === 'Alto'
                       ? 'bg-red-100 text-red-800'
-                      : selectedBasin.nivelRiesgo[season] === 'Medio'
+                      : sheetBasin.nivelRiesgo[season] === 'Medio'
                       ? 'bg-amber-100 text-amber-900'
                       : 'bg-emerald-100 text-emerald-800'
                   }`}
                 >
-                  {selectedBasin.nivelRiesgo[season] === 'Alto'
+                  {sheetBasin.nivelRiesgo[season] === 'Alto'
                     ? 'Alerta'
-                    : selectedBasin.nivelRiesgo[season] === 'Medio'
+                    : sheetBasin.nivelRiesgo[season] === 'Medio'
                     ? 'Precaución'
                     : 'Menor riesgo'}
                 </span>
                 <p className="text-xs sm:text-sm font-bold text-slate-800 leading-tight">
-                  {selectedBasin.nivelRiesgo[season] === 'Alto'
+                  {sheetBasin.nivelRiesgo[season] === 'Alto'
                     ? 'Agua ácida con metales en cabecera'
-                    : selectedBasin.nivelRiesgo[season] === 'Medio'
+                    : sheetBasin.nivelRiesgo[season] === 'Medio'
                     ? 'Agua en observación preventiva'
                     : 'Menor riesgo de acidez'}
                 </p>
@@ -1082,7 +1089,13 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
             <button
               type="button"
-              onClick={() => onSelectBasin(selectedBasin)}
+              onClick={() => {
+                onSelectBasin(sheetBasin)
+                if (onOpenDetails) {
+                  onOpenDetails(sheetBasin)
+                }
+                setSheetBasin(null)
+              }}
               className="touch-target w-full py-3 px-4 rounded-2xl bg-[#1e3a8a] hover:bg-[#172554] text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-transform active:scale-98"
             >
               <span>{t('btn_more_info')}</span>
