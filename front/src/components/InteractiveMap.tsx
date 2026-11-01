@@ -28,11 +28,13 @@ import {
   AlertTriangle,
   Info,
   SlidersHorizontal,
+  ChevronRight,
 } from 'lucide-react'
 import { chaikinSmoothLine, chaikinSmoothPolygon, LatLngCoord } from '../utils/geoSmoothing'
 import { loadBasinsGeoJson, getBasinPolygonCoords } from '../utils/basinGeoJson'
 import { getRiskTheme } from '../utils/accessibleTheme'
 import { useI18n } from '../i18n/I18nContext'
+import { Illustration } from './Illustration'
 
 interface InteractiveMapProps {
   basins: BasinData[]
@@ -286,13 +288,9 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         })
       })
 
-      polygon.bindTooltip(
-        `<div style="font-family: inherit; font-size: 13px; font-weight: bold; padding: 2px 4px;">
-          <strong>Cuenca ${basin.nombre}</strong><br/>
-          <span style="color: ${color}; font-weight: 800;">● ${theme.labelEs} (${season === 'seca' ? 'Época Seca' : 'Época Lluviosa'})</span>
-        </div>`,
-        { sticky: false, direction: 'center' }
-      )
+      if (typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches) {
+        polygon.bindTooltip(`<strong>Cuenca ${basin.nombre}</strong>`, { sticky: true })
+      }
 
       cuencasGroup.addLayer(polygon)
 
@@ -345,10 +343,9 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       lineCap: 'round',
       lineJoin: 'round',
     })
-    rioSantaLine.bindTooltip(
-      '<strong>Río Santa</strong> (Colector Principal del Callejón de Huaylas)',
-      { sticky: true }
-    )
+    if (typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches) {
+      rioSantaLine.bindTooltip('<strong>Río Santa</strong>', { sticky: true })
+    }
     riosGroup.addLayer(rioSantaGlow)
     riosGroup.addLayer(rioSantaLine)
 
@@ -488,13 +485,9 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         }),
       })
 
-      bofBadge.bindTooltip(
-        `<div style="font-family: inherit; padding: 2px;">
-          <strong style="color: #15803d;">Humedal: ${bof.nombre}</strong>
-          <div style="font-size: 11px; color: #475569;">Área: ${bof.areaHa} ha · Filtro natural</div>
-        </div>`,
-        { sticky: true }
-      )
+      if (typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches) {
+        bofBadge.bindTooltip(`<strong>${bof.nombre}</strong>`, { sticky: true })
+      }
 
       bofedalesGroup.addLayer(bofBadge)
     })
@@ -1009,6 +1002,94 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
             </div>
           </div>
         </div>
+      )}
+      {/* Tap/Click Bottom Sheet para Cuenca: panel inferior con nombre, icono-estado, 1 frase y botón "Ver más" */}
+      {selectedBasin && (
+        <>
+          <div
+            onClick={() => onSelectBasin(null as any)}
+            className="fixed inset-0 z-20 bg-black/25 backdrop-blur-2xs transition-opacity"
+            aria-hidden="true"
+          />
+
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="map-sheet-basin-title"
+            className="absolute bottom-4 left-3 right-3 sm:left-auto sm:right-4 sm:w-96 z-30 bg-white rounded-3xl p-4 sm:p-5 shadow-2xl border border-slate-200 animate-in fade-in slide-in-from-bottom-4 pointer-events-auto"
+          >
+            <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-2 mb-3">
+              <div>
+                <span className="text-[10px] font-black uppercase text-[#1e3a8a] bg-[#eff6ff] px-2.5 py-0.5 rounded-full inline-block mb-1">
+                  Microcuenca
+                </span>
+                <h3
+                  id="map-sheet-basin-title"
+                  className="text-lg sm:text-xl font-black text-[#0f172a] leading-tight"
+                >
+                  Cuenca {selectedBasin.nombre}
+                </h3>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => onSelectBasin(null as any)}
+                className="touch-target w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+                aria-label="Cerrar panel de cuenca"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="flex items-center gap-3 p-3 rounded-2xl bg-[#f8fafc] border border-slate-200 mb-3">
+              <div className="w-12 h-12 shrink-0">
+                <Illustration
+                  name={
+                    selectedBasin.nivelRiesgo[season] === 'Alto'
+                      ? 'gota_enferma'
+                      : selectedBasin.nivelRiesgo[season] === 'Medio'
+                      ? 'gota_preocupada'
+                      : 'gota_tranquila'
+                  }
+                  className="w-full h-full"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <span
+                  className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md inline-block mb-0.5 ${
+                    selectedBasin.nivelRiesgo[season] === 'Alto'
+                      ? 'bg-red-100 text-red-800'
+                      : selectedBasin.nivelRiesgo[season] === 'Medio'
+                      ? 'bg-amber-100 text-amber-900'
+                      : 'bg-emerald-100 text-emerald-800'
+                  }`}
+                >
+                  {selectedBasin.nivelRiesgo[season] === 'Alto'
+                    ? 'Alerta'
+                    : selectedBasin.nivelRiesgo[season] === 'Medio'
+                    ? 'Precaución'
+                    : 'Menor riesgo'}
+                </span>
+                <p className="text-xs sm:text-sm font-bold text-slate-800 leading-tight">
+                  {selectedBasin.nivelRiesgo[season] === 'Alto'
+                    ? 'Agua ácida con metales en cabecera'
+                    : selectedBasin.nivelRiesgo[season] === 'Medio'
+                    ? 'Agua en observación preventiva'
+                    : 'Menor riesgo de acidez'}
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => onSelectBasin(selectedBasin)}
+              className="touch-target w-full py-3 px-4 rounded-2xl bg-[#1e3a8a] hover:bg-[#172554] text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-transform active:scale-98"
+            >
+              <span>{t('btn_more_info')}</span>
+              <ChevronRight size={18} />
+            </button>
+          </div>
+        </>
       )}
     </div>
   )
