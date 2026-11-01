@@ -6,13 +6,18 @@ import {
   Navigation,
   MapPin,
   CheckCircle2,
-  Clock,
-  Upload,
-  AlertCircle,
   Droplets,
-  Eye,
-  ShieldAlert,
+  AlertTriangle,
+  ArrowRight,
+  ArrowLeft,
+  Send,
+  Wifi,
+  WifiOff,
+  Image as ImageIcon,
+  ShieldCheck,
 } from 'lucide-react'
+import { useI18n } from '../i18n/I18nContext'
+import { AudioPlayButton } from './AudioPlayButton'
 
 interface ReportModalProps {
   isOpen: boolean
@@ -21,26 +26,49 @@ interface ReportModalProps {
   isOnline: boolean
 }
 
+type ColorOption = 'rust' | 'milky' | 'clear' | 'muddy'
+
 export const ReportModal: React.FC<ReportModalProps> = ({
   isOpen,
   onClose,
   onSaveReport,
   isOnline,
 }) => {
-  if (!isOpen) return null
+  const { t } = useI18n()
 
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1)
   const [quebrada, setQuebrada] = useState('Quebrada Cojup (Quillcay)')
-  const [colorAgua, setColorAgua] = useState('Anaranjada o rojiza (óxidos de hierro)')
-  const [olorSabor, setOlorSabor] = useState('Sabor metálico astringente')
-  const [usos, setUsos] = useState<string[]>(['Consumo humano / potable', 'Riego agrícola'])
-  const [ph, setPh] = useState<number | null>(4.2)
+  const [colorKey, setColorKey] = useState<ColorOption>('rust')
   const [comentarios, setComentarios] = useState('')
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
+  const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number; precisionM: number } | null>(null)
+  const [capturingGps, setCapturingGps] = useState(false)
 
-  const toggleUse = (use: string) => {
-    setUsos((prev) =>
-      prev.includes(use) ? prev.filter((item) => item !== use) : [...prev, use]
+  if (!isOpen) return null
+
+  const handleCaptureGps = () => {
+    if (!navigator.geolocation) {
+      alert('Tu teléfono no tiene GPS activado en este navegador.')
+      return
+    }
+
+    setCapturingGps(true)
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setGpsCoords({
+          lat: parseFloat(pos.coords.latitude.toFixed(5)),
+          lng: parseFloat(pos.coords.longitude.toFixed(5)),
+          precisionM: Math.round(pos.coords.accuracy || 8),
+        })
+        setCapturingGps(false)
+      },
+      (err) => {
+        setCapturingGps(false)
+        console.warn('GPS capture error:', err)
+        alert('No se pudo fijar la señal satelital en este momento. Se usará la ubicación de la quebrada.')
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
     )
   }
 
@@ -55,53 +83,50 @@ export const ReportModal: React.FC<ReportModalProps> = ({
     }
   }
 
-  const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number; precisionM: number } | null>(null)
-  const [capturingGps, setCapturingGps] = useState(false)
-
-  const handleCaptureGps = () => {
-    if (!navigator.geolocation) {
-      alert('Tu dispositivo no soporta geolocalización satelital.')
-      return
+  const getColorLabel = (k: ColorOption) => {
+    switch (k) {
+      case 'rust':
+        return t('color_rust')
+      case 'milky':
+        return t('color_milky')
+      case 'clear':
+        return t('color_clear')
+      case 'muddy':
+        return t('color_muddy')
     }
-
-    setCapturingGps(true)
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setGpsCoords({
-          lat: parseFloat(pos.coords.latitude.toFixed(5)),
-          lng: parseFloat(pos.coords.longitude.toFixed(5)),
-          precisionM: Math.round(pos.coords.accuracy || 7),
-        })
-        setCapturingGps(false)
-      },
-      (err) => {
-        setCapturingGps(false)
-        console.warn('GPS capture error:', err)
-        alert('No se pudo fijar satélite GPS en este instante. Se usarán las coordenadas de la quebrada.')
-      },
-      { enableHighAccuracy: true, timeout: 8000 }
-    )
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
+
+    const cuencaId = quebrada.includes('Pachacoto') || quebrada.includes('Pastoruri') || quebrada.includes('Pumapampa')
+      ? 'pachacoto'
+      : quebrada.includes('Rurec')
+      ? 'canray_chico'
+      : quebrada.includes('Blanco')
+      ? 'rio_blanco'
+      : 'quillcay'
+
+    const coords = gpsCoords || (quebrada.includes('Pastoruri')
+      ? { lat: -9.921, lng: -77.195, precisionM: 10 }
+      : quebrada.includes('Shallap')
+      ? { lat: -9.524, lng: -77.388, precisionM: 10 }
+      : quebrada.includes('Rurec')
+      ? { lat: -9.635, lng: -77.47, precisionM: 10 }
+      : quebrada.includes('Blanco')
+      ? { lat: -8.980, lng: -77.700, precisionM: 12 }
+      : { lat: -9.512, lng: -77.456, precisionM: 8 })
 
     const newReport: CommunityReport = {
-      id: `rep-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
-      cuencaId: quebrada.includes('Pachacoto') ? 'pachacoto' : 'quillcay',
+      id: `rep-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`,
+      cuencaId,
       quebrada,
-      coordenadas: gpsCoords || (quebrada.includes('Pastoruri')
-        ? { lat: -9.921, lng: -77.195, precisionM: 10 }
-        : quebrada.includes('Shallap')
-        ? { lat: -9.524, lng: -77.388, precisionM: 10 }
-        : quebrada.includes('Rurec')
-        ? { lat: -9.635, lng: -77.47, precisionM: 10 }
-        : { lat: -9.512, lng: -77.456, precisionM: 8 }),
+      coordenadas: coords,
       fecha: new Date().toISOString().split('T')[0],
-      colorAgua,
-      olorSabor,
-      usosAfectados: usos,
-      phMedido: ph,
+      colorAgua: getColorLabel(colorKey),
+      olorSabor: colorKey === 'rust' ? 'Sabor metálico o ácido' : 'Normal',
+      usosAfectados: ['Consumo humano', 'Riego y ganado'],
+      phMedido: colorKey === 'rust' ? 4.2 : colorKey === 'milky' ? 5.2 : null,
       tieneFoto: !!photoPreview,
       fotoUrl: photoPreview || undefined,
       comentarios,
@@ -113,126 +138,377 @@ export const ReportModal: React.FC<ReportModalProps> = ({
     setSubmitted(true)
   }
 
+  const resetForm = () => {
+    setStep(1)
+    setSubmitted(false)
+    setPhotoPreview(null)
+    setComentarios('')
+    onClose()
+  }
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
-      <div className="bg-white rounded-3xl max-w-xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-[#dfe7e5] flex flex-col">
-        {/* Header */}
-        <div className="p-5 border-b border-[#dfe7e5] flex items-center justify-between sticky top-0 bg-white/98 backdrop-blur-md z-10">
-          <div>
-            <span className="text-[10px] font-black uppercase text-[#3346a8] bg-[#edf0ff] px-2.5 py-0.5 rounded-full inline-block mb-1">
-              Ciencia Ciudadana
-            </span>
-            <h2 className="text-xl font-black text-[#172726]">Reportar Calidad del Agua</h2>
-            <p className="text-xs text-[#667573]">
-              {isOnline
-                ? 'Conexión activa · Tu reporte se guardará de inmediato'
-                : 'Sin conexión · Se guardará en cola local y se enviará al reconectar'}
-            </p>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-xs animate-in fade-in"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="report-modal-title"
+    >
+      <div className="bg-white rounded-3xl max-w-lg w-full max-h-[92vh] overflow-y-auto shadow-2xl border border-slate-200 flex flex-col">
+        {/* Header with Title and Close Button */}
+        <div className="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between sticky top-0 bg-white/98 backdrop-blur-md z-10">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold">
+              <Droplets size={22} />
+            </div>
+            <div>
+              <h2 id="report-modal-title" className="text-lg font-black text-slate-900 leading-tight">
+                {t('report_wizard_title')}
+              </h2>
+              <div className="flex items-center gap-1.5 text-xs">
+                {isOnline ? (
+                  <span className="text-emerald-700 font-bold flex items-center gap-1">
+                    <Wifi size={12} /> {t('online_status')}
+                  </span>
+                ) : (
+                  <span className="text-amber-700 font-bold flex items-center gap-1">
+                    <WifiOff size={12} /> {t('offline_status')}
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
           <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100"
+            onClick={resetForm}
+            className="touch-target p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+            aria-label="Cerrar ventana de aviso"
           >
-            <X size={18} />
+            <X size={22} />
           </button>
         </div>
 
-        {/* Success State */}
-        {submitted ? (
-          <div className="p-8 flex flex-col items-center text-center space-y-4 my-auto">
-            <div className="w-16 h-16 rounded-full bg-green-100 text-[#21835b] flex items-center justify-center">
-              <CheckCircle2 size={36} />
+        {/* Step Progress Indicators (1 to 4) */}
+        {!submitted && (
+          <div className="px-5 pt-3 pb-2 border-b border-slate-100 bg-slate-50">
+            <div className="flex items-center justify-between gap-1">
+              {[
+                { s: 1, label: t('step_location') },
+                { s: 2, label: t('step_color') },
+                { s: 3, label: t('step_photo') },
+                { s: 4, label: t('step_send') },
+              ].map(({ s, label }) => {
+                const isActive = step === s
+                const isPassed = step > s
+                return (
+                  <div key={s} className="flex-1 flex flex-col items-center">
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-all ${
+                        isActive
+                          ? 'bg-blue-700 text-white shadow-md ring-2 ring-blue-300'
+                          : isPassed
+                          ? 'bg-emerald-600 text-white'
+                          : 'bg-slate-200 text-slate-500'
+                      }`}
+                    >
+                      {isPassed ? '✓' : s}
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-600 mt-1 text-center line-clamp-1">
+                      {s === 1 ? 'Dónde' : s === 2 ? 'Color' : s === 3 ? 'Foto' : 'Enviar'}
+                    </span>
+                  </div>
+                )
+              })}
             </div>
-            <h3 className="text-xl font-black text-[#172726]">¡Reporte Registrado!</h3>
-            <p className="text-sm text-[#667573] max-w-md">
-              {isOnline
-                ? 'Tu reporte fue transmitido exitosamente y servirá para calibrar los mapas de alerta temprana de la Cordillera Blanca.'
-                : 'Tu reporte se guardó de forma segura en tu teléfono (almacenamiento local IndexedDB). Se sincronizará automáticamente apenas detectemos señal.'}
-            </p>
-            <div className="bg-[#f8faf9] p-4 rounded-2xl border border-[#dfe7e5] text-xs text-left w-full space-y-1">
-              <div>
-                <strong>Punto:</strong> {quebrada}
-              </div>
-              <div>
-                <strong>Color reportado:</strong> {colorAgua}
-              </div>
-              {ph && (
-                <div>
-                  <strong>pH registrado:</strong> {ph.toFixed(1)}
-                </div>
-              )}
-              <div className="text-[#3346a8] font-bold flex items-center gap-1 pt-1">
-                <Clock size={13} /> Estado:{' '}
-                {isOnline ? 'Sincronizado en servidor' : 'En cola local sin conexión'}
-              </div>
-            </div>
-            <button
-              onClick={() => {
-                setSubmitted(false)
-                onClose()
-              }}
-              className="w-full min-h-[48px] rounded-xl bg-[#3346a8] hover:bg-[#25368f] text-white font-bold text-sm transition-colors mt-2"
-            >
-              Cerrar y volver al mapa
-            </button>
           </div>
-        ) : (
-          /* Form Body */
-          <form onSubmit={handleSubmit} className="p-6 space-y-5">
-            {/* Step 1: Ubicación */}
-            <div className="space-y-2">
+        )}
+
+        {/* Modal Body */}
+        <div className="p-5 flex-1">
+          {submitted ? (
+            /* Success confirmation */
+            <div className="text-center py-6 space-y-4">
+              <div className="w-20 h-20 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto shadow-sm">
+                <CheckCircle2 size={46} />
+              </div>
+              <h3 className="text-2xl font-black text-slate-900">
+                ¡Gracias por avisar!
+              </h3>
+              <p className="text-sm text-slate-700 max-w-sm mx-auto leading-relaxed">
+                {isOnline
+                  ? t('report_saved_online')
+                  : t('report_saved_offline')}
+              </p>
+
+              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-left text-xs space-y-2 mt-4 text-slate-800">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500 font-semibold">Quebrada:</span>
+                  <strong className="text-slate-900">{quebrada}</strong>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500 font-semibold">Aspecto:</span>
+                  <strong className="text-slate-900">{getColorLabel(colorKey)}</strong>
+                </div>
+                {photoPreview && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-500 font-semibold">Foto:</span>
+                    <strong className="text-emerald-700">Incluida ✓</strong>
+                  </div>
+                )}
+                <div className="pt-2 border-t border-slate-200 text-blue-800 font-bold flex items-center gap-1.5">
+                  <ShieldCheck size={16} />
+                  <span>Tu aviso ayuda a cuidar el agua de toda la comunidad.</span>
+                </div>
+              </div>
+
+              <div className="pt-4">
+                <button
+                  onClick={resetForm}
+                  className="touch-target w-full py-3.5 bg-blue-700 hover:bg-blue-800 text-white font-black text-base rounded-2xl shadow-md transition-transform active:scale-98"
+                >
+                  Volver al inicio
+                </button>
+              </div>
+            </div>
+          ) : step === 1 ? (
+            /* Step 1: Ubicación */
+            <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-black uppercase text-[#172726] flex items-center gap-1.5">
-                  <MapPin size={15} className="text-[#3346a8]" /> 1. Ubicación y Quebrada
-                </label>
+                <div>
+                  <h3 className="text-base font-black text-slate-900 flex items-center gap-1.5">
+                    <MapPin size={18} className="text-blue-700" />
+                    {t('step_location')}
+                  </h3>
+                  <p className="text-xs text-slate-600 mt-0.5">
+                    Elige la quebrada donde viste el agua:
+                  </p>
+                </div>
+                <AudioPlayButton
+                  audioKey="step_location"
+                  textToSpeak="Paso uno: Elige en qué quebrada o río estás viendo el agua, o toca fijar GPS."
+                />
+              </div>
+
+              {/* Large Quebrada Selector */}
+              <div className="space-y-1">
+                <select
+                  value={quebrada}
+                  onChange={(e) => setQuebrada(e.target.value)}
+                  className="w-full p-3.5 rounded-2xl border-2 border-slate-300 bg-slate-50 text-base text-slate-900 font-bold focus:border-blue-700 focus:bg-white"
+                  aria-label="Selecciona la quebrada o río"
+                >
+                  <option value="Quebrada Cojup (Quillcay)">Quebrada Cojup (Huaraz - Quillcay)</option>
+                  <option value="Quebrada Shallap (Quillcay)">Quebrada Shallap (Huaraz - Quillcay)</option>
+                  <option value="Quebrada Quilcayhuanca (Quillcay)">Quebrada Quilcayhuanca (Quillcay)</option>
+                  <option value="Quebrada Pastoruri (Pachacoto)">Quebrada Pastoruri (Cátac - Pachacoto)</option>
+                  <option value="Pampa de Pumapampa (Pachacoto)">Pumapampa (Cátac - Pachacoto)</option>
+                  <option value="Quebrada Rurec (Canray Chico)">Quebrada Rurec (Olleros - Canray Chico)</option>
+                  <option value="Quebrada Río Blanco (Huaylas)">Río Blanco (Santa Cruz - Huaylas)</option>
+                  <option value="Río Santa (Puente Huaraz)">Río Santa (Puente Central Huaraz)</option>
+                </select>
+              </div>
+
+              {/* GPS Capture Button (Accessible Min 48px Touch Target) */}
+              <div className="pt-2">
                 <button
                   type="button"
                   onClick={handleCaptureGps}
                   disabled={capturingGps}
-                  className="text-[11px] font-bold text-[#3346a8] hover:text-[#25368f] bg-[#edf0ff] hover:bg-[#e0e7ff] px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
+                  className={`touch-target w-full p-3.5 rounded-2xl border-2 font-black text-sm flex items-center justify-center gap-2 transition-all ${
+                    gpsCoords
+                      ? 'border-emerald-600 bg-emerald-50 text-emerald-800'
+                      : 'border-blue-300 bg-blue-50 text-blue-900 hover:bg-blue-100'
+                  }`}
                 >
-                  <Navigation size={12} className={capturingGps ? 'animate-spin' : ''} />
-                  <span>{capturingGps ? 'Obteniendo GPS...' : 'Fijar mi GPS real'}</span>
+                  <Navigation size={18} className={capturingGps ? 'animate-spin' : ''} />
+                  <span>
+                    {capturingGps
+                      ? 'Buscando satélite GPS...'
+                      : gpsCoords
+                      ? `${t('gps_ok')} (±${gpsCoords.precisionM} m)`
+                      : t('fix_gps')}
+                  </span>
                 </button>
               </div>
-              <select
-                value={quebrada}
-                onChange={(e) => setQuebrada(e.target.value)}
-                className="w-full p-3 rounded-xl border border-[#dfe7e5] bg-[#fafbfb] text-sm text-[#172726] font-semibold focus:outline-[#3346a8]"
-              >
-                <option value="Quebrada Cojup (Quillcay)">Quebrada Cojup (Captación Huaraz)</option>
-                <option value="Quebrada Shallap (Quillcay)">Quebrada Shallap (Aguas ácidas)</option>
-                <option value="Quebrada Quilcayhuanca (Quillcay)">Quebrada Quilcayhuanca</option>
-                <option value="Quebrada Pastoruri (Pachacoto)">Quebrada Pastoruri (Cátac)</option>
-                <option value="Pampa de Pumapampa (Pachacoto)">Pampa de Pumapampa (Bofedal)</option>
-                <option value="Río Santa (Puente Huaraz)">Río Santa (Zona urbana Huaraz)</option>
-                <option value="Quebrada Rurec (Canray Chico)">Quebrada Rurec (Olleros)</option>
-              </select>
-              {gpsCoords ? (
-                <div className="flex items-center gap-2 text-[11px] text-[#21835b] bg-[#e8f5ed] px-3 py-1.5 rounded-lg border border-[#21835b]/20">
-                  <CheckCircle2 size={13} /> GPS satelital fijado: {gpsCoords.lat}, {gpsCoords.lng} (Margen ±{gpsCoords.precisionM} m)
-                </div>
-              ) : (
-                <div className="flex items-center justify-between text-[11px] text-[#667573] bg-[#f8faf9] px-3 py-1.5 rounded-lg border border-[#dfe7e5]">
-                  <span>Coordenadas aproximadas de la quebrada</span>
-                  <span className="text-[#3346a8] font-bold cursor-pointer" onClick={handleCaptureGps}>Toca "Fijar mi GPS real"</span>
-                </div>
-              )}
-            </div>
 
-            {/* Step 2: Foto del agua */}
-            <div className="space-y-2">
-              <label className="text-xs font-black uppercase text-[#172726] flex items-center gap-1.5">
-                <Camera size={15} className="text-[#3346a8]" /> 2. Foto del agua o quebrada
-              </label>
-              <div className="flex items-center gap-3">
-                <label className="flex-1 border-2 border-dashed border-[#dfe7e5] hover:border-[#3346a8] rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer transition-colors bg-[#fafbfb] text-center">
-                  <Upload size={22} className="text-[#667573] mb-1" />
-                  <span className="text-xs font-bold text-[#172726]">
-                    {photoPreview ? 'Cambiar foto cargada' : 'Tomar foto o subir desde galería'}
+              <div className="pt-4 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setStep(2)}
+                  className="touch-target w-full sm:w-auto px-6 py-3.5 bg-blue-700 hover:bg-blue-800 text-white font-black text-base rounded-2xl flex items-center justify-center gap-2 shadow-md active:scale-98 transition-transform"
+                >
+                  <span>Siguiente</span>
+                  <ArrowRight size={18} />
+                </button>
+              </div>
+            </div>
+          ) : step === 2 ? (
+            /* Step 2: ¿Cómo se ve el agua? */
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-black text-slate-900 flex items-center gap-1.5">
+                    <Droplets size={18} className="text-blue-700" />
+                    {t('step_color')}
+                  </h3>
+                  <p className="text-xs text-slate-600 mt-0.5">
+                    Toca la tarjeta que más se parezca al agua:
+                  </p>
+                </div>
+                <AudioPlayButton
+                  audioKey="step_color"
+                  textToSpeak="Paso dos: Toca cómo se ve el agua. ¿Se ve naranja como óxido, blanca lechosa, o limpia y clara?"
+                />
+              </div>
+
+              {/* 4 Big Color Cards (High Contrast, Tactile) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {/* 1. Naranja / Óxido */}
+                <button
+                  type="button"
+                  onClick={() => setColorKey('rust')}
+                  className={`touch-target p-3.5 rounded-2xl border-2 text-left flex items-center gap-3 transition-all ${
+                    colorKey === 'rust'
+                      ? 'border-orange-600 bg-orange-50 ring-2 ring-orange-400'
+                      : 'border-slate-200 bg-white hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="w-10 h-10 rounded-xl bg-orange-600 text-white flex items-center justify-center text-lg font-bold shrink-0 shadow-xs">
+                    🟠
+                  </div>
+                  <div>
+                    <strong className="text-sm font-black text-slate-900 block">
+                      {t('color_rust')}
+                    </strong>
+                    <span className="text-[11px] text-slate-600 leading-tight block">
+                      Rocas manchadas de óxido rojo
+                    </span>
+                  </div>
+                </button>
+
+                {/* 2. Blanca / Lechosa */}
+                <button
+                  type="button"
+                  onClick={() => setColorKey('milky')}
+                  className={`touch-target p-3.5 rounded-2xl border-2 text-left flex items-center gap-3 transition-all ${
+                    colorKey === 'milky'
+                      ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-300'
+                      : 'border-slate-200 bg-white hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="w-10 h-10 rounded-xl bg-slate-300 border border-slate-400 text-slate-800 flex items-center justify-center text-lg font-bold shrink-0 shadow-xs">
+                    ⚪
+                  </div>
+                  <div>
+                    <strong className="text-sm font-black text-slate-900 block">
+                      {t('color_milky')}
+                    </strong>
+                    <span className="text-[11px] text-slate-600 leading-tight block">
+                      Turbia con polvillo blanco
+                    </span>
+                  </div>
+                </button>
+
+                {/* 3. Clara / Cristalina */}
+                <button
+                  type="button"
+                  onClick={() => setColorKey('clear')}
+                  className={`touch-target p-3.5 rounded-2xl border-2 text-left flex items-center gap-3 transition-all ${
+                    colorKey === 'clear'
+                      ? 'border-emerald-600 bg-emerald-50 ring-2 ring-emerald-300'
+                      : 'border-slate-200 bg-white hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg font-bold shrink-0 shadow-xs">
+                    🟢
+                  </div>
+                  <div>
+                    <strong className="text-sm font-black text-slate-900 block">
+                      {t('color_clear')}
+                    </strong>
+                    <span className="text-[11px] text-slate-600 leading-tight block">
+                      Cristalina y piedras limpias
+                    </span>
+                  </div>
+                </button>
+
+                {/* 4. Marrón / Oscura */}
+                <button
+                  type="button"
+                  onClick={() => setColorKey('muddy')}
+                  className={`touch-target p-3.5 rounded-2xl border-2 text-left flex items-center gap-3 transition-all ${
+                    colorKey === 'muddy'
+                      ? 'border-amber-800 bg-amber-50 ring-2 ring-amber-400'
+                      : 'border-slate-200 bg-white hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="w-10 h-10 rounded-xl bg-amber-900 text-white flex items-center justify-center text-lg font-bold shrink-0 shadow-xs">
+                    🟤
+                  </div>
+                  <div>
+                    <strong className="text-sm font-black text-slate-900 block">
+                      {t('color_muddy')}
+                    </strong>
+                    <span className="text-[11px] text-slate-600 leading-tight block">
+                      Tierra, lodo o crecida
+                    </span>
+                  </div>
+                </button>
+              </div>
+
+              <div className="pt-4 flex items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="touch-target px-4 py-3 border border-slate-300 text-slate-700 font-bold text-sm rounded-2xl hover:bg-slate-100 flex items-center gap-1.5"
+                >
+                  <ArrowLeft size={16} />
+                  <span>Atrás</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStep(3)}
+                  className="touch-target px-6 py-3.5 bg-blue-700 hover:bg-blue-800 text-white font-black text-base rounded-2xl flex items-center gap-2 shadow-md active:scale-98 transition-transform"
+                >
+                  <span>Siguiente</span>
+                  <ArrowRight size={18} />
+                </button>
+              </div>
+            </div>
+          ) : step === 3 ? (
+            /* Step 3: Foto (opcional) */
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-black text-slate-900 flex items-center gap-1.5">
+                    <Camera size={18} className="text-blue-700" />
+                    {t('step_photo')}
+                  </h3>
+                  <p className="text-xs text-slate-600 mt-0.5">
+                    {t('photo_optional_hint')}
+                  </p>
+                </div>
+                <AudioPlayButton
+                  audioKey="step_photo"
+                  textToSpeak="Paso tres: Si es seguro, puedes tomar una foto con tu cámara. No te acerques al barranco."
+                />
+              </div>
+
+              {/* Safety Alert (Prominent) */}
+              <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-3.5 flex items-start gap-2.5">
+                <AlertTriangle size={20} className="text-amber-800 shrink-0 mt-0.5" />
+                <p className="text-xs text-amber-950 font-bold leading-relaxed">
+                  Por tu seguridad: no bajes a zonas resbalosas ni cruces el río si está crecido. La foto es totalmente voluntaria.
+                </p>
+              </div>
+
+              {/* Big Photo Capture Button */}
+              <div>
+                <label className="touch-target border-2 border-dashed border-blue-400 bg-blue-50/60 hover:bg-blue-100/60 rounded-3xl p-5 flex flex-col items-center justify-center cursor-pointer transition-colors text-center">
+                  <Camera size={32} className="text-blue-700 mb-1.5" />
+                  <span className="text-sm font-black text-slate-900">
+                    {photoPreview ? 'Cambiar foto seleccionada' : t('take_photo')}
                   </span>
-                  <span className="text-[10px] text-[#667573]">
-                    Mantén distancia prudente del lecho
+                  <span className="text-xs text-slate-500 mt-0.5">
+                    Toca para abrir cámara o galería
                   </span>
                   <input
                     type="file"
@@ -242,140 +518,130 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                     className="hidden"
                   />
                 </label>
+              </div>
 
-                {photoPreview && (
-                  <div className="w-20 h-20 rounded-2xl overflow-hidden border border-[#dfe7e5] relative shadow-sm">
-                    <img
-                      src={photoPreview}
-                      alt="Vista previa"
-                      className="w-full h-full object-cover"
-                    />
+              {/* Preview if uploaded */}
+              {photoPreview && (
+                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-200">
+                  <div className="w-16 h-16 rounded-xl overflow-hidden border border-slate-300 shrink-0">
+                    <img src={photoPreview} alt="Foto del agua" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-xs font-black text-slate-900 block truncate">
+                      Foto cargada con éxito ✓
+                    </span>
                     <button
                       type="button"
                       onClick={() => setPhotoPreview(null)}
-                      className="absolute top-1 right-1 bg-black/70 text-white rounded-full p-0.5"
+                      className="text-xs font-bold text-red-700 hover:underline mt-1"
                     >
-                      <X size={12} />
+                      Quitar foto
                     </button>
                   </div>
-                )}
-              </div>
-            </div>
+                </div>
+              )}
 
-            {/* Step 3: Color del Agua */}
-            <div className="space-y-2">
-              <label className="text-xs font-black uppercase text-[#172726] flex items-center gap-1.5">
-                <Droplets size={15} className="text-[#3346a8]" /> 3. Coloración observable del agua
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { label: 'Anaranjada o rojiza', desc: 'Precipitación de hierro (DAR)' },
-                  { label: 'Blanquecina o lechosa', desc: 'Coloides de aluminio' },
-                  { label: 'Clara o cristalina', desc: 'Sin cambios visibles' },
-                  { label: 'Amarillenta u oscura', desc: 'Materia orgánica / turba' },
-                ].map((item) => (
-                  <button
-                    key={item.label}
-                    type="button"
-                    onClick={() => setColorAgua(item.label)}
-                    className={`p-3 rounded-xl border text-left transition-all ${
-                      colorAgua.includes(item.label)
-                        ? 'border-[#3346a8] bg-[#edf0ff] ring-2 ring-[#3346a8]/20'
-                        : 'border-[#dfe7e5] bg-white hover:bg-gray-50'
-                    }`}
-                  >
-                    <strong className="text-xs font-black text-[#172726] block">{item.label}</strong>
-                    <span className="text-[10px] text-[#667573]">{item.desc}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Step 4: Usos comunitarios del agua */}
-            <div className="space-y-2">
-              <label className="text-xs font-black uppercase text-[#172726] flex items-center gap-1.5">
-                <ShieldAlert size={15} className="text-[#3346a8]" /> 4. Usos del agua en la zona
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  'Consumo humano / potable',
-                  'Riego agrícola',
-                  'Abrevadero para ganado',
-                  'Piscicultura (truchas)',
-                  'Ninguno / Zona alta',
-                ].map((use) => (
-                  <button
-                    key={use}
-                    type="button"
-                    onClick={() => toggleUse(use)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
-                      usos.includes(use)
-                        ? 'bg-[#3346a8] text-white border-[#3346a8]'
-                        : 'bg-white text-[#172726] border-[#dfe7e5] hover:bg-gray-50'
-                    }`}
-                  >
-                    {use}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Step 5: Tira de pH (Opcional) */}
-            <div className="space-y-2 bg-[#f8faf9] p-3.5 rounded-2xl border border-[#dfe7e5]">
-              <div className="flex justify-between items-center text-xs">
-                <label className="font-black text-[#172726]">
-                  5. Medición con tira de pH (opcional)
+              {/* Optional brief comment */}
+              <div className="pt-1">
+                <label className="text-xs font-bold text-slate-700 block mb-1">
+                  ¿Alguna observación adicional? (Opcional)
                 </label>
-                <span className="font-bold text-[#3346a8] bg-white px-2 py-0.5 rounded-md border border-[#dfe7e5]">
-                  {ph !== null ? `pH ${ph.toFixed(1)}` : 'Sin dato'}
-                </span>
+                <textarea
+                  value={comentarios}
+                  onChange={(e) => setComentarios(e.target.value)}
+                  placeholder="Ejemplo: huele raro, las truchas murieron, etc."
+                  className="w-full p-3 rounded-2xl border border-slate-300 text-xs text-slate-900 min-h-[60px]"
+                />
               </div>
-              <input
-                type="range"
-                min="2.0"
-                max="9.0"
-                step="0.1"
-                value={ph ?? 7.0}
-                onChange={(e) => setPh(Number(e.target.value))}
-                className="w-full accent-[#3346a8] cursor-pointer"
-              />
-              <div className="flex justify-between text-[10px] text-[#667573] font-bold">
-                <span className="text-red-700">Ácido (2.0 - 5.0)</span>
-                <span className="text-green-700">Neutro ECA (6.5 - 8.5)</span>
-                <span>Alcalino (9.0)</span>
+
+              <div className="pt-3 flex items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={() => setStep(2)}
+                  className="touch-target px-4 py-3 border border-slate-300 text-slate-700 font-bold text-sm rounded-2xl hover:bg-slate-100 flex items-center gap-1.5"
+                >
+                  <ArrowLeft size={16} />
+                  <span>Atrás</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStep(4)}
+                  className="touch-target px-6 py-3.5 bg-blue-700 hover:bg-blue-800 text-white font-black text-base rounded-2xl flex items-center gap-2 shadow-md active:scale-98 transition-transform"
+                >
+                  <span>Siguiente</span>
+                  <ArrowRight size={18} />
+                </button>
               </div>
             </div>
+          ) : (
+            /* Step 4: Enviar */
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-black text-slate-900 flex items-center gap-1.5">
+                    <Send size={18} className="text-blue-700" />
+                    {t('step_send')}
+                  </h3>
+                  <p className="text-xs text-slate-600 mt-0.5">
+                    Revisa los datos antes de guardar:
+                  </p>
+                </div>
+                <AudioPlayButton
+                  audioKey="step_send"
+                  textToSpeak="Paso cuatro: Revisa que tu quebrada y color de agua sean correctos, y toca el botón grande para enviar tu aviso."
+                />
+              </div>
 
-            {/* Step 6: Comentarios */}
-            <div className="space-y-1">
-              <label className="text-xs font-black uppercase text-[#172726]">
-                6. Observaciones adicionales
-              </label>
-              <textarea
-                value={comentarios}
-                onChange={(e) => setComentarios(e.target.value)}
-                placeholder="Describe si notaste peces muertos, olor a azufre, animales que rechazan beber, etc."
-                className="w-full p-3 rounded-xl border border-[#dfe7e5] text-xs text-[#172726] focus:outline-[#3346a8] min-h-[70px]"
-              />
-            </div>
+              {/* Summary Card */}
+              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs space-y-2 text-slate-800">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500 font-semibold">📍 Quebrada:</span>
+                  <strong className="text-slate-900 text-right">{quebrada}</strong>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500 font-semibold">🎨 Aspecto:</span>
+                  <strong className="text-slate-900">{getColorLabel(colorKey)}</strong>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500 font-semibold">📷 Foto:</span>
+                  <strong className={photoPreview ? 'text-emerald-700' : 'text-slate-600'}>
+                    {photoPreview ? 'Foto adjunta ✓' : 'Sin foto'}
+                  </strong>
+                </div>
+                <div className="flex items-center justify-between pt-1 border-t border-slate-200">
+                  <span className="text-slate-500 font-semibold">📶 Conexión:</span>
+                  <strong className={isOnline ? 'text-emerald-700' : 'text-amber-700'}>
+                    {isOnline ? 'En línea (se envía ahora)' : 'Sin señal (se guarda en tu teléfono)'}
+                  </strong>
+                </div>
+              </div>
 
-            {/* Submit Button */}
-            <div className="pt-2">
-              <button
-                type="submit"
-                className="w-full min-h-[50px] rounded-xl bg-[#3346a8] hover:bg-[#25368f] text-white font-black text-sm flex items-center justify-center gap-2 transition-colors shadow-md"
-              >
-                <CheckCircle2 size={18} />
-                Guardar Reporte Comunitario
-              </button>
-              <p className="text-[11px] text-[#667573] text-center mt-2">
-                {isOnline
-                  ? 'Se guardará en la base de datos de alerta temprana.'
-                  : 'Se guardará en la memoria local de tu dispositivo y se enviará al conectarte.'}
-              </p>
+              {/* Permanent Warning */}
+              <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200 text-[11px] text-amber-900 leading-tight">
+                <strong>Aviso:</strong> {t('disclaimer')}
+              </div>
+
+              <div className="pt-2 flex items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={() => setStep(3)}
+                  className="touch-target px-4 py-3.5 border border-slate-300 text-slate-700 font-bold text-sm rounded-2xl hover:bg-slate-100 flex items-center gap-1.5"
+                >
+                  <ArrowLeft size={16} />
+                  <span>Atrás</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSubmit()}
+                  className="touch-target flex-1 py-4 bg-blue-700 hover:bg-blue-800 text-white font-black text-base rounded-2xl shadow-lg flex items-center justify-center gap-2 active:scale-98 transition-transform"
+                >
+                  <Send size={18} />
+                  <span>{t('send_report_btn')}</span>
+                </button>
+              </div>
             </div>
-          </form>
-        )}
+          )}
+        </div>
       </div>
     </div>
   )
