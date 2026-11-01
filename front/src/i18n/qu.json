@@ -4,193 +4,800 @@
     "estado": "Provisional para validación con hablante nativo",
     "_revisar": true
   },
-  "app_name": { "text": "GlaciAgua", "_revisar": true },
-  "app_tagline": { "text": "Ritikuna yaku rikapana", "_revisar": true },
-  "disclaimer": { "text": "Willakuy yaku rikaypaq. Manam yakupa llumpaychu nintsu. JASS-nikita tapukuy.", "_revisar": true },
-  "disclaimer_short": { "text": "Yaku rikapana willakuy. JASS-ta tapukuy.", "_revisar": true },
-  "listen": { "text": "Wiyay", "_revisar": true },
-  "stop_audio": { "text": "Upallatsiy", "_revisar": true },
-  "lang_es": { "text": "Castellano", "_revisar": true },
-  "lang_qu": { "text": "Runasimi", "_revisar": true },
-  "season": { "text": "Mita", "_revisar": true },
-  "season_humeda": { "text": "Tamya mita", "_revisar": true },
-  "season_seca": { "text": "Ushya mita", "_revisar": true },
-  "online_status": { "text": "Llikachaw", "_revisar": true },
-  "offline_status": { "text": "Celularchaw waqaychasqa", "_revisar": true },
-  "sync_pending": { "text": "Waqaychasqakunata apachiy", "_revisar": true },
-  "nav_water": { "text": "¿Yakuta upyashmantsuraq?", "_revisar": true },
-  "nav_map": { "text": "Yaku Saywiti", "_revisar": true },
-  "nav_report": { "text": "Qanra yakuta willakuy", "_revisar": true },
-  "nav_more": { "text": "Mastaraq", "_revisar": true },
-  "choose_basin": { "text": "Wayqunikita akray:", "_revisar": true },
-  "risk_alto": { "text": "Hukllay Rikuy", "_revisar": true },
-  "risk_medio": { "text": "Chawpi Rikuy", "_revisar": true },
-  "risk_bajo": { "text": "Uray Rikuy", "_revisar": true },
-  "advice_alto": { "text": "Kay yakuqa poqoq kaykanman. Ama upyeytsu, jass-nikita willay.", "_revisar": true },
-  "advice_medio": { "text": "Yaku rikapaashqa kaykan. JASS-nikita tapukuy manaraq upyashpa.", "_revisar": true },
-  "advice_bajo": { "text": "Yakuqa allillam kaykan. JASS nishqanno altsay.", "_revisar": true },
-  "usage_title": { "text": "¿Imapaqraq yakuta munanki?", "_revisar": true },
-  "usage_drink": { "text": "Wayichaw upyanapaq", "_revisar": true },
-  "usage_drink_alto": { "text": "Ama kay wayqupita upyeytsu. Chuyay puquiota ashiy.", "_revisar": true },
-  "usage_drink_medio": { "text": "Ama asekyapita upyeytsu. JASS-nikita tapukuy.", "_revisar": true },
-  "usage_drink_bajo": { "text": "JASS nishqanno yakuta chuyanchay.", "_revisar": true },
-  "usage_boil": { "text": "Yakuta timpuypaq", "_revisar": true },
-  "usage_boil_alert": { "text": "Yakuta timpuchiptiki qillayakunaqa manam yarquntsu, aswanmi mikunapaq llumpayta qiparin.", "_revisar": true },
-  "usage_crops": { "text": "Chakrata qarpaypaq", "_revisar": true },
-  "usage_crops_alto": { "text": "Poqoq yakuqa yura sapikunata kañanmanmi.", "_revisar": true },
-  "usage_crops_medio": { "text": "Allpata rikapay, qelluyaptinqa cuidado kay.", "_revisar": true },
-  "usage_crops_bajo": { "text": "Chakra qarpaypaq allillam regantes kamachishqanno.", "_revisar": true },
-  "usage_animals": { "text": "Uywakunata qaranapaq", "_revisar": true },
-  "usage_animals_alto": { "text": "Ama wakakunata pukuta upyachiytsu.", "_revisar": true },
-  "usage_animals_medio": { "text": "Puquiopita o bofedalpitaraq upyatsiy.", "_revisar": true },
-  "usage_animals_bajo": { "text": "Uywakuna upyananpaq allillam.", "_revisar": true },
-  "view_details": { "text": "Yupaykunata rikay", "_revisar": true },
-  "hide_details": { "text": "Yupaykunata pakay", "_revisar": true },
-  "btn_report_water": { "text": "Qanra yakuta willakuy", "_revisar": true },
-  "btn_guidance": { "text": "Imata ruranapaq", "_revisar": true },
-  "report_wizard_title": { "text": "Qanra yakupita willakuy", "_revisar": true },
-  "step_location": { "text": "1. ¿Maychawtaq kanki?", "_revisar": true },
-  "step_color": { "text": "2. ¿Ima niraqtaq yaku?", "_revisar": true },
-  "step_photo": { "text": "3. Rikuypaq foto", "_revisar": true },
-  "step_send": { "text": "4. Willakuyta apachiy", "_revisar": true },
-  "color_rust": { "text": "Puka niraq yaku", "_revisar": true },
-  "color_milky": { "text": "Yuraq lechiyoq niraq", "_revisar": true },
-  "color_clear": { "text": "Chuya yaku", "_revisar": true },
-  "color_muddy": { "text": "Yana mituyoq yaku", "_revisar": true },
-  "fix_gps": { "text": "GPS-niyta churay", "_revisar": true },
-  "gps_ok": { "text": "Lugar GPS-wan kanchisqa", "_revisar": true },
-  "take_photo": { "text": "Fotota horqoy", "_revisar": true },
-  "photo_optional_hint": { "text": "Wayqupa kuchunman ama llumpay hichkaytsu.", "_revisar": true },
-  "send_report_btn": { "text": "Willakuyta waqaychay", "_revisar": true },
-  "report_saved_offline": { "text": "Willakuyqa celularnikichawmi waqaychasqa. Señal kaptinmi apakanqa.", "_revisar": true },
-  "report_saved_online": { "text": "Willakuyqa apakanñam.", "_revisar": true },
-  "onboarding_title": { "text": "GlaciAgua imano llamkan", "_revisar": true },
-  "onboarding_step1_title": { "text": "1. Riti yakuwan rumikuna", "_revisar": true },
-  "onboarding_step1_desc": { "text": "Ritikuna pishiyaptin rumikuna qillayyoq qepan, tamyaptin yaku poqoqman tikran.", "_revisar": true },
-  "onboarding_step2_title": { "text": "2. Semáforota rikapay", "_revisar": true },
-  "onboarding_step2_desc": { "text": "Puka: ama upyeytsu. Qellu: cuidado kay. Qomer: uray rikuy, JASS-nikita tapukuy.", "_revisar": true },
-  "onboarding_step3_title": { "text": "3. Aylluykikunata willay", "_revisar": true },
-  "onboarding_step3_desc": { "text": "Yaku puka o lechiyoq rikakaaptinqa app-chaw willakuy.", "_revisar": true },
-  "btn_understood": { "text": "Allimi, qallashun", "_revisar": true },
-  "emergency_contacts": { "text": "Yanapanapaq telefonokuna", "_revisar": true },
-  "contact_jass": { "text": "Ayllupa JASS kamachiqkuna", "_revisar": true },
-  "contact_diresa": { "text": "Qhali Kay Wasikuna DIRESA Huaraz", "_revisar": true },
-  "contact_municipio": { "text": "Huaraz Municipio", "_revisar": true },
-  "scientific_panel": { "text": "Yachaqkunapaq datos", "_revisar": true },
-  "simulator_title": { "text": "Riesgo simulador", "_revisar": true },
-  "ml_model_title": { "text": "Random Forest yachay modelo", "_revisar": true },
-  "map_layers": { "text": "Saywiti qatakuna", "_revisar": true },
-  "legend": { "text": "Imano kananpaq", "_revisar": true },
-  "basin_microbasin": { "text": "Yaku wayqu", "_revisar": true },
-  "basin_creeks": { "text": "Hatun wayqukuna", "_revisar": true },
-  "basin_alert_high": { "text": "Willakuy: poqoq yaku kanman", "_revisar": true },
-  "basin_alert_medium": { "text": "Rikapaashqa yaku", "_revisar": true },
-  "basin_alert_low": { "text": "Uray poqoy yaku", "_revisar": true },
-  "basin_human_high": { "text": "Ama wayichaw upyeytsu", "_revisar": true },
-  "basin_human_high_desc": { "text": "Ama kay wayqupita upyeytsu. Qillayakuna qeshyatsikunman.", "_revisar": true },
-  "basin_human_med": { "text": "Alli captacion yakullata upyay", "_revisar": true },
-  "basin_human_med_desc": { "text": "Ama asekyapita upyeytsu. JASS-ta tapukuy.", "_revisar": true },
-  "basin_human_low": { "text": "JASS-wan yaku chuyanchay", "_revisar": true },
-  "basin_human_low_desc": { "text": "Yakuqa allillam kaykan. JASS nishqanno altsay.", "_revisar": true },
-  "basin_crops_high": { "text": "Hortalizakunapaq ama qarpeytsu", "_revisar": true },
-  "basin_crops_high_desc": { "text": "Poqoq yakuqa sapikunata kañanman.", "_revisar": true },
-  "basin_crops_med": { "text": "Cuidado qarpanapaq", "_revisar": true },
-  "basin_crops_med_desc": { "text": "Allpa qelluyaptin rikapay.", "_revisar": true },
-  "basin_crops_low": { "text": "Chakra qarpaypaq alli", "_revisar": true },
-  "basin_crops_low_desc": { "text": "Regantes kamachishqanno qarpay.", "_revisar": true },
-  "basin_animals_high": { "text": "Uywakunata ama qareytsu", "_revisar": true },
-  "basin_animals_high_desc": { "text": "Ama uywakuna puka yakuta upyatsiytsu.", "_revisar": true },
-  "basin_animals_med": { "text": "Chawpi mita upyachiy", "_revisar": true },
-  "basin_animals_med_desc": { "text": "Puquiopita yakuta upyatsiy.", "_revisar": true },
-  "basin_animals_low": { "text": "Uywakuna upyananpaq alli", "_revisar": true },
-  "basin_animals_low_desc": { "text": "Uywakunapaq uray rikuy.", "_revisar": true },
-  "water_color_rust": { "text": "Puka niraq yaku", "_revisar": true },
-  "water_color_rust_desc": { "text": "Rumi puka tinisqa.", "_revisar": true },
-  "water_color_yellow": { "text": "Qellu niraq yaku", "_revisar": true },
-  "water_color_yellow_desc": { "text": "Mineral polvoyoq yaku.", "_revisar": true },
-  "water_color_amber": { "text": "Ambar yaku", "_revisar": true },
-  "water_color_amber_desc": { "text": "Chuya uraychaw, qellu hananchaw.", "_revisar": true },
-  "water_color_clear": { "text": "Chuya chipipyaq yaku", "_revisar": true },
-  "water_color_clear_desc": { "text": "Chuya yaku chuyay rumikunawan.", "_revisar": true },
-  "btn_close": { "text": "Wichqay", "_revisar": true },
-  "btn_more_info": { "text": "Mastaraq rikay", "_revisar": true },
-  "btn_less_info": { "text": "Pakay", "_revisar": true },
-  "btn_report_here": { "text": "Kay wayqupaq willakuy", "_revisar": true },
-  "btn_guidance_full": { "text": "Consejo rikapaana", "_revisar": true },
-  "guidance_badge": { "text": "Comunidadpaq Willakuy", "_revisar": true },
-  "guidance_title": { "text": "Imata ruranapaq poqoq yakuwan", "_revisar": true },
-  "guidance_subtitle": { "text": "Runa, chakra uywakunata kuyapanapaq willakuy.", "_revisar": true },
-  "select_level": { "text": "Rikuyta akray:", "_revisar": true },
-  "boil_alert_title": { "text": "¡Yakuta timpuypaq willakuy!", "_revisar": true },
-  "boil_alert_desc": { "text": "Yakuta timpuchiptiki qillayakunaqa manam yarquntsu, aswanmi mikunapaq llumpayta qiparin.", "_revisar": true },
-  "tip_high_1": { "text": "Ama wayqupita upyeytsu; chuya puquiota ashiy.", "_revisar": true },
-  "tip_high_2": { "text": "Ama puka yakuwan papata qarpaytsu.", "_revisar": true },
-  "tip_high_3": { "text": "Uywakunata bofedalman pushay upyananpaq.", "_revisar": true },
-  "tip_high_4": { "text": "Yaku pukayaptin JASS-man willakuy.", "_revisar": true },
-  "tip_med_1": { "text": "Ama asekyapita upyeytsu; JASS-man tapukuy.", "_revisar": true },
-  "tip_med_2": { "text": "Chakra allpa qelluyaptin rikapay.", "_revisar": true },
-  "tip_med_3": { "text": "Uywakunata chuya yakuwan upyatsiy.", "_revisar": true },
-  "tip_low_1": { "text": "JASS nishqanno yakuta chuyanchay.", "_revisar": true },
-  "tip_low_2": { "text": "Regantes kamachishqanno chakrata qarpay.", "_revisar": true },
-  "tip_low_3": { "text": "Uywakuna upyananpaq allillam.", "_revisar": true },
-  "official_letter_btn": { "text": "JASS-paq ofisiota qellqay", "_revisar": true },
-  "official_letter_copied": { "text": "Ofisio kanchisqañam", "_revisar": true },
-  "more_options_title": { "text": "Comunidadpaq mastaraq", "_revisar": true },
-  "more_onboarding": { "text": "GlaciAgua imano llamkan", "_revisar": true },
-  "more_connectivity": { "text": "Internet wan Tambokuna", "_revisar": true },
-  "more_sync": { "text": "Celularchaw willakuykuna", "_revisar": true },
-  "more_contacts": { "text": "Yanapanapaq telefonokuna", "_revisar": true },
-  "more_scientific": { "text": "Yachaqkunapaq datos", "_revisar": true },
-  "more_simulator": { "text": "Riesgo simulador", "_revisar": true },
-  "sync_modal_title": { "text": "Celularchaw willakuykuna", "_revisar": true },
-  "sync_offline_desc": { "text": "Mana señal. Celularchawmi waqaychasqa señal kaptin apakanqa.", "_revisar": true },
-  "sync_online_desc": { "text": "Llikachaw. Cananmi apatsinki.", "_revisar": true },
-  "btn_sync_all": { "text": "Llapan willakuyta apachiy", "_revisar": true },
-  "no_pending_reports": { "text": "Manam willakuy kantsu", "_revisar": true },
-  "btn_back_home": { "text": "Qallananman kutiy", "_revisar": true },
-  "btn_back": { "text": "Qepaman", "_revisar": true },
-  "btn_next": { "text": "Qatimuq", "_revisar": true },
-  "photo_safety_alert": { "text": "Ama wayqu kuchunman chankaytsu. Fototaqa munashpallam horqonki.", "_revisar": true },
-  "sat_real_hd": { "text": "Satélite Saywiti", "_revisar": true },
-  "zoom_max": { "text": "Hatun rikay", "_revisar": true },
-  "hazard_filter_label": { "text": "Peligro:", "_revisar": true },
-  "filter_all": { "text": "Llapan", "_revisar": true },
-  "filter_critical": { "text": "Sinchi", "_revisar": true },
-  "filter_high": { "text": "Hukllay", "_revisar": true },
-  "filter_medium": { "text": "Chawpi", "_revisar": true },
-  "filter_low": { "text": "Uray", "_revisar": true },
-  "layers_modal_desc": { "text": "Qatakunata churay o qorqoy", "_revisar": true },
-  "btn_done_map": { "text": "Allimi / Saywitita rikay", "_revisar": true },
-  "welcome_title": { "text": "¡Allillanchu! GlaciAgua-man shamushqa kanki", "_revisar": true },
-  "welcome_subtitle": { "text": "Mayupa yakun imano kaykashqanta musyanapaq", "_revisar": true },
-  "welcome_desc": { "text": "GlaciAgua yanapashunki mayupa yakun mineralniyuq o puka kaykashqanta musyanaykipaq.", "_revisar": true },
-  "welcome_help_hint": { "text": "Imatapis tapukunaykipaq, kay botontam takinki:", "_revisar": true },
-  "welcome_help_badge": { "text": "Kay «?» botonta takiy dibuhukunawan y wiyaypaq yanapakuyta rikanaykipaq.", "_revisar": true },
-  "welcome_btn_start": { "text": "¡Entiendirmi, qallashun!", "_revisar": true },
-  "help_floating_aria": { "text": "GlaciAgua yanapakuy yachatsikuy", "_revisar": true },
-  "help_modal_title": { "text": "GlaciAgua yanapakuy yachatsikuy", "_revisar": true },
-  "help_step_counter": { "text": "Rikay {current} kay {total}-pita", "_revisar": true },
-  "help_step1_title": { "text": "Yaku sasakayta musyay", "_revisar": true },
-  "help_step1_desc": { "text": "Rikay semaforopa llimpinta y yakupa qaqunta:", "_revisar": true },
-  "help_step1_green": { "text": "Qumyaq: Yaku allilla kaykan", "_revisar": true },
-  "help_step1_yellow": { "text": "Qellu: Paqwata rikay", "_revisar": true },
-  "help_step1_red": { "text": "Puka: ¡Alerta, yaku puka!", "_revisar": true },
-  "help_step2_title": { "text": "Ama mineralniyuq yakuta timputsitsu", "_revisar": true },
-  "help_step2_desc": { "text": "Kay ishkay yachatsikuyta kasuy:", "_revisar": true },
-  "help_step2_rule1": { "text": "¡Ama timputsitsu! Venenon kallpanchan", "_revisar": true },
-  "help_step2_rule2": { "text": "JASS nisqanta yakuta upyay", "_revisar": true },
-  "help_step2_rule3": { "text": "Wecinuykikunata willay ama tsay yakuta upyayananpaq.", "_revisar": true },
-  "help_step3_title": { "text": "Yaku puka urpamuptin willakuy", "_revisar": true },
-  "help_step3_desc": { "text": "Qellu «Avisar agua sucia» botonta takiy hananchaw:", "_revisar": true },
-  "help_step3_point1": { "text": "Qellu botonta takiy y fotota horquy", "_revisar": true },
-  "help_step3_point2": { "text": "Dibuhuta akray: yaku puka, yuraq o asnawaq.", "_revisar": true },
-  "help_step3_point3": { "text": "«Kachay» nisqanta takiy willakunapaq", "_revisar": true },
-  "help_step4_title": { "text": "Internet illaptinpis celularnikicho llamkan", "_revisar": true },
-  "help_step4_desc": { "text": "¡Aw, llapanmi lulan internet illaptinpis!", "_revisar": true },
-  "help_step4_point1": { "text": "Llapanta celularnikiman waqaychan", "_revisar": true },
-  "help_step4_point2": { "text": "Willakushqaykikuna celularllaykicho allichashqa karkanqa.", "_revisar": true },
-  "help_step4_point3": { "text": "Señal kaptin kikillan apakanqa", "_revisar": true },
-  "help_btn_understood": { "text": "¡Entiendirmi, sulpay!", "_revisar": true },
-  "help_btn_prev": { "text": "Qepa", "_revisar": true },
-  "help_btn_next": { "text": "Qatiqnin", "_revisar": true }
+  "app_name": {
+    "text": "GlaciAgua",
+    "_revisar": true
+  },
+  "app_tagline": {
+    "text": "Ritikuna yaku rikapana",
+    "_revisar": true
+  },
+  "disclaimer": {
+    "text": "Willakuy yaku rikaypaq. Manam yakupa llumpaychu nintsu. JASS-nikita tapukuy.",
+    "_revisar": true
+  },
+  "disclaimer_short": {
+    "text": "Yaku rikapana willakuy. JASS-ta tapukuy.",
+    "_revisar": true
+  },
+  "listen": {
+    "text": "Wiyay",
+    "_revisar": true
+  },
+  "stop_audio": {
+    "text": "Upallatsiy",
+    "_revisar": true
+  },
+  "lang_es": {
+    "text": "Castellano",
+    "_revisar": true
+  },
+  "lang_qu": {
+    "text": "Runasimi",
+    "_revisar": true
+  },
+  "season": {
+    "text": "Mita",
+    "_revisar": true
+  },
+  "season_humeda": {
+    "text": "Tamya mita",
+    "_revisar": true
+  },
+  "season_seca": {
+    "text": "Ushya mita",
+    "_revisar": true
+  },
+  "online_status": {
+    "text": "Llikachaw",
+    "_revisar": true
+  },
+  "offline_status": {
+    "text": "Celularchaw waqaychasqa",
+    "_revisar": true
+  },
+  "sync_pending": {
+    "text": "Waqaychasqakunata apachiy",
+    "_revisar": true
+  },
+  "nav_water": {
+    "text": "¿Yakuta upyashmantsuraq?",
+    "_revisar": true
+  },
+  "nav_map": {
+    "text": "Yaku Saywiti",
+    "_revisar": true
+  },
+  "nav_report": {
+    "text": "Qanra yakuta willakuy",
+    "_revisar": true
+  },
+  "nav_more": {
+    "text": "Mastaraq",
+    "_revisar": true
+  },
+  "choose_basin": {
+    "text": "Wayqunikita akray:",
+    "_revisar": true
+  },
+  "risk_alto": {
+    "text": "Hukllay Rikuy",
+    "_revisar": true
+  },
+  "risk_medio": {
+    "text": "Chawpi Rikuy",
+    "_revisar": true
+  },
+  "risk_bajo": {
+    "text": "Uray Rikuy",
+    "_revisar": true
+  },
+  "advice_alto": {
+    "text": "Kay yakuqa poqoq kaykanman. Ama upyeytsu, jass-nikita willay.",
+    "_revisar": true
+  },
+  "advice_medio": {
+    "text": "Yaku rikapaashqa kaykan. JASS-nikita tapukuy manaraq upyashpa.",
+    "_revisar": true
+  },
+  "advice_bajo": {
+    "text": "Yakuqa allillam kaykan. JASS nishqanno altsay.",
+    "_revisar": true
+  },
+  "usage_title": {
+    "text": "¿Imapaqraq yakuta munanki?",
+    "_revisar": true
+  },
+  "usage_drink": {
+    "text": "Wayichaw upyanapaq",
+    "_revisar": true
+  },
+  "usage_drink_alto": {
+    "text": "Ama kay wayqupita upyeytsu. Chuyay puquiota ashiy.",
+    "_revisar": true
+  },
+  "usage_drink_medio": {
+    "text": "Ama asekyapita upyeytsu. JASS-nikita tapukuy.",
+    "_revisar": true
+  },
+  "usage_drink_bajo": {
+    "text": "JASS nishqanno yakuta chuyanchay.",
+    "_revisar": true
+  },
+  "usage_boil": {
+    "text": "Yakuta timpuypaq",
+    "_revisar": true
+  },
+  "usage_boil_alert": {
+    "text": "Yakuta timpuchiptiki qillayakunaqa manam yarquntsu, aswanmi mikunapaq llumpayta qiparin.",
+    "_revisar": true
+  },
+  "usage_crops": {
+    "text": "Chakrata qarpaypaq",
+    "_revisar": true
+  },
+  "usage_crops_alto": {
+    "text": "Poqoq yakuqa yura sapikunata kañanmanmi.",
+    "_revisar": true
+  },
+  "usage_crops_medio": {
+    "text": "Allpata rikapay, qelluyaptinqa cuidado kay.",
+    "_revisar": true
+  },
+  "usage_crops_bajo": {
+    "text": "Chakra qarpaypaq allillam regantes kamachishqanno.",
+    "_revisar": true
+  },
+  "usage_animals": {
+    "text": "Uywakunata qaranapaq",
+    "_revisar": true
+  },
+  "usage_animals_alto": {
+    "text": "Ama wakakunata pukuta upyachiytsu.",
+    "_revisar": true
+  },
+  "usage_animals_medio": {
+    "text": "Puquiopita o bofedalpitaraq upyatsiy.",
+    "_revisar": true
+  },
+  "usage_animals_bajo": {
+    "text": "Uywakuna upyananpaq allillam.",
+    "_revisar": true
+  },
+  "view_details": {
+    "text": "Yupaykunata rikay",
+    "_revisar": true
+  },
+  "hide_details": {
+    "text": "Yupaykunata pakay",
+    "_revisar": true
+  },
+  "btn_report_water": {
+    "text": "Qanra yakuta willakuy",
+    "_revisar": true
+  },
+  "btn_guidance": {
+    "text": "Imata ruranapaq",
+    "_revisar": true
+  },
+  "report_wizard_title": {
+    "text": "Qanra yakupita willakuy",
+    "_revisar": true
+  },
+  "step_location": {
+    "text": "1. ¿Maychawtaq kanki?",
+    "_revisar": true
+  },
+  "step_color": {
+    "text": "2. ¿Ima niraqtaq yaku?",
+    "_revisar": true
+  },
+  "step_photo": {
+    "text": "3. Rikuypaq foto",
+    "_revisar": true
+  },
+  "step_send": {
+    "text": "4. Willakuyta apachiy",
+    "_revisar": true
+  },
+  "color_rust": {
+    "text": "Puka niraq yaku",
+    "_revisar": true
+  },
+  "color_milky": {
+    "text": "Yuraq lechiyoq niraq",
+    "_revisar": true
+  },
+  "color_clear": {
+    "text": "Chuya yaku",
+    "_revisar": true
+  },
+  "color_muddy": {
+    "text": "Yana mituyoq yaku",
+    "_revisar": true
+  },
+  "fix_gps": {
+    "text": "GPS-niyta churay",
+    "_revisar": true
+  },
+  "gps_ok": {
+    "text": "Lugar GPS-wan kanchisqa",
+    "_revisar": true
+  },
+  "take_photo": {
+    "text": "Fotota horqoy",
+    "_revisar": true
+  },
+  "photo_optional_hint": {
+    "text": "Wayqupa kuchunman ama llumpay hichkaytsu.",
+    "_revisar": true
+  },
+  "send_report_btn": {
+    "text": "Willakuyta waqaychay",
+    "_revisar": true
+  },
+  "report_saved_offline": {
+    "text": "Willakuyqa celularnikichawmi waqaychasqa. Señal kaptinmi apakanqa.",
+    "_revisar": true
+  },
+  "report_saved_online": {
+    "text": "Willakuyqa apakanñam.",
+    "_revisar": true
+  },
+  "onboarding_title": {
+    "text": "GlaciAgua imano llamkan",
+    "_revisar": true
+  },
+  "onboarding_step1_title": {
+    "text": "1. Riti yakuwan rumikuna",
+    "_revisar": true
+  },
+  "onboarding_step1_desc": {
+    "text": "Ritikuna pishiyaptin rumikuna qillayyoq qepan, tamyaptin yaku poqoqman tikran.",
+    "_revisar": true
+  },
+  "onboarding_step2_title": {
+    "text": "2. Semáforota rikapay",
+    "_revisar": true
+  },
+  "onboarding_step2_desc": {
+    "text": "Puka: ama upyeytsu. Qellu: cuidado kay. Qomer: uray rikuy, JASS-nikita tapukuy.",
+    "_revisar": true
+  },
+  "onboarding_step3_title": {
+    "text": "3. Aylluykikunata willay",
+    "_revisar": true
+  },
+  "onboarding_step3_desc": {
+    "text": "Yaku puka o lechiyoq rikakaaptinqa app-chaw willakuy.",
+    "_revisar": true
+  },
+  "btn_understood": {
+    "text": "Allimi, qallashun",
+    "_revisar": true
+  },
+  "emergency_contacts": {
+    "text": "Yanapanapaq telefonokuna",
+    "_revisar": true
+  },
+  "contact_jass": {
+    "text": "Ayllupa JASS kamachiqkuna",
+    "_revisar": true
+  },
+  "contact_diresa": {
+    "text": "Qhali Kay Wasikuna DIRESA Huaraz",
+    "_revisar": true
+  },
+  "contact_municipio": {
+    "text": "Huaraz Municipio",
+    "_revisar": true
+  },
+  "scientific_panel": {
+    "text": "Yachaqkunapaq datos",
+    "_revisar": true
+  },
+  "simulator_title": {
+    "text": "Riesgo simulador",
+    "_revisar": true
+  },
+  "ml_model_title": {
+    "text": "Random Forest yachay modelo",
+    "_revisar": true
+  },
+  "map_layers": {
+    "text": "Saywiti qatakuna",
+    "_revisar": true
+  },
+  "legend": {
+    "text": "Imano kananpaq",
+    "_revisar": true
+  },
+  "basin_microbasin": {
+    "text": "Yaku wayqu",
+    "_revisar": true
+  },
+  "basin_creeks": {
+    "text": "Hatun wayqukuna",
+    "_revisar": true
+  },
+  "basin_alert_high": {
+    "text": "Willakuy: poqoq yaku kanman",
+    "_revisar": true
+  },
+  "basin_alert_medium": {
+    "text": "Rikapaashqa yaku",
+    "_revisar": true
+  },
+  "basin_alert_low": {
+    "text": "Uray poqoy yaku",
+    "_revisar": true
+  },
+  "basin_human_high": {
+    "text": "Ama wayichaw upyeytsu",
+    "_revisar": true
+  },
+  "basin_human_high_desc": {
+    "text": "Ama kay wayqupita upyeytsu. Qillayakuna qeshyatsikunman.",
+    "_revisar": true
+  },
+  "basin_human_med": {
+    "text": "Alli captacion yakullata upyay",
+    "_revisar": true
+  },
+  "basin_human_med_desc": {
+    "text": "Ama asekyapita upyeytsu. JASS-ta tapukuy.",
+    "_revisar": true
+  },
+  "basin_human_low": {
+    "text": "JASS-wan yaku chuyanchay",
+    "_revisar": true
+  },
+  "basin_human_low_desc": {
+    "text": "Yakuqa allillam kaykan. JASS nishqanno altsay.",
+    "_revisar": true
+  },
+  "basin_crops_high": {
+    "text": "Hortalizakunapaq ama qarpeytsu",
+    "_revisar": true
+  },
+  "basin_crops_high_desc": {
+    "text": "Poqoq yakuqa sapikunata kañanman.",
+    "_revisar": true
+  },
+  "basin_crops_med": {
+    "text": "Cuidado qarpanapaq",
+    "_revisar": true
+  },
+  "basin_crops_med_desc": {
+    "text": "Allpa qelluyaptin rikapay.",
+    "_revisar": true
+  },
+  "basin_crops_low": {
+    "text": "Chakra qarpaypaq alli",
+    "_revisar": true
+  },
+  "basin_crops_low_desc": {
+    "text": "Regantes kamachishqanno qarpay.",
+    "_revisar": true
+  },
+  "basin_animals_high": {
+    "text": "Uywakunata ama qareytsu",
+    "_revisar": true
+  },
+  "basin_animals_high_desc": {
+    "text": "Ama uywakuna puka yakuta upyatsiytsu.",
+    "_revisar": true
+  },
+  "basin_animals_med": {
+    "text": "Chawpi mita upyachiy",
+    "_revisar": true
+  },
+  "basin_animals_med_desc": {
+    "text": "Puquiopita yakuta upyatsiy.",
+    "_revisar": true
+  },
+  "basin_animals_low": {
+    "text": "Uywakuna upyananpaq alli",
+    "_revisar": true
+  },
+  "basin_animals_low_desc": {
+    "text": "Uywakunapaq uray rikuy.",
+    "_revisar": true
+  },
+  "water_color_rust": {
+    "text": "Puka niraq yaku",
+    "_revisar": true
+  },
+  "water_color_rust_desc": {
+    "text": "Rumi puka tinisqa.",
+    "_revisar": true
+  },
+  "water_color_yellow": {
+    "text": "Qellu niraq yaku",
+    "_revisar": true
+  },
+  "water_color_yellow_desc": {
+    "text": "Mineral polvoyoq yaku.",
+    "_revisar": true
+  },
+  "water_color_amber": {
+    "text": "Ambar yaku",
+    "_revisar": true
+  },
+  "water_color_amber_desc": {
+    "text": "Chuya uraychaw, qellu hananchaw.",
+    "_revisar": true
+  },
+  "water_color_clear": {
+    "text": "Chuya chipipyaq yaku",
+    "_revisar": true
+  },
+  "water_color_clear_desc": {
+    "text": "Chuya yaku chuyay rumikunawan.",
+    "_revisar": true
+  },
+  "btn_close": {
+    "text": "Wichqay",
+    "_revisar": true
+  },
+  "btn_more_info": {
+    "text": "Mastaraq rikay",
+    "_revisar": true
+  },
+  "btn_less_info": {
+    "text": "Pakay",
+    "_revisar": true
+  },
+  "btn_report_here": {
+    "text": "Kay wayqupaq willakuy",
+    "_revisar": true
+  },
+  "btn_guidance_full": {
+    "text": "Consejo rikapaana",
+    "_revisar": true
+  },
+  "guidance_badge": {
+    "text": "Comunidadpaq Willakuy",
+    "_revisar": true
+  },
+  "guidance_title": {
+    "text": "Imata ruranapaq poqoq yakuwan",
+    "_revisar": true
+  },
+  "guidance_subtitle": {
+    "text": "Runa, chakra uywakunata kuyapanapaq willakuy.",
+    "_revisar": true
+  },
+  "select_level": {
+    "text": "Rikuyta akray:",
+    "_revisar": true
+  },
+  "boil_alert_title": {
+    "text": "¡Yakuta timpuypaq willakuy!",
+    "_revisar": true
+  },
+  "boil_alert_desc": {
+    "text": "Yakuta timpuchiptiki qillayakunaqa manam yarquntsu, aswanmi mikunapaq llumpayta qiparin.",
+    "_revisar": true
+  },
+  "tip_high_1": {
+    "text": "Ama wayqupita upyeytsu; chuya puquiota ashiy.",
+    "_revisar": true
+  },
+  "tip_high_2": {
+    "text": "Ama puka yakuwan papata qarpaytsu.",
+    "_revisar": true
+  },
+  "tip_high_3": {
+    "text": "Uywakunata bofedalman pushay upyananpaq.",
+    "_revisar": true
+  },
+  "tip_high_4": {
+    "text": "Yaku pukayaptin JASS-man willakuy.",
+    "_revisar": true
+  },
+  "tip_med_1": {
+    "text": "Ama asekyapita upyeytsu; JASS-man tapukuy.",
+    "_revisar": true
+  },
+  "tip_med_2": {
+    "text": "Chakra allpa qelluyaptin rikapay.",
+    "_revisar": true
+  },
+  "tip_med_3": {
+    "text": "Uywakunata chuya yakuwan upyatsiy.",
+    "_revisar": true
+  },
+  "tip_low_1": {
+    "text": "JASS nishqanno yakuta chuyanchay.",
+    "_revisar": true
+  },
+  "tip_low_2": {
+    "text": "Regantes kamachishqanno chakrata qarpay.",
+    "_revisar": true
+  },
+  "tip_low_3": {
+    "text": "Uywakuna upyananpaq allillam.",
+    "_revisar": true
+  },
+  "official_letter_btn": {
+    "text": "JASS-paq ofisiota qellqay",
+    "_revisar": true
+  },
+  "official_letter_copied": {
+    "text": "Ofisio kanchisqañam",
+    "_revisar": true
+  },
+  "more_options_title": {
+    "text": "Comunidadpaq mastaraq",
+    "_revisar": true
+  },
+  "more_onboarding": {
+    "text": "GlaciAgua imano llamkan",
+    "_revisar": true
+  },
+  "more_connectivity": {
+    "text": "Internet wan Tambokuna",
+    "_revisar": true
+  },
+  "more_sync": {
+    "text": "Celularchaw willakuykuna",
+    "_revisar": true
+  },
+  "more_contacts": {
+    "text": "Yanapanapaq telefonokuna",
+    "_revisar": true
+  },
+  "more_scientific": {
+    "text": "Yachaqkunapaq datos",
+    "_revisar": true
+  },
+  "more_simulator": {
+    "text": "Riesgo simulador",
+    "_revisar": true
+  },
+  "sync_modal_title": {
+    "text": "Celularchaw willakuykuna",
+    "_revisar": true
+  },
+  "sync_offline_desc": {
+    "text": "Mana señal. Celularchawmi waqaychasqa señal kaptin apakanqa.",
+    "_revisar": true
+  },
+  "sync_online_desc": {
+    "text": "Llikachaw. Cananmi apatsinki.",
+    "_revisar": true
+  },
+  "btn_sync_all": {
+    "text": "Llapan willakuyta apachiy",
+    "_revisar": true
+  },
+  "no_pending_reports": {
+    "text": "Manam willakuy kantsu",
+    "_revisar": true
+  },
+  "btn_back_home": {
+    "text": "Qallananman kutiy",
+    "_revisar": true
+  },
+  "btn_back": {
+    "text": "Qepaman",
+    "_revisar": true
+  },
+  "btn_next": {
+    "text": "Qatimuq",
+    "_revisar": true
+  },
+  "photo_safety_alert": {
+    "text": "Ama wayqu kuchunman chankaytsu. Fototaqa munashpallam horqonki.",
+    "_revisar": true
+  },
+  "sat_real_hd": {
+    "text": "Satélite Saywiti",
+    "_revisar": true
+  },
+  "zoom_max": {
+    "text": "Hatun rikay",
+    "_revisar": true
+  },
+  "hazard_filter_label": {
+    "text": "Peligro:",
+    "_revisar": true
+  },
+  "filter_all": {
+    "text": "Llapan",
+    "_revisar": true
+  },
+  "filter_critical": {
+    "text": "Sinchi",
+    "_revisar": true
+  },
+  "filter_high": {
+    "text": "Hukllay",
+    "_revisar": true
+  },
+  "filter_medium": {
+    "text": "Chawpi",
+    "_revisar": true
+  },
+  "filter_low": {
+    "text": "Uray",
+    "_revisar": true
+  },
+  "layers_modal_desc": {
+    "text": "Qatakunata churay o qorqoy",
+    "_revisar": true
+  },
+  "btn_done_map": {
+    "text": "Allimi / Saywitita rikay",
+    "_revisar": true
+  },
+  "welcome_title": {
+    "text": "¡Allillanchu! GlaciAgua-man shamushqa kanki",
+    "_revisar": true
+  },
+  "welcome_subtitle": {
+    "text": "Mayupa yakun imano kaykashqanta musyanapaq",
+    "_revisar": true
+  },
+  "welcome_desc": {
+    "text": "GlaciAgua yanapashunki mayupa yakun mineralniyuq o puka kaykashqanta musyanaykipaq.",
+    "_revisar": true
+  },
+  "welcome_help_hint": {
+    "text": "Imatapis tapukunaykipaq, kay botontam takinki:",
+    "_revisar": true
+  },
+  "welcome_help_badge": {
+    "text": "Kay «?» botonta takiy dibuhukunawan y wiyaypaq yanapakuyta rikanaykipaq.",
+    "_revisar": true
+  },
+  "welcome_btn_start": {
+    "text": "¡Entiendirmi, qallashun!",
+    "_revisar": true
+  },
+  "help_floating_aria": {
+    "text": "GlaciAgua yanapakuy yachatsikuy",
+    "_revisar": true
+  },
+  "help_modal_title": {
+    "text": "GlaciAgua yanapakuy yachatsikuy",
+    "_revisar": true
+  },
+  "help_step_counter": {
+    "text": "Rikay {current} kay {total}-pita",
+    "_revisar": true
+  },
+  "help_step1_title": {
+    "text": "Yaku sasakayta musyay",
+    "_revisar": true
+  },
+  "help_step1_desc": {
+    "text": "Rikay semaforopa llimpinta y yakupa qaqunta:",
+    "_revisar": true
+  },
+  "help_step1_green": {
+    "text": "Qumyaq: Yaku allilla kaykan",
+    "_revisar": true
+  },
+  "help_step1_yellow": {
+    "text": "Qellu: Paqwata rikay",
+    "_revisar": true
+  },
+  "help_step1_red": {
+    "text": "Puka: ¡Alerta, yaku puka!",
+    "_revisar": true
+  },
+  "help_step2_title": {
+    "text": "Ama mineralniyuq yakuta timputsitsu",
+    "_revisar": true
+  },
+  "help_step2_desc": {
+    "text": "Kay ishkay yachatsikuyta kasuy:",
+    "_revisar": true
+  },
+  "help_step2_rule1": {
+    "text": "¡Ama timputsitsu! Venenon kallpanchan",
+    "_revisar": true
+  },
+  "help_step2_rule2": {
+    "text": "JASS nisqanta yakuta upyay",
+    "_revisar": true
+  },
+  "help_step2_rule3": {
+    "text": "Wecinuykikunata willay ama tsay yakuta upyayananpaq.",
+    "_revisar": true
+  },
+  "help_step3_title": {
+    "text": "Yaku puka urpamuptin willakuy",
+    "_revisar": true
+  },
+  "help_step3_desc": {
+    "text": "Qellu «Avisar agua sucia» botonta takiy hananchaw:",
+    "_revisar": true
+  },
+  "help_step3_point1": {
+    "text": "Qellu botonta takiy y fotota horquy",
+    "_revisar": true
+  },
+  "help_step3_point2": {
+    "text": "Dibuhuta akray: yaku puka, yuraq o asnawaq.",
+    "_revisar": true
+  },
+  "help_step3_point3": {
+    "text": "«Kachay» nisqanta takiy willakunapaq",
+    "_revisar": true
+  },
+  "help_step4_title": {
+    "text": "Internet illaptinpis celularnikicho llamkan",
+    "_revisar": true
+  },
+  "help_step4_desc": {
+    "text": "¡Aw, llapanmi lulan internet illaptinpis!",
+    "_revisar": true
+  },
+  "help_step4_point1": {
+    "text": "Llapanta celularnikiman waqaychan",
+    "_revisar": true
+  },
+  "help_step4_point2": {
+    "text": "Willakushqaykikuna celularllaykicho allichashqa karkanqa.",
+    "_revisar": true
+  },
+  "help_step4_point3": {
+    "text": "Señal kaptin kikillan apakanqa",
+    "_revisar": true
+  },
+  "help_btn_understood": {
+    "text": "¡Entiendirmi, sulpay!",
+    "_revisar": true
+  },
+  "help_btn_prev": {
+    "text": "Qepa",
+    "_revisar": true
+  },
+  "help_btn_next": {
+    "text": "Qatiqnin",
+    "_revisar": true
+  },
+  "guidance_do_title": {
+    "text": "Imata ruranapaq",
+    "_revisar": true
+  },
+  "guidance_avoid_title": {
+    "text": "Imata ama ruranapaq",
+    "_revisar": true
+  },
+  "action_avisar_jass": {
+    "text": "JASS-ta willay",
+    "_revisar": true
+  },
+  "action_fuente_segura": {
+    "text": "JASS nisqanta yakuta apamuy",
+    "_revisar": true
+  },
+  "action_guardar_tapa": {
+    "text": "Yakuta tapawan waqaychay",
+    "_revisar": true
+  },
+  "avoid_beber_quebrada": {
+    "text": "Ama mayumanta upyaytsu",
+    "_revisar": true
+  },
+  "avoid_hervir_metales": {
+    "text": "Timputsiptikiqa mana yarquntsu",
+    "_revisar": true
+  },
+  "avoid_animales_riego": {
+    "text": "Ama uywaman ni chakraman qoytsu",
+    "_revisar": true
+  },
+  "btn_see_more_details": {
+    "text": "Mastaraq yachakuyta rikay",
+    "_revisar": true
+  },
+  "btn_hide_more_details": {
+    "text": "Detallesta pakay",
+    "_revisar": true
+  }
 }

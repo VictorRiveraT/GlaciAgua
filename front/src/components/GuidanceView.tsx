@@ -1,469 +1,275 @@
 import React, { useState } from 'react'
 import {
-  Copy,
-  Check,
-  Info,
+  CheckCircle2,
+  AlertOctagon,
   ChevronDown,
   ChevronUp,
-  Printer,
+  Info,
   FileText,
-  X,
+  AlertTriangle,
 } from 'lucide-react'
-import { RiskLevel } from '../types'
+import { Illustration } from './Illustration'
 import { AudioPlayButton } from './AudioPlayButton'
-import { AccessibleIllustration } from './AccessibleIllustration'
 import { useI18n } from '../i18n/I18nContext'
-import { getRiskTheme } from '../utils/accessibleTheme'
 
-export const GuidanceView: React.FC = () => {
+interface GuidanceViewProps {
+  onOpenOficio?: () => void
+}
+
+export const GuidanceView: React.FC<GuidanceViewProps> = ({ onOpenOficio }) => {
   const { t } = useI18n()
-  const [selectedRisk, setSelectedRisk] = useState<RiskLevel>('Alto')
-  const [copiedLetter, setCopiedLetter] = useState(false)
-  const [openWhyBoil, setOpenWhyBoil] = useState(false)
-  const [isLetterModalOpen, setIsLetterModalOpen] = useState(false)
+  const [showDetails, setShowDetails] = useState(false)
 
-  const copyOficio = () => {
-    const text = `OFICIO N° 012-2026/ALERTA-GLACIAGUA
-A: Junta Administradora de Servicios de Saneamiento (JASS) / Junta de Regantes / Municipio
-DE: Monitoreo Comunitario GlaciAgua - Cordillera Blanca
-ASUNTO: Alerta Temprana por Probable Drenaje Ácido de Roca y Minerales en Cabecera
+  const doItems = [
+    {
+      id: 'avisar',
+      illustration: 'hacer_avisar' as const,
+      phrase: t('action_avisar_jass'),
+      audioKey: 'guia_hacer_avisar',
+      audioText: `${t('action_avisar_jass')}. Avisa de inmediato a tu junta de agua o directivo comunal.`,
+      anim: 'pulse' as const,
+    },
+    {
+      id: 'fuente',
+      illustration: 'hacer_otra_fuente' as const,
+      phrase: t('action_fuente_segura'),
+      audioKey: 'guia_hacer_fuente',
+      audioText: `${t('action_fuente_segura')}. Lleva agua de un manantial autorizado o de la cisterna.`,
+      anim: 'float' as const,
+    },
+    {
+      id: 'guardar',
+      illustration: 'hacer_guardar' as const,
+      phrase: t('action_guardar_tapa'),
+      audioKey: 'guia_hacer_guardar',
+      audioText: `${t('action_guardar_tapa')}. Mantén el agua limpia en recipientes tapados y frescos.`,
+      anim: 'float' as const,
+    },
+  ]
 
-Mediante la presente se comunica que la herramienta de alerta temprana GlaciAgua ha clasificado el sector en nivel de RIESGO ${selectedRisk.toUpperCase()}.
-
-RECOMENDACIONES DE PRECAUCIÓN:
-1. Inspeccionar bocatomas de captación y canales principales.
-2. Recordar que hervir el agua NO quita los metales pesados (el calor evapora el líquido y concentra los minerales).
-3. Evaluar el uso de fuentes alternas de manantial o puquio para consumo humano y abrevadero de ganado.
-4. Notificar al Centro de Salud / DIRESA y a la Autoridad Local del Agua.
-
-Fecha: ${new Date().toLocaleDateString('es-PE')}
-Plataforma Comunitaria GlaciAgua. Alerta temprana. No certifica potabilidad.`
-
-    navigator.clipboard?.writeText(text)
-    setCopiedLetter(true)
-    setTimeout(() => setCopiedLetter(false), 2500)
-  }
-
-  const audioGuidanceText = `${t('guidance_title')}. ${t('boil_alert_desc')}`
+  const avoidItems = [
+    {
+      id: 'beber',
+      illustration: 'evitar_beber_quebrada' as const,
+      phrase: t('avoid_beber_quebrada'),
+      audioKey: 'guia_evitar_beber',
+      audioText: `${t('avoid_beber_quebrada')}. El agua con color óxido tiene minerales que dañan la salud.`,
+      anim: 'pulse' as const,
+    },
+    {
+      id: 'hervir',
+      illustration: 'evitar_hervir' as const,
+      phrase: t('avoid_hervir_metales'),
+      audioKey: 'guia_evitar_hervir',
+      audioText: `${t('avoid_hervir_metales')}. Hervir el agua no elimina los metales de las piedras; los concentra más.`,
+      anim: 'pulse' as const,
+    },
+    {
+      id: 'animales',
+      illustration: 'evitar_animales_riego' as const,
+      phrase: t('avoid_animales_riego'),
+      audioKey: 'guia_evitar_animales',
+      audioText: `${t('avoid_animales_riego')}. Evita que el ganado tome de charcos anaranjados y no riegues papas con esa agua.`,
+      anim: 'pulse' as const,
+    },
+  ]
 
   return (
-    <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 text-[#0f172a] select-none">
-      {/* Title Card */}
-      <div className="bg-white p-6 rounded-3xl border border-[#cbd5e1] shadow-xs">
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
-          <span className="text-xs font-black uppercase text-[#1e3a8a] bg-[#eff6ff] px-3 py-1 rounded-full inline-block">
+    <div className="max-w-4xl mx-auto p-3 sm:p-6 lg:p-8 space-y-5 text-[#0f172a] select-none pb-24 lg:pb-12">
+      {/* Cabecera Principal */}
+      <div className="bg-white p-4 sm:p-6 rounded-3xl border border-[#cbd5e1] shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <span className="text-[11px] font-black uppercase text-[#1e3a8a] bg-[#eff6ff] px-3 py-1 rounded-full border border-blue-200 inline-block mb-1">
             {t('guidance_badge')}
           </span>
-          <AudioPlayButton audioKey="aviso_hervir" textToSpeak={audioGuidanceText} />
+          <h1 className="text-2xl sm:text-3xl font-black text-[#0f172a] tracking-tight">
+            {t('guidance_title')}
+          </h1>
+          <p className="text-xs sm:text-sm text-[#475569] font-medium mt-0.5">
+            {t('guidance_subtitle')}
+          </p>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-[#0f172a]">
-          {t('guidance_title')}
-        </h1>
-        <p className="text-base text-[#475569] mt-1 max-w-2xl font-medium">
-          {t('guidance_subtitle')}
-        </p>
 
-        {/* Risk Level Selector */}
-        <div className="flex flex-wrap items-center gap-2 mt-5">
-          <span className="text-xs font-black text-[#475569] mr-1">{t('select_level')}</span>
-          {(['Alto', 'Medio', 'Bajo'] as const).map((level) => {
-            const lvlTheme = getRiskTheme(level)
-            const isSelected = selectedRisk === level
-            return (
-              <button
-                key={level}
-                onClick={() => setSelectedRisk(level)}
-                className={`touch-target px-4 py-2 rounded-xl text-sm font-black transition-all flex items-center gap-1.5 ${
-                  isSelected
-                    ? level === 'Alto'
-                      ? 'bg-[#991b1b] text-white shadow-sm'
-                      : level === 'Medio'
-                      ? 'bg-[#92400e] text-white shadow-sm'
-                      : 'bg-[#166534] text-white shadow-sm'
-                    : 'bg-[#f1f5f9] text-[#475569] hover:bg-slate-200'
-                }`}
-              >
-                <span>{lvlTheme.iconName === 'octagon' ? '🛑' : lvlTheme.iconName === 'triangle' ? '⚠️' : '✓'}</span>
-                <span>{level === 'Alto' ? t('risk_alto') : level === 'Medio' ? t('risk_medio') : t('risk_bajo')}</span>
-              </button>
-            )
-          })}
+        <div className="shrink-0 flex items-center gap-2">
+          <AudioPlayButton
+            audioKey="aviso_hervir"
+            textToSpeak={`${t('guidance_title')}. ${t('guidance_do_title')}: ${t('action_avisar_jass')}, ${t('action_fuente_segura')}, ${t('action_guardar_tapa')}. ${t('guidance_avoid_title')}: ${t('avoid_beber_quebrada')}, ${t('avoid_hervir_metales')}, ${t('avoid_animales_riego')}.`}
+          />
         </div>
       </div>
 
-      {/* Tarjeta Ilustrada 1: Alerta Crítica sobre hervir el agua */}
-      <div className="bg-[#fff7ed] border-2 border-[#fdba74] p-5 rounded-3xl flex flex-col sm:flex-row items-center gap-5 shadow-xs">
-        <div className="w-24 h-24 sm:w-28 sm:h-28 shrink-0 flex items-center justify-center">
-          <AccessibleIllustration
-            name="persona_nohervir"
-            alt="Olla hirviendo con advertencia"
-            className="w-full h-full"
-          />
-        </div>
-        <div className="flex-1 space-y-2 text-center sm:text-left">
-          <div className="flex flex-wrap items-center justify-center sm:justify-between gap-2">
-            <h3 className="text-lg font-black text-[#9a3412]">
-              {t('boil_alert_title')}
-            </h3>
-            <AudioPlayButton
-              audioKey="alerta_hervir_olla"
-              textToSpeak={t('boil_alert_desc')}
-              compact
-            />
+      {/* DOS COLUMNAS LADO A LADO: QUÉ HACER (VERDE) | QUÉ EVITAR (ROJO) */}
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-4 items-start">
+        {/* COLUMNA 1: QUÉ HACER */}
+        <section
+          aria-labelledby="col-hacer-title"
+          className="bg-[#f0fdf4] border-2 border-[#16a34a] rounded-3xl p-2.5 sm:p-4 flex flex-col gap-3 shadow-xs"
+        >
+          {/* Encabezado de columna con color + icono + forma */}
+          <div className="flex items-center justify-center gap-2 py-1.5 px-2 bg-white rounded-2xl border border-[#bbf7d0] shadow-2xs">
+            <div className="w-6 h-6 rounded-full bg-[#16a34a] text-white flex items-center justify-center font-black text-xs shrink-0">
+              <CheckCircle2 size={16} />
+            </div>
+            <h2
+              id="col-hacer-title"
+              className="text-xs sm:text-base font-black text-[#14532d] uppercase tracking-wide truncate"
+            >
+              {t('guidance_do_title')}
+            </h2>
           </div>
-          <p className="text-sm text-[#7c2d12] font-bold leading-relaxed">
-            Hervir el agua NO quita los metales pesados.
-          </p>
+
+          {/* Tarjetas verticales de acciones a realizar */}
+          <div className="flex flex-col gap-2.5 sm:gap-3">
+            {doItems.map((item) => (
+              <article
+                key={item.id}
+                className="bg-white rounded-2xl p-2.5 sm:p-3.5 border border-[#bbf7d0] shadow-xs flex flex-col items-center text-center gap-2 transition-transform hover:scale-[1.01]"
+              >
+                <div className="w-20 h-20 sm:w-28 sm:h-28 flex items-center justify-center">
+                  <Illustration
+                    name={item.illustration}
+                    animation={item.anim}
+                    className="w-full h-full drop-shadow-xs"
+                  />
+                </div>
+
+                <p className="text-xs sm:text-sm font-black text-[#14532d] leading-snug line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem] flex items-center justify-center">
+                  {item.phrase}
+                </p>
+
+                <AudioPlayButton
+                  audioKey={item.audioKey}
+                  textToSpeak={item.audioText}
+                  compact
+                  className="mt-0.5"
+                />
+              </article>
+            ))}
+          </div>
+        </section>
+
+        {/* COLUMNA 2: QUÉ EVITAR */}
+        <section
+          aria-labelledby="col-evitar-title"
+          className="bg-[#fef2f2] border-2 border-[#dc2626] rounded-3xl p-2.5 sm:p-4 flex flex-col gap-3 shadow-xs"
+        >
+          {/* Encabezado de columna con color + icono + forma */}
+          <div className="flex items-center justify-center gap-2 py-1.5 px-2 bg-white rounded-2xl border border-[#fecaca] shadow-2xs">
+            <div className="w-6 h-6 rounded-lg bg-[#dc2626] text-white flex items-center justify-center font-black text-xs shrink-0">
+              <AlertOctagon size={16} />
+            </div>
+            <h2
+              id="col-evitar-title"
+              className="text-xs sm:text-base font-black text-[#7f1d1d] uppercase tracking-wide truncate"
+            >
+              {t('guidance_avoid_title')}
+            </h2>
+          </div>
+
+          {/* Tarjetas verticales de acciones a evitar */}
+          <div className="flex flex-col gap-2.5 sm:gap-3">
+            {avoidItems.map((item) => (
+              <article
+                key={item.id}
+                className="bg-white rounded-2xl p-2.5 sm:p-3.5 border border-[#fecaca] shadow-xs flex flex-col items-center text-center gap-2 transition-transform hover:scale-[1.01]"
+              >
+                <div className="w-20 h-20 sm:w-28 sm:h-28 flex items-center justify-center">
+                  <Illustration
+                    name={item.illustration}
+                    animation={item.anim}
+                    className="w-full h-full drop-shadow-xs"
+                  />
+                </div>
+
+                <p className="text-xs sm:text-sm font-black text-[#7f1d1d] leading-snug line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem] flex items-center justify-center">
+                  {item.phrase}
+                </p>
+
+                <AudioPlayButton
+                  audioKey={item.audioKey}
+                  textToSpeak={item.audioText}
+                  compact
+                  className="mt-0.5"
+                />
+              </article>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      {/* DESPLEGABLE "VER MÁS DETALLES" (Sin sobrecargar la vista principal) */}
+      <div className="bg-white rounded-3xl border border-[#cbd5e1] p-4 sm:p-6 shadow-xs">
+        <button
+          type="button"
+          onClick={() => setShowDetails(!showDetails)}
+          className="touch-target w-full flex items-center justify-between text-left font-black text-sm sm:text-base text-[#1e3a8a] hover:text-[#172554] transition-colors"
+          aria-expanded={showDetails}
+        >
+          <div className="flex items-center gap-2">
+            <Info size={20} className="shrink-0" />
+            <span>{showDetails ? t('btn_hide_more_details') : t('btn_see_more_details')}</span>
+          </div>
+          {showDetails ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+        </button>
+
+        {showDetails && (
+          <div className="mt-4 pt-4 border-t border-[#e2e8f0] space-y-4 text-xs sm:text-sm text-[#334155] leading-relaxed animate-in fade-in">
+            {/* Por qué hervir no quita metales */}
+            <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 space-y-1.5">
+              <strong className="font-black text-[#92400e] flex items-center gap-1.5 text-sm">
+                <AlertTriangle size={18} className="shrink-0" />
+                {t('boil_alert_title')}
+              </strong>
+              <p>{t('boil_alert_desc')}</p>
+            </div>
+
+            {/* Detalles para cultivos y animales */}
+            <div className="space-y-2">
+              <strong className="font-bold text-[#0f172a] block">
+                Efectos del agua ácida en el campo:
+              </strong>
+              <ul className="list-disc pl-5 space-y-1 font-medium text-[#475569]">
+                <li>{t('tip_high_2')}</li>
+                <li>{t('tip_high_3')}</li>
+                <li>{t('tip_high_4')}</li>
+              </ul>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* BOTÓN PARA REDACTAR OFICIO A LA AUTORIDAD (Anticipo Etapa 3) */}
+      {onOpenOficio && (
+        <div className="bg-[#eff6ff] border border-[#bfdbfe] p-4 rounded-3xl flex items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-2xl bg-[#1e3a8a] text-white flex items-center justify-center shrink-0">
+              <FileText size={20} />
+            </div>
+            <div className="truncate">
+              <strong className="text-xs sm:text-sm font-black text-[#0f172a] block truncate">
+                {t('official_letter_btn')}
+              </strong>
+              <span className="text-[11px] text-[#475569]">
+                Carta comunitaria lista para JASS y municipio
+              </span>
+            </div>
+          </div>
 
           <button
             type="button"
-            onClick={() => setOpenWhyBoil(!openWhyBoil)}
-            className="text-xs font-black text-[#9a3412] hover:underline flex items-center justify-center sm:justify-start gap-1 pt-1"
+            onClick={onOpenOficio}
+            className="touch-target px-4 py-2.5 rounded-2xl bg-[#1e3a8a] hover:bg-[#172554] text-white font-black text-xs shrink-0 shadow-sm"
           >
-            <span>{openWhyBoil ? 'Ocultar explicación' : '¿Por qué? Toca para ver la razón'}</span>
-            {openWhyBoil ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-          </button>
-
-          {openWhyBoil && (
-            <p className="text-xs text-[#7c2d12] bg-white/80 p-3 rounded-2xl border border-orange-200 animate-in fade-in">
-              {t('boil_alert_desc')}
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* Tarjetas Ilustradas de Consejos Prácticos por Nivel */}
-      <div className="space-y-4">
-        <h2 className="text-lg font-black text-[#0f172a]">
-          Consejos ilustrados para {selectedRisk === 'Alto' ? t('risk_alto') : selectedRisk === 'Medio' ? t('risk_medio') : t('risk_bajo')}:
-        </h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {selectedRisk === 'Alto' ? (
-            <>
-              {/* Tip 1: Beber */}
-              <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs flex items-center gap-4">
-                <div className="w-20 h-20 shrink-0">
-                  <AccessibleIllustration name="persona_bebiendo" alt="Beber en mate" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <span className="text-[10px] font-black uppercase text-red-700 bg-red-100 px-2 py-0.5 rounded-md inline-block mb-1">
-                    Consumo Humano
-                  </span>
-                  <p className="text-sm font-black text-slate-900 leading-snug">
-                    {t('tip_high_1')}
-                  </p>
-                </div>
-              </div>
-
-              {/* Tip 2: Riego */}
-              <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs flex items-center gap-4">
-                <div className="w-20 h-20 shrink-0">
-                  <AccessibleIllustration name="chacra_papas" alt="Chacra de papas" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <span className="text-[10px] font-black uppercase text-amber-700 bg-amber-100 px-2 py-0.5 rounded-md inline-block mb-1">
-                    Chacra y Riego
-                  </span>
-                  <p className="text-sm font-black text-slate-900 leading-snug">
-                    {t('tip_high_2')}
-                  </p>
-                </div>
-              </div>
-
-              {/* Tip 3: Ganado */}
-              <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs flex items-center gap-4">
-                <div className="w-20 h-20 shrink-0">
-                  <AccessibleIllustration name="vaca_oveja" alt="Ganado" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <span className="text-[10px] font-black uppercase text-red-700 bg-red-100 px-2 py-0.5 rounded-md inline-block mb-1">
-                    Ganado y Truchas
-                  </span>
-                  <p className="text-sm font-black text-slate-900 leading-snug">
-                    {t('tip_high_3')}
-                  </p>
-                </div>
-              </div>
-
-              {/* Tip 4: Avisar a la comunidad */}
-              <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs flex items-center gap-4">
-                <div className="w-20 h-20 shrink-0">
-                  <AccessibleIllustration name="celular_aviso" alt="Aviso celular" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <span className="text-[10px] font-black uppercase text-blue-700 bg-blue-100 px-2 py-0.5 rounded-md inline-block mb-1">
-                    Avisar a la Comunidad
-                  </span>
-                  <p className="text-sm font-black text-slate-900 leading-snug">
-                    {t('tip_high_4')}
-                  </p>
-                </div>
-              </div>
-            </>
-          ) : selectedRisk === 'Medio' ? (
-            <>
-              {/* Tip Med 1 */}
-              <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs flex items-center gap-4">
-                <div className="w-20 h-20 shrink-0">
-                  <AccessibleIllustration name="persona_bebiendo" alt="Beber" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <span className="text-[10px] font-black uppercase text-amber-700 bg-amber-100 px-2 py-0.5 rounded-md inline-block mb-1">
-                    Consumo Humano
-                  </span>
-                  <p className="text-sm font-black text-slate-900 leading-snug">
-                    {t('tip_med_1')}
-                  </p>
-                </div>
-              </div>
-
-              {/* Tip Med 2 */}
-              <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs flex items-center gap-4">
-                <div className="w-20 h-20 shrink-0">
-                  <AccessibleIllustration name="chacra_papas" alt="Chacra" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <span className="text-[10px] font-black uppercase text-amber-700 bg-amber-100 px-2 py-0.5 rounded-md inline-block mb-1">
-                    Chacra y Riego
-                  </span>
-                  <p className="text-sm font-black text-slate-900 leading-snug">
-                    {t('tip_med_2')}
-                  </p>
-                </div>
-              </div>
-
-              {/* Tip Med 3 */}
-              <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs flex items-center gap-4">
-                <div className="w-20 h-20 shrink-0">
-                  <AccessibleIllustration name="vaca_oveja" alt="Ganado" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <span className="text-[10px] font-black uppercase text-amber-700 bg-amber-100 px-2 py-0.5 rounded-md inline-block mb-1">
-                    Ganado y Animales
-                  </span>
-                  <p className="text-sm font-black text-slate-900 leading-snug">
-                    {t('tip_med_3')}
-                  </p>
-                </div>
-              </div>
-
-              {/* Tip Med 4: Bofedales */}
-              <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs flex items-center gap-4">
-                <div className="w-20 h-20 shrink-0">
-                  <AccessibleIllustration name="quebrada_limpia" alt="Bofedal" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <span className="text-[10px] font-black uppercase text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md inline-block mb-1">
-                    Filtros Naturales
-                  </span>
-                  <p className="text-sm font-black text-slate-900 leading-snug">
-                    Cuida los bofedales altoandinos; retienen minerales naturalmente.
-                  </p>
-                </div>
-              </div>
-            </>
-          ) : (
-            <>
-              {/* Tip Low 1 */}
-              <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs flex items-center gap-4">
-                <div className="w-20 h-20 shrink-0">
-                  <AccessibleIllustration name="persona_bebiendo" alt="Beber" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <span className="text-[10px] font-black uppercase text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md inline-block mb-1">
-                    Consumo Humano
-                  </span>
-                  <p className="text-sm font-black text-slate-900 leading-snug">
-                    {t('tip_low_1')}
-                  </p>
-                </div>
-              </div>
-
-              {/* Tip Low 2 */}
-              <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs flex items-center gap-4">
-                <div className="w-20 h-20 shrink-0">
-                  <AccessibleIllustration name="chacra_papas" alt="Chacra" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <span className="text-[10px] font-black uppercase text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md inline-block mb-1">
-                    Chacra y Riego
-                  </span>
-                  <p className="text-sm font-black text-slate-900 leading-snug">
-                    {t('tip_low_2')}
-                  </p>
-                </div>
-              </div>
-
-              {/* Tip Low 3 */}
-              <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs flex items-center gap-4">
-                <div className="w-20 h-20 shrink-0">
-                  <AccessibleIllustration name="vaca_oveja" alt="Ganado" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <span className="text-[10px] font-black uppercase text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md inline-block mb-1">
-                    Ganado y Truchas
-                  </span>
-                  <p className="text-sm font-black text-slate-900 leading-snug">
-                    {t('tip_low_3')}
-                  </p>
-                </div>
-              </div>
-
-              {/* Tip Low 4: Truchas */}
-              <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs flex items-center gap-4">
-                <div className="w-20 h-20 shrink-0">
-                  <AccessibleIllustration name="trucha" alt="Trucha nadando" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <span className="text-[10px] font-black uppercase text-sky-700 bg-sky-100 px-2 py-0.5 rounded-md inline-block mb-1">
-                    Piscicultura
-                  </span>
-                  <p className="text-sm font-black text-slate-900 leading-snug">
-                    Menor riesgo para piscigranjas de trucha según caudal disponible.
-                  </p>
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Copy & Print Official Letter for Community/Authorities */}
-      <div className="bg-white p-6 rounded-3xl border border-[#cbd5e1] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div>
-          <strong className="text-sm font-black text-[#0f172a] block">
-            {t('official_letter_btn')}
-          </strong>
-          <span className="text-xs text-[#64748b]">
-            Documento formal con sellos y formato oficial listo para asambleas de la JASS o presentación municipal.
-          </span>
-        </div>
-        <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
-          <button
-            onClick={() => setIsLetterModalOpen(true)}
-            className="touch-target flex-1 sm:flex-initial px-4 py-3 rounded-2xl bg-blue-50 hover:bg-blue-100 text-[#1e3a8a] border border-blue-200 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
-          >
-            <Printer size={16} />
-            <span>Ver e Imprimir Oficio</span>
-          </button>
-          <button
-            onClick={copyOficio}
-            className="touch-target flex-1 sm:flex-initial px-4 py-3 rounded-2xl bg-[#1e3a8a] hover:bg-[#172554] text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-transform active:scale-98"
-          >
-            {copiedLetter ? <Check size={16} /> : <Copy size={16} />}
-            <span>{copiedLetter ? t('official_letter_copied') : 'Copiar'}</span>
+            Abrir Oficio
           </button>
         </div>
-      </div>
+      )}
 
-      {/* Permanent Caution Disclaimer */}
-      <div className="p-4 bg-slate-100 rounded-2xl border border-slate-200 text-xs text-slate-600 flex items-center gap-2">
+      {/* Aviso Permanente de Precaución */}
+      <div className="p-3.5 bg-slate-100 rounded-2xl border border-slate-200 text-xs text-slate-600 flex items-center gap-2">
         <Info size={16} className="text-slate-500 shrink-0" />
         <span>{t('disclaimer')}</span>
       </div>
-
-      {/* Modal de Oficio Formal Imprimible */}
-      {isLetterModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/70 backdrop-blur-xs select-none">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95">
-            {/* Modal Actions Bar (No se imprime) */}
-            <div className="p-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
-              <div className="flex items-center gap-2">
-                <FileText size={18} className="text-blue-400" />
-                <span className="text-sm font-black">Vista Previa para Impresión</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => window.print()}
-                  className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
-                >
-                  <Printer size={14} />
-                  <span>Imprimir / PDF</span>
-                </button>
-                <button
-                  onClick={() => setIsLetterModalOpen(false)}
-                  className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-            </div>
-
-            {/* Hoja de Oficio Formal con Estilo Membretado */}
-            <div className="p-6 sm:p-8 overflow-y-auto font-serif text-slate-900 text-xs leading-relaxed space-y-4 bg-white">
-              <div className="text-center border-b-2 border-slate-900 pb-3 space-y-0.5">
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">
-                  República del Perú · Región Áncash · Callejón de Huaylas
-                </p>
-                <h2 className="text-sm sm:text-base font-black tracking-tight uppercase">
-                  Comité Comunitario de Monitoreo GlaciAgua
-                </h2>
-                <p className="text-[10px] text-slate-500 italic">
-                  Sistema Local de Alerta Temprana frente al Drenaje Ácido de Roca y Retroceso Glaciar
-                </p>
-              </div>
-
-              <div className="flex justify-between items-baseline pt-2">
-                <span className="font-bold font-mono text-[11px]">
-                  OFICIO MÚLTIPLE N° 014-2026-GLACIAGUA/ALERTA
-                </span>
-                <span className="text-[11px] text-slate-600">
-                  Huaraz, {new Date().toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' })}
-                </span>
-              </div>
-
-              <div className="space-y-1 pt-1">
-                <div><strong>A:</strong> Junta Administradora de Servicios de Saneamiento (JASS)</div>
-                <div><strong>   </strong> Comisión de Usuarios de Agua / Municipio Distrital / Teniente Gobernador</div>
-                <div><strong>DE:</strong> Equipo de Monitoreo Ambiental Comunitario GlaciAgua</div>
-                <div><strong>ASUNTO:</strong> Notificación preventiva por clasificación de <u>RIESGO {selectedRisk.toUpperCase()}</u> de acidez y metales en cabecera</div>
-              </div>
-
-              <div className="pt-2 text-justify space-y-3 font-sans text-xs">
-                <p>
-                  Por medio del presente documento oficial, se hace de su conocimiento que en la evaluación reciente realizada mediante la plataforma <strong>GlaciAgua</strong>, las quebradas de la cabecera correspondiente han arrojado una clasificación de <strong>NIVEL DE RIESGO {selectedRisk.toUpperCase()}</strong> debido a la acelerada exposición de roca con sulfuros (pirita) por el retroceso glaciar en la Cordillera Blanca.
-                </p>
-
-                <div className="bg-amber-50 border-l-4 border-amber-600 p-3 rounded-r-xl space-y-1">
-                  <strong className="block text-amber-950 font-black">
-                    ADVERTENCIA CRÍTICA DE SALUD PÚBLICA:
-                  </strong>
-                  <p className="text-amber-900 text-[11px]">
-                    Se recuerda a la población que <strong>hervir el agua NO elimina los metales pesados disueltos</strong> (hierro, aluminio, manganeso). La evaporación por ebullición incrementa la concentración de minerales tóxicos.
-                  </p>
-                </div>
-
-                <div className="space-y-1">
-                  <strong className="block font-bold">RECOMENDACIONES PARA LA ASAMBLEA Y DIRECTIVA:</strong>
-                  <ol className="list-decimal pl-5 space-y-1 text-[11px]">
-                    <li>Realizar inspección ocular inmediata de la bocatoma de captación y canales principales.</li>
-                    <li>Priorizar la captación de puquios y manantiales aislados de los lechos glaciares teñidos de óxido.</li>
-                    <li>Preservar y proteger los bofedales altoandinos como filtros depuradores naturales del territorio.</li>
-                    <li>Remitir copia informativa a la Autoridad Local del Agua (ALA Huaraz) y al Centro de Salud local.</li>
-                  </ol>
-                </div>
-              </div>
-
-              {/* Firmas de Autoridades Comunales */}
-              <div className="pt-8 grid grid-cols-3 gap-4 text-center text-[10px] text-slate-700 font-sans">
-                <div className="border-t border-slate-400 pt-1">
-                  <strong>Presidente de la JASS</strong>
-                  <div className="text-[9px] text-slate-500">Firma y Sello</div>
-                </div>
-                <div className="border-t border-slate-400 pt-1">
-                  <strong>Fiscal de la Comunidad</strong>
-                  <div className="text-[9px] text-slate-500">Firma y Sello</div>
-                </div>
-                <div className="border-t border-slate-400 pt-1">
-                  <strong>Promotor GlaciAgua</strong>
-                  <div className="text-[9px] text-slate-500">Monitoreo Local</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

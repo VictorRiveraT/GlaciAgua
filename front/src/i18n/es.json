@@ -191,5 +191,15 @@
   "help_step4_point3": "Se envían solos al volver la señal",
   "help_btn_understood": "¡Entendido, gracias!",
   "help_btn_prev": "Atrás",
-  "help_btn_next": "Siguiente"
+  "help_btn_next": "Siguiente",
+  "guidance_do_title": "Qué hacer",
+  "guidance_avoid_title": "Qué evitar",
+  "action_avisar_jass": "Avisa a la JASS",
+  "action_fuente_segura": "Usa la fuente que indique la JASS",
+  "action_guardar_tapa": "Guarda el agua con tapa",
+  "avoid_beber_quebrada": "No bebas de la quebrada",
+  "avoid_hervir_metales": "Hervir no lo arregla",
+  "avoid_animales_riego": "No des a animales ni riegues",
+  "btn_see_more_details": "Ver más detalles y explicaciones",
+  "btn_hide_more_details": "Ocultar detalles"
 }
