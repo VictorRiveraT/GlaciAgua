@@ -1,5 +1,80 @@
 import React, { useState, useEffect } from 'react'
 import { GlaciAguaApi } from '../services/api'
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
+
+const adminLogin = async (username: string, password: string): Promise<{ success: boolean; usuario?: any; error?: string }> => {
+  try {
+    const res = await fetch(API_BASE_URL + '/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+      signal: AbortSignal.timeout(4000),
+    })
+    if (res.ok) return await res.json()
+    const err = await res.json().catch(() => ({ detail: 'Credenciales invalidas' }))
+    return { success: false, error: err.detail || 'Error de autenticacion' }
+  } catch {
+    return { success: false, error: 'No se pudo conectar con el servidor backend (:8000).' }
+  }
+}
+
+const getMedicionesCampo = async (): Promise<any[]> => {
+  try {
+    const res = await fetch(API_BASE_URL + '/admin/mediciones', { signal: AbortSignal.timeout(4000) })
+    if (res.ok) return await res.json()
+    return []
+  } catch {
+    return []
+  }
+}
+
+const guardarMedicionCampo = async (data: any): Promise<{ success: boolean; id?: string; error?: string }> => {
+  try {
+    const res = await fetch(API_BASE_URL + '/admin/mediciones', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+      signal: AbortSignal.timeout(5000),
+    })
+    if (res.ok) return await res.json()
+    return { success: false, error: 'Error al registrar medicion' }
+  } catch (e: any) {
+    return { success: false, error: e.message }
+  }
+}
+
+const reentrenarModelo = async (params: {
+  aumentar_con_fisica: boolean
+  n_sinteticos: number
+  n_arboles: number
+  filas_adicionales?: any[]
+}): Promise<{ exito: boolean; mensaje: string; version_nueva?: string; metricas?: any; error?: string }> => {
+  try {
+    const res = await fetch(API_BASE_URL + '/admin/reentrenar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
+      signal: AbortSignal.timeout(60000),
+    })
+    if (res.ok) return await res.json()
+    const err = await res.json().catch(() => ({ detail: 'Fallo al reentrenar' }))
+    return { exito: false, mensaje: err.detail || 'Error en reentrenamiento' }
+  } catch {
+    return { exito: false, mensaje: 'Error al comunicar con el backend de reentrenamiento.' }
+  }
+}
+
+const getPlantillaCSV = async (): Promise<{ contenido_csv: string; nombre_archivo: string } | null> => {
+  try {
+    const res = await fetch(API_BASE_URL + '/admin/plantilla-csv', { signal: AbortSignal.timeout(3000) })
+    if (res.ok) return await res.json()
+    return null
+  } catch {
+    return null
+  }
+}
+
 import {
   X,
   Lock,
@@ -77,7 +152,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
     try {
       const [mInfo, mList] = await Promise.all([
         GlaciAguaApi.getMLModeloInfo(),
-        GlaciAguaApi.getMedicionesCampo(),
+        getMedicionesCampo(),
       ])
       setModelInfo(mInfo)
       setMediciones(mList)
@@ -98,7 +173,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
     setLoggingIn(true)
     setLoginError(null)
 
-    const res = await GlaciAguaApi.adminLogin(username, password)
+    const res = await adminLogin(username, password)
     setLoggingIn(false)
 
     if (res.success) {
@@ -137,7 +212,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
       responsable,
     }
 
-    const res = await GlaciAguaApi.guardarMedicionCampo(payload)
+    const res = await guardarMedicionCampo(payload)
     setSavingMedicion(false)
 
     if (res.success) {
@@ -151,7 +226,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
     setReentrenando(true)
     setResultadoReentreno(null)
 
-    const res = await GlaciAguaApi.reentrenarModelo({
+    const res = await reentrenarModelo({
       aumentar_con_fisica: aumentarConFisica,
       n_sinteticos: nSinteticos,
       n_arboles: nArboles,
@@ -165,7 +240,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
   }
 
   const handleDescargarPlantilla = async () => {
-    const data = await GlaciAguaApi.getPlantillaCSV()
+    const data = await getPlantillaCSV()
     if (!data) return
 
     const blob = new Blob([data.contenido_csv], { type: 'text/csv;charset=utf-8;' })

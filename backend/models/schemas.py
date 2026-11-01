@@ -67,7 +67,7 @@ class ReporteCreate(BaseModel):
     tiene_foto: bool = False
     foto_base64: Optional[str] = None
     comentarios: Optional[str] = ""
-    simulado: bool = False
+    simulado: bool = True
 
 class ReporteResponse(BaseModel):
     id: str
@@ -128,32 +128,3 @@ class GeoJSONFeature(BaseModel):
 class GeoJSONFeatureCollection(BaseModel):
     type: str = "FeatureCollection"
     features: List[GeoJSONFeature]
-
-class AdminLoginRequest(BaseModel):
-    username: str
-    password: str
-
-class MedicionCampoCreate(BaseModel):
-    id: Optional[str] = None
-    cuenca_id: str
-    quebrada: Optional[str] = None
-    periodo: str
-    temporada: Literal["seca", "humeda"]
-    area_km2: Optional[float] = None
-    roca_expuesta_km2: Optional[float] = None
-    pct_sulfuros: Optional[float] = None
-    pct_carbonatos: Optional[float] = None
-    lluvia_mm: Optional[float] = None
-    pct_bofedal: Optional[float] = None
-    pct_veg_humeda_est: Optional[float] = None
-    ph_min: float
-    conductividad: Optional[float] = None
-    metales_texto: Optional[str] = None
-    responsable: Optional[str] = "Ing. Ambiental"
-
-class AdminReentrenarRequest(BaseModel):
-    aumentar_con_fisica: bool = True
-    n_sinteticos: int = Field(default=80, ge=10, le=500)
-    n_arboles: int = Field(default=250, ge=50, le=500)
-    filas_adicionales: Optional[List[Dict[str, Any]]] = None
-
