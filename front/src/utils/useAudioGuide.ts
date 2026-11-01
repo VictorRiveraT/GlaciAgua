@@ -9,42 +9,67 @@ interface UseAudioGuideProps {
 export function useAudioGuide({ audioKey, textToSpeak }: UseAudioGuideProps) {
   const { lang, isQuechua } = useI18n()
   const [isPlaying, setIsPlaying] = useState(false)
-  const [isAvailable, setIsAvailable] = useState(true)
+  // En quechua, NUNCA asumir disponible hasta confirmar que el archivo .mp3 existe
+  const [isAvailable, setIsAvailable] = useState<boolean>(!isQuechua)
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
-  // Comprobar si el archivo de audio pregrabado existe para Quechua o Español
+  // Normalizar nombres de archivo (guiones a guiones bajos para consistencia en disco)
+  const normalizedKey = audioKey.replace(/-/g, '_')
+
   useEffect(() => {
     let active = true
-    const audioPath = `/audio/${lang}/${audioKey}.mp3`
-    const testAudio = new Audio(audioPath)
+    const audioPath = `/audio/${lang}/${normalizedKey}.mp3`
 
-    const handleCanPlay = () => {
-      if (active) setIsAvailable(true)
-    }
+    if (isQuechua) {
+      // REGLA CRÍTICA: En Quechua, NINGÚN motor TTS pronuncia bien el quechua ancashino.
+      // Si no existe el archivo .mp3 pregrabado en /audio/qu/, el botón se oculta por completo.
+      setIsAvailable(false)
 
-    const handleError = () => {
-      if (active) {
-        if (isQuechua) {
-          // En quechua, si no hay audio pregrabado, ocultar el botón (regla B)
-          setIsAvailable(false)
-        } else {
-          // En español, está disponible mediante Web Speech API
-          setIsAvailable(typeof window !== 'undefined' && 'speechSynthesis' in window)
+      const testAudio = new Audio(audioPath)
+      const handleCanPlay = () => {
+        if (active) setIsAvailable(true)
+      }
+      const handleError = () => {
+        if (active) setIsAvailable(false)
+      }
+
+      testAudio.addEventListener('canplaythrough', handleCanPlay, { once: true })
+      testAudio.addEventListener('error', handleError, { once: true })
+      testAudio.load()
+
+      return () => {
+        active = false
+        testAudio.removeEventListener('canplaythrough', handleCanPlay)
+        testAudio.removeEventListener('error', handleError)
+        testAudio.src = ''
+      }
+    } else {
+      // En español: comprobamos si existe el .mp3 pregrabado; si no, recurrimos a Web Speech API
+      const hasSpeech = typeof window !== 'undefined' && 'speechSynthesis' in window
+      setIsAvailable(true)
+
+      const testAudio = new Audio(audioPath)
+      const handleCanPlay = () => {
+        if (active) setIsAvailable(true)
+      }
+      const handleError = () => {
+        if (active) {
+          setIsAvailable(hasSpeech && Boolean(textToSpeak))
         }
       }
-    }
 
-    testAudio.addEventListener('canplaythrough', handleCanPlay, { once: true })
-    testAudio.addEventListener('error', handleError, { once: true })
-    testAudio.load()
+      testAudio.addEventListener('canplaythrough', handleCanPlay, { once: true })
+      testAudio.addEventListener('error', handleError, { once: true })
+      testAudio.load()
 
-    return () => {
-      active = false
-      testAudio.removeEventListener('canplaythrough', handleCanPlay)
-      testAudio.removeEventListener('error', handleError)
-      testAudio.src = ''
+      return () => {
+        active = false
+        testAudio.removeEventListener('canplaythrough', handleCanPlay)
+        testAudio.removeEventListener('error', handleError)
+        testAudio.src = ''
+      }
     }
-  }, [lang, audioKey, isQuechua])
+  }, [lang, normalizedKey, isQuechua, textToSpeak])
 
   const stop = () => {
     if (audioRef.current) {
@@ -58,13 +83,35 @@ export function useAudioGuide({ audioKey, textToSpeak }: UseAudioGuideProps) {
     setIsPlaying(false)
   }
 
+  const fallbackToSpeechSynthesis = () => {
+    // Si estamos en quechua, JAMÁS usar síntesis de voz en español ni inglés
+    if (isQuechua) {
+      setIsPlaying(false)
+      setIsAvailable(false)
+      return
+    }
+
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window && textToSpeak) {
+      window.speechSynthesis.cancel()
+      const utterance = new SpeechSynthesisUtterance(textToSpeak)
+      utterance.lang = 'es-PE'
+      utterance.rate = 0.95 // Ritmo pausado y claro para comunidades
+      utterance.onend = () => setIsPlaying(false)
+      utterance.onerror = () => setIsPlaying(false)
+      setIsPlaying(true)
+      window.speechSynthesis.speak(utterance)
+    } else {
+      setIsPlaying(false)
+    }
+  }
+
   const togglePlay = () => {
     if (isPlaying) {
       stop()
       return
     }
 
-    const audioPath = `/audio/${lang}/${audioKey}.mp3`
+    const audioPath = `/audio/${lang}/${normalizedKey}.mp3`
     const audio = new Audio(audioPath)
     audioRef.current = audio
 
@@ -72,36 +119,31 @@ export function useAudioGuide({ audioKey, textToSpeak }: UseAudioGuideProps) {
       setIsPlaying(false)
     }
 
-    audio.onerror = () => {
-      // Si falla la reproducción del mp3:
-      if (!isQuechua && typeof window !== 'undefined' && 'speechSynthesis' in window && textToSpeak) {
-        window.speechSynthesis.cancel()
-        const utterance = new SpeechSynthesisUtterance(textToSpeak)
-        utterance.lang = 'es-PE'
-        utterance.rate = 0.95 // Ritmo pausado y claro para comunidades
-        utterance.onend = () => setIsPlaying(false)
-        utterance.onerror = () => setIsPlaying(false)
-        setIsPlaying(true)
-        window.speechSynthesis.speak(utterance)
-      } else {
+    if (isQuechua) {
+      // En quechua: reproducción estricta de archivo físico
+      audio.onerror = () => {
         setIsPlaying(false)
+        setIsAvailable(false)
       }
+
+      audio.play().then(() => {
+        setIsPlaying(true)
+      }).catch(() => {
+        setIsPlaying(false)
+        setIsAvailable(false)
+      })
+      return
+    }
+
+    // En español: primero intenta reproducir el .mp3, si falla usa síntesis de voz
+    audio.onerror = () => {
+      fallbackToSpeechSynthesis()
     }
 
     audio.play().then(() => {
       setIsPlaying(true)
     }).catch(() => {
-      // Fallback a SpeechSynthesis en español
-      if (!isQuechua && typeof window !== 'undefined' && 'speechSynthesis' in window && textToSpeak) {
-        window.speechSynthesis.cancel()
-        const utterance = new SpeechSynthesisUtterance(textToSpeak)
-        utterance.lang = 'es-PE'
-        utterance.rate = 0.95
-        utterance.onend = () => setIsPlaying(false)
-        utterance.onerror = () => setIsPlaying(false)
-        setIsPlaying(true)
-        window.speechSynthesis.speak(utterance)
-      }
+      fallbackToSpeechSynthesis()
     })
   }
 
