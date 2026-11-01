@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "verify:i18n": "node src/utils/verify-i18n.cjs",
+    "build": "node src/utils/verify-i18n.cjs && tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {

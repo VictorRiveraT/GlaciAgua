@@ -766,8 +766,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 🛑
               </span>
               <div>
-                <strong className="text-red-700 text-xs block">Riesgo Alto</strong>
-                <span className="text-slate-600 text-[11px]">Agua probablemente ácida con minerales disueltos.</span>
+                <strong className="text-red-700 text-xs block">{t('risk_alto')}</strong>
+                <span className="text-slate-600 text-[11px]">{t('advice_alto')}</span>
               </div>
             </div>
 
@@ -776,8 +776,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 ⚠️
               </span>
               <div>
-                <strong className="text-amber-700 text-xs block">Riesgo Medio</strong>
-                <span className="text-slate-600 text-[11px]">Agua con variaciones o cercanía a fuentes ácidas.</span>
+                <strong className="text-amber-700 text-xs block">{t('risk_medio')}</strong>
+                <span className="text-slate-600 text-[11px]">{t('advice_medio')}</span>
               </div>
             </div>
 
@@ -786,8 +786,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 ✓
               </span>
               <div>
-                <strong className="text-emerald-700 text-xs block">Riesgo Bajo</strong>
-                <span className="text-slate-600 text-[11px]">Agua de roca limpia sin acidez de morrena.</span>
+                <strong className="text-emerald-700 text-xs block">{t('risk_bajo')}</strong>
+                <span className="text-slate-600 text-[11px]">{t('advice_bajo')}</span>
               </div>
             </div>
 
@@ -812,7 +812,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                   <h3 className="text-lg font-black text-slate-900 leading-tight">
                     {t('map_layers')}
                   </h3>
-                  <p className="text-xs text-slate-500">Activa o desactiva información visual</p>
+                  <p className="text-xs text-slate-500">{t('layers_modal_desc')}</p>
                 </div>
               </div>
               <button
@@ -970,7 +970,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 onClick={() => setLayersModalOpen(false)}
                 className="touch-target w-full py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-2xl text-center shadow-md active:scale-98 transition-transform"
               >
-                Listo / Ver mapa
+                {t('btn_done_map')}
               </button>
             </div>
           </div>

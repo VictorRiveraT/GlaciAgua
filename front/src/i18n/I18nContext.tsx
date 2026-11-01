@@ -36,15 +36,27 @@ export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {}
   }
 
+  const resolveValue = (val: any): string | null => {
+    if (typeof val === 'string' && val.trim().length > 0) {
+      return val
+    }
+    if (val && typeof val === 'object' && typeof val.text === 'string' && val.text.trim().length > 0) {
+      return val.text
+    }
+    return null
+  }
+
   const t = (key: string, fallback?: string): string => {
     const dict = dictionaries[lang]
-    if (dict && dict[key] && typeof dict[key] === 'string') {
-      return dict[key]
+    if (dict && dict[key] !== undefined) {
+      const resolved = resolveValue(dict[key])
+      if (resolved !== null) return resolved
     }
     // Fallback al español si falta clave o en quechua está vacía
     const esDict = dictionaries['es']
-    if (esDict && esDict[key] && typeof esDict[key] === 'string') {
-      return esDict[key]
+    if (esDict && esDict[key] !== undefined) {
+      const resolved = resolveValue(esDict[key])
+      if (resolved !== null) return resolved
     }
     return fallback || key
   }

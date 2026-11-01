@@ -6,13 +6,9 @@ import {
   Phone,
   Sliders,
   FlaskConical,
-  Shield,
-  Info,
   ChevronRight,
-  ExternalLink,
 } from 'lucide-react'
 import { useI18n } from '../i18n/I18nContext'
-import { DISCLAIMER_NOTE_ES, DISCLAIMER_NOTE_QU } from '../utils/accessibleTheme'
 
 interface MoreOptionsViewProps {
   onOpenOnboarding: () => void
@@ -31,17 +27,17 @@ export const MoreOptionsView: React.FC<MoreOptionsViewProps> = ({
   onOpenSimulator,
   onOpenScientific,
 }) => {
-  const { t, isQuechua } = useI18n()
+  const { t } = useI18n()
 
   return (
     <div className="max-w-2xl mx-auto p-4 sm:p-6 space-y-6 text-[#0f172a] select-none">
       {/* Title */}
       <div className="bg-white p-5 rounded-3xl border border-[#cbd5e1] shadow-xs">
         <h1 className="text-2xl font-black text-[#0f172a] tracking-tight">
-          {t('nav_more')}
+          {t('more_options_title')}
         </h1>
         <p className="text-sm text-[#475569] font-medium mt-1">
-          Ayuda comunitaria, puntos de internet y herramientas técnicas.
+          {t('app_tagline')}
         </p>
       </div>
 
@@ -59,10 +55,10 @@ export const MoreOptionsView: React.FC<MoreOptionsViewProps> = ({
             </div>
             <div>
               <strong className="text-sm font-black block text-[#0f172a]">
-                {t('onboarding_title')}
+                {t('more_onboarding')}
               </strong>
               <span className="text-xs text-[#64748b]">
-                Guía rápida en 3 pasos sobre el deshielo y el semáforo
+                {t('onboarding_title')}
               </span>
             </div>
           </div>
@@ -81,10 +77,10 @@ export const MoreOptionsView: React.FC<MoreOptionsViewProps> = ({
             </div>
             <div>
               <strong className="text-sm font-black block text-[#0f172a]">
-                Puntos de Internet y Tambos
+                {t('more_connectivity')}
               </strong>
               <span className="text-xs text-[#64748b]">
-                Lugares con señal y WiFi libre en Huaraz y Recuay
+                Puntos satelitales y WiFi libre en Huaraz y Recuay
               </span>
             </div>
           </div>
@@ -98,17 +94,22 @@ export const MoreOptionsView: React.FC<MoreOptionsViewProps> = ({
           className="touch-target w-full p-4 flex items-center justify-between text-left hover:bg-[#f8fafc] transition-colors"
         >
           <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-2xl bg-[#fefce8] text-[#92400e] flex items-center justify-center shrink-0">
+            <div className="w-11 h-11 rounded-2xl bg-[#fefce8] text-[#854d0e] flex items-center justify-center shrink-0 relative">
               <RefreshCw size={22} />
+              {pendingReportsCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#dc2626] text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white">
+                  {pendingReportsCount}
+                </span>
+              )}
             </div>
             <div>
               <strong className="text-sm font-black block text-[#0f172a]">
-                {t('sync_pending')}
+                {t('more_sync')}
               </strong>
               <span className="text-xs text-[#64748b]">
                 {pendingReportsCount > 0
-                  ? `Tienes ${pendingReportsCount} reporte(s) guardado(s) en tu celular`
-                  : 'Todos tus reportes locales están al día'}
+                  ? `Tienes ${pendingReportsCount} aviso(s) guardado(s) en tu celular`
+                  : 'Todos tus reportes están al día'}
               </span>
             </div>
           </div>
@@ -116,111 +117,85 @@ export const MoreOptionsView: React.FC<MoreOptionsViewProps> = ({
         </button>
       </div>
 
-      {/* Emergency Phones */}
+      {/* Emergency Contacts */}
       <div className="bg-white p-5 rounded-3xl border border-[#cbd5e1] shadow-xs space-y-3">
-        <h2 className="text-base font-black text-[#0f172a] flex items-center gap-2 border-b border-[#e2e8f0] pb-2">
-          <Phone size={18} className="text-[#1e3a8a]" />
-          <span>{t('emergency_contacts')}</span>
+        <h2 className="text-sm font-black uppercase text-[#475569] tracking-wider flex items-center gap-2">
+          <Phone size={16} className="text-[#1e3a8a]" />
+          <span>{t('more_contacts')}</span>
         </h2>
-
         <div className="space-y-2 text-xs">
-          <div className="p-3 rounded-2xl bg-[#f8fafc] border border-[#cbd5e1] flex items-center justify-between">
+          <div className="flex items-center justify-between p-3 rounded-2xl bg-[#f8fafc] border border-[#e2e8f0]">
             <div>
-              <strong className="text-sm font-black text-[#0f172a] block">
-                {t('contact_jass')}
-              </strong>
-              <span className="text-[#64748b]">Consulta sobre el agua entubada de tu sector</span>
+              <strong className="font-bold block text-[#0f172a]">{t('contact_jass')}</strong>
+              <span className="text-[#64748b]">Atención local y control de bocatomas</span>
             </div>
-            <span className="px-3 py-1 rounded-xl bg-[#eff6ff] text-[#1e3a8a] font-black text-xs">
-              Local
-            </span>
-          </div>
-
-          <div className="p-3 rounded-2xl bg-[#f8fafc] border border-[#cbd5e1] flex items-center justify-between">
-            <div>
-              <strong className="text-sm font-black text-[#0f172a] block">
-                {t('contact_diresa')}
-              </strong>
-              <span className="text-[#64748b]">Atención médica y vigilancia sanitaria</span>
-            </div>
-            <a
-              href="tel:043421350"
-              className="touch-target px-3 py-1 rounded-xl bg-[#1e3a8a] text-white font-bold text-xs inline-flex items-center"
-            >
-              (043) 421350
+            <a href="tel:043421234" className="touch-target text-xs font-black text-[#1e3a8a] bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-200">
+              Llamar
             </a>
           </div>
 
-          <div className="p-3 rounded-2xl bg-[#f8fafc] border border-[#cbd5e1] flex items-center justify-between">
+          <div className="flex items-center justify-between p-3 rounded-2xl bg-[#f8fafc] border border-[#e2e8f0]">
             <div>
-              <strong className="text-sm font-black text-[#0f172a] block">
-                {t('contact_municipio')}
-              </strong>
-              <span className="text-[#64748b]">Gerencia de Medio Ambiente y Servicios Públicos</span>
+              <strong className="font-bold block text-[#0f172a]">{t('contact_diresa')}</strong>
+              <span className="text-[#64748b]">Salud ambiental y emergencias</span>
             </div>
-            <a
-              href="tel:043426161"
-              className="touch-target px-3 py-1 rounded-xl bg-[#1e3a8a] text-white font-bold text-xs inline-flex items-center"
-            >
-              (043) 426161
+            <a href="tel:043422020" className="touch-target text-xs font-black text-[#1e3a8a] bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-200">
+              Llamar
+            </a>
+          </div>
+
+          <div className="flex items-center justify-between p-3 rounded-2xl bg-[#f8fafc] border border-[#e2e8f0]">
+            <div>
+              <strong className="font-bold block text-[#0f172a]">{t('contact_municipio')}</strong>
+              <span className="text-[#64748b]">Defensa Civil y Gestión de Riesgos</span>
+            </div>
+            <a href="tel:043421661" className="touch-target text-xs font-black text-[#1e3a8a] bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-200">
+              Llamar
             </a>
           </div>
         </div>
       </div>
 
-      {/* Technical / Jurado Section */}
-      <div className="bg-[#f8fafc] p-5 rounded-3xl border-2 border-dashed border-[#94a3b8] shadow-xs space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-black uppercase tracking-wider text-[#1e3a8a] flex items-center gap-2">
-            <Sliders size={18} />
-            <span>{t('scientific_panel')}</span>
-          </h2>
-          <span className="text-[10px] font-black bg-[#e2e8f0] px-2.5 py-0.5 rounded-full text-[#475569]">
-            FACI 2026
-          </span>
-        </div>
-
-        <p className="text-xs text-[#475569]">
-          Módulos de contraste científico con datos de campo de INAIGEM / UPCH y motor de Machine Learning:
+      {/* Technical / Jury Section */}
+      <div className="bg-slate-900 text-white p-5 rounded-3xl border border-slate-800 shadow-sm space-y-3">
+        <h2 className="text-xs font-black uppercase text-sky-400 tracking-wider flex items-center gap-2">
+          <FlaskConical size={16} />
+          <span>{t('more_scientific')}</span>
+        </h2>
+        <p className="text-xs text-slate-300">
+          Acceso especializado a los modelos científicos y parámetros hidroquímicos.
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
           <button
             type="button"
             onClick={onOpenSimulator}
-            className="touch-target p-3.5 rounded-2xl bg-white border border-[#cbd5e1] hover:border-[#1e3a8a] text-left transition-all shadow-2xs"
+            className="touch-target p-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left flex items-center justify-between transition-colors"
           >
-            <div className="flex items-center gap-2 text-[#1e3a8a] font-black text-xs mb-1">
-              <Sliders size={16} />
-              <span>{t('simulator_title')}</span>
+            <div>
+              <strong className="text-xs font-black block text-white">{t('more_simulator')}</strong>
+              <span className="text-[11px] text-slate-400">Parámetros geológicos</span>
             </div>
-            <p className="text-[11px] text-[#64748b] leading-snug">
-              Simulador físico paramétrico con variables de roca, lluvia y bofedal
-            </p>
+            <Sliders size={16} className="text-sky-400" />
           </button>
 
           <button
             type="button"
             onClick={onOpenScientific}
-            className="touch-target p-3.5 rounded-2xl bg-white border border-[#cbd5e1] hover:border-[#1e3a8a] text-left transition-all shadow-2xs"
+            className="touch-target p-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left flex items-center justify-between transition-colors"
           >
-            <div className="flex items-center gap-2 text-[#1e3a8a] font-black text-xs mb-1">
-              <FlaskConical size={16} />
-              <span>Mediciones de Laboratorio</span>
+            <div>
+              <strong className="text-xs font-black block text-white">Datos Científicos</strong>
+              <span className="text-[11px] text-slate-400">Validación de laboratorio</span>
             </div>
-            <p className="text-[11px] text-[#64748b] leading-snug">
-              Base hidroquímica INAIGEM / UPCH y contraste contra ECA Agua
-            </p>
+            <FlaskConical size={16} className="text-sky-400" />
           </button>
         </div>
       </div>
 
-      {/* Permanent Disclaimer Note */}
-      <div className="p-4 rounded-2xl bg-[#f1f5f9] border border-[#cbd5e1] text-xs text-[#334155] flex items-center gap-2.5">
-        <Info size={20} className="text-[#1e3a8a] shrink-0" />
-        <span className="font-semibold leading-relaxed">
-          {isQuechua ? DISCLAIMER_NOTE_QU : DISCLAIMER_NOTE_ES}
-        </span>
+      {/* Permanent Caution Disclaimer */}
+      <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs text-amber-950 font-medium">
+        {t('disclaimer')}
       </div>
     </div>
   )
