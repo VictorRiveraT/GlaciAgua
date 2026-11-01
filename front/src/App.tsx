@@ -412,6 +412,7 @@ export default function App() {
               onOpenSimulator={() => setCurrentView('simulador')}
               onOpenScientific={() => setCurrentView('cientifico')}
               onOpenAdmin={() => setIsAdminPortalOpen(true)}
+              onOpenOficio={() => setIsOficioModalOpen(true)}
             />
           </div>
         )}
