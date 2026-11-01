@@ -6,19 +6,20 @@ import { Navbar } from './components/Navbar'
 import { PilotSidebar } from './components/PilotSidebar'
 import { InteractiveMap } from './components/InteractiveMap'
 import { BasinDetailPanel } from './components/BasinDetailPanel'
+import { SimpleWaterStatusCard } from './components/SimpleWaterStatusCard'
+import { MoreOptionsView } from './components/MoreOptionsView'
 import { ReportModal } from './components/ReportModal'
 import { OfflineSyncModal } from './components/OfflineSyncModal'
+import { OnboardingModal } from './components/OnboardingModal'
 import { GlaciAguaApi } from './services/api'
+import { useI18n } from './i18n/I18nContext'
 import {
   Loader2,
-  Wifi,
+  Droplet,
   MapPin,
-  BookOpen,
   PlusCircle,
-  Sliders,
-  AlertTriangle,
+  Menu,
   X,
-  ChevronUp,
 } from 'lucide-react'
 
 // Code-splitting para optimizar la carga inicial en redes móviles lentas (2G/3G)
@@ -38,6 +39,7 @@ const ConnectivityView = lazy(() =>
 const STORAGE_KEY_REPORTS = 'glaciagua_community_reports_v2'
 const STORAGE_KEY_BASIN = 'glaciagua_selected_basin_id'
 const STORAGE_KEY_SEASON = 'glaciagua_season'
+const STORAGE_KEY_ONBOARDING_SEEN = 'glaciagua_onboarding_seen_v1'
 
 const INITIAL_REPORTS: CommunityReport[] = [
   {
@@ -65,7 +67,9 @@ const getAutoSeason = (): Season => {
 }
 
 export default function App() {
-  // Persistencia de temporada (por defecto detecta la temporada real)
+  const { t } = useI18n()
+
+  // Persistencia de temporada
   const [season, setSeason] = useState<Season>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_SEASON)
@@ -89,13 +93,27 @@ export default function App() {
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false)
   const [offlineToast, setOfflineToast] = useState<string | null>(null)
+  
+  // Vista principal: por defecto responde a '¿Puedo usar el agua?'
   const [currentView, setCurrentView] = useState<
-    'mapa' | 'simulador' | 'reportar' | 'guia' | 'cientifico' | 'conectividad'
-  >('mapa')
+    'agua' | 'mapa' | 'guia' | 'mas' | 'simulador' | 'cientifico' | 'conectividad'
+  >('agua')
 
   const [isReportModalOpen, setIsReportModalOpen] = useState(false)
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false)
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false)
   const [isMobileDrawerExpanded, setIsMobileDrawerExpanded] = useState(false)
+
+  // Mostrar onboarding la primera vez
+  useEffect(() => {
+    try {
+      const seen = localStorage.getItem(STORAGE_KEY_ONBOARDING_SEEN)
+      if (!seen) {
+        setIsOnboardingOpen(true)
+        localStorage.setItem(STORAGE_KEY_ONBOARDING_SEEN, 'true')
+      }
+    } catch {}
+  }, [])
 
   // Persistencia de reportes comunitarios en LocalStorage (Offline-First)
   const [reports, setReports] = useState<CommunityReport[]>(() => {
@@ -111,7 +129,6 @@ export default function App() {
     return INITIAL_REPORTS
   })
 
-  // Sincronizar cambios de reportes hacia el almacenamiento local persistente
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY_REPORTS, JSON.stringify(reports))
@@ -120,7 +137,6 @@ export default function App() {
     }
   }, [reports])
 
-  // Guardar preferencias en LocalStorage
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY_SEASON, season)
@@ -169,7 +185,7 @@ export default function App() {
     setTimeout(() => setOfflineToast(null), 4000)
   }
 
-  // Listener para eventos reales de red (Online / Offline)
+  // Listener para eventos reales de red
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true)
@@ -178,7 +194,7 @@ export default function App() {
     }
     const handleOffline = () => {
       setIsOnline(false)
-      setOfflineToast('⚡ Modo sin conexión activo · Mapa base y caché local listos')
+      setOfflineToast('⚡ Modo sin conexión activo · Datos y mapas guardados en celular')
       setTimeout(() => setOfflineToast(null), 4500)
     }
 
@@ -190,7 +206,7 @@ export default function App() {
     }
   }, [reports])
 
-  // Guardar un nuevo reporte (inmediato en local + intento en segundo plano si hay red)
+  // Guardar un nuevo reporte
   const handleSaveReport = async (newReport: CommunityReport) => {
     setReports((prev) => [newReport, ...prev])
 
@@ -207,7 +223,7 @@ export default function App() {
         }
       } catch {}
     }
-    setOfflineToast('⚡ Reporte guardado en memoria local. Se enviará al recuperar señal.')
+    setOfflineToast('⚡ Reporte guardado en tu teléfono. Se enviará al detectar internet.')
     setTimeout(() => setOfflineToast(null), 4000)
   }
 
@@ -221,29 +237,25 @@ export default function App() {
   const pendingReports = reports.filter((r) => !r.sincronizado)
 
   return (
-    <div className="h-screen h-[100dvh] w-screen w-full flex flex-col bg-[#eef2f1] text-[#172726] font-sans overflow-hidden">
-      {/* Top Navigation Bar: Limpia, sin botones de demo ni saturación */}
+    <div className="h-screen h-[100dvh] w-screen w-full flex flex-col bg-[#f8fafc] text-[#0f172a] font-sans overflow-hidden">
+      {/* Top Header */}
       <Navbar
         currentView={currentView}
-        onSelectView={(v) => {
-          if (v === 'reportar') {
-            setIsReportModalOpen(true)
-          } else {
-            setCurrentView(v)
-          }
-        }}
+        onSelectView={(v) => setCurrentView(v)}
         season={season}
         onSetSeason={setSeason}
         isOnline={isOnline}
         onOpenSync={() => setIsSyncModalOpen(true)}
         pendingReportsCount={pendingReports.length}
+        onOpenReport={() => setIsReportModalOpen(true)}
       />
 
       {/* Dynamic Offline / Online Notification Banner */}
       {offlineToast && (
-        <div className="bg-[#3346a8] text-white text-xs font-bold py-2 px-4 flex items-center justify-center gap-2 shadow-md animate-in slide-in-from-top duration-300 z-40">
+        <div className="bg-[#1e3a8a] text-white text-xs font-bold py-2 px-4 flex items-center justify-between shadow-md z-40">
           <span>{offlineToast}</span>
           <button
+            type="button"
             onClick={() => setOfflineToast(null)}
             className="text-white/80 hover:text-white ml-2 text-xs font-black"
           >
@@ -252,11 +264,27 @@ export default function App() {
         </div>
       )}
 
-      {/* Main View Container con diseño 100% responsivo nativo */}
+      {/* Main View Container */}
       <main className="flex-1 min-h-0 w-full flex overflow-hidden relative">
+        {/* Vista 1: ¿Puedo usar el agua? (Principal por defecto) */}
+        {currentView === 'agua' && (
+          <div className="w-full h-full overflow-y-auto px-4 py-5 pb-24 lg:pb-8 flex justify-center">
+            <SimpleWaterStatusCard
+              basins={PILOT_BASINS}
+              selectedBasin={selectedBasin || PILOT_BASINS[0]}
+              onSelectBasin={(b) => setSelectedBasin(b)}
+              season={season}
+              onOpenReport={() => setIsReportModalOpen(true)}
+              onOpenGuidance={() => setCurrentView('guia')}
+              onOpenScientific={() => setCurrentView('cientifico')}
+            />
+          </div>
+        )}
+
+        {/* Vista 2: Mapa Satelital */}
         {currentView === 'mapa' && (
-          <div className="w-full h-full flex-1 min-h-0 flex flex-row overflow-hidden relative">
-            {/* Desktop Left Sidebar: Sólo visible en pantallas grandes (>= lg) */}
+          <div className="w-full h-full flex-1 min-h-0 flex flex-row overflow-hidden relative pb-14 lg:pb-0">
+            {/* Desktop Left Sidebar: Solo >= lg */}
             <div className="hidden lg:flex h-full min-h-0 shrink-0">
               <PilotSidebar
                 basins={PILOT_BASINS}
@@ -268,35 +296,8 @@ export default function App() {
               />
             </div>
 
-            {/* Central Interactive Satellite Map (100% del espacio en móvil y tablet) */}
+            {/* Central Interactive Satellite Map */}
             <div className="flex-1 h-full min-h-0 w-full relative overflow-hidden flex flex-col">
-              {/* Barra flotante de selección rápida para teléfonos móviles (< lg) */}
-              <div className="lg:hidden absolute top-3 inset-x-3 z-20 flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
-                {PILOT_BASINS.map((b) => {
-                  const risk = b.nivelRiesgo[season]
-                  const isSel = selectedBasin?.id === b.id
-                  const dotColor =
-                    risk === 'Alto' ? 'bg-[#dc2626]' : risk === 'Medio' ? 'bg-[#d97706]' : 'bg-[#16a34a]'
-                  return (
-                    <button
-                      key={b.id}
-                      onClick={() => {
-                        setSelectedBasin(b)
-                        setIsMobileDrawerExpanded(true)
-                      }}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shadow-md backdrop-blur-md flex items-center gap-1.5 transition-all ${
-                        isSel
-                          ? 'bg-[#172726] text-white border border-slate-700'
-                          : 'bg-white/95 text-slate-800 border border-slate-200 hover:bg-white'
-                      }`}
-                    >
-                      <span className={`w-2 h-2 rounded-full ${dotColor}`} />
-                      <span>{b.nombre}</span>
-                    </button>
-                  )
-                })}
-              </div>
-
               <InteractiveMap
                 basins={PILOT_BASINS}
                 selectedBasin={selectedBasin}
@@ -309,7 +310,7 @@ export default function App() {
               />
             </div>
 
-            {/* Desktop Right Basin Detail Panel (>= lg) */}
+            {/* Desktop Right Detail Panel (>= lg) */}
             {selectedBasin && (
               <div className="hidden lg:flex h-full">
                 <BasinDetailPanel
@@ -324,54 +325,39 @@ export default function App() {
               </div>
             )}
 
-            {/* Mobile Bottom Sheet Drawer (< lg): Se despliega fluidamente al tocar una cuenca */}
+            {/* Mobile Bottom Sheet Drawer (< lg) */}
             {selectedBasin && (
               <div
-                className={`lg:hidden fixed inset-x-0 bottom-14 z-40 bg-white rounded-t-3xl shadow-2xl border-t border-slate-200 transition-all duration-300 flex flex-col ${
-                  isMobileDrawerExpanded ? 'max-h-[80vh]' : 'max-h-24'
+                className={`lg:hidden fixed inset-x-0 bottom-14 z-40 bg-white rounded-t-3xl shadow-2xl border-t border-[#cbd5e1] transition-all duration-300 flex flex-col ${
+                  isMobileDrawerExpanded ? 'max-h-[80vh]' : 'max-h-20'
                 }`}
               >
-                {/* Drag / Expand Bar */}
                 <div
                   onClick={() => setIsMobileDrawerExpanded((prev) => !prev)}
-                  className="w-full py-2 flex flex-col items-center justify-center cursor-pointer bg-[#fafbfb] rounded-t-3xl border-b border-slate-100"
+                  className="w-full py-2.5 px-4 flex items-center justify-between cursor-pointer bg-[#f8fafc] rounded-t-3xl border-b border-[#e2e8f0]"
                 >
-                  <div className="w-10 h-1 rounded-full bg-slate-300 mb-1" />
-                  <div className="w-full px-4 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`w-2.5 h-2.5 rounded-full ${
-                          selectedBasin.nivelRiesgo[season] === 'Alto'
-                            ? 'bg-red-500'
-                            : selectedBasin.nivelRiesgo[season] === 'Medio'
-                            ? 'bg-amber-500'
-                            : 'bg-green-500'
-                        }`}
-                      />
-                      <span className="text-sm font-black text-slate-900">{selectedBasin.nombre}</span>
-                      <span className="text-xs text-slate-500 font-medium">
-                        (pH {selectedBasin.ultimaMedicion.ph})
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-bold text-[#3346a8]">
-                        {isMobileDrawerExpanded ? 'Cerrar' : 'Ver Guía de Agua'}
-                      </span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setSelectedBasin(null)
-                        }}
-                        className="p-1 text-slate-400 hover:text-slate-700"
-                      >
-                        <X size={16} />
-                      </button>
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`w-3 h-3 rounded-full ${
+                        selectedBasin.nivelRiesgo[season] === 'Alto'
+                          ? 'bg-[#991b1b]'
+                          : selectedBasin.nivelRiesgo[season] === 'Medio'
+                          ? 'bg-[#92400e]'
+                          : 'bg-[#166534]'
+                      }`}
+                    />
+                    <strong className="text-sm font-black text-[#0f172a]">
+                      {selectedBasin.nombre}
+                    </strong>
+                    <span className="text-xs text-[#64748b]">
+                      (Riesgo {selectedBasin.nivelRiesgo[season]})
+                    </span>
                   </div>
+                  <span className="text-xs font-black text-[#1e3a8a]">
+                    {isMobileDrawerExpanded ? 'Cerrar' : 'Ver Ficha'}
+                  </span>
                 </div>
 
-                {/* Expanded Content Drawer */}
                 {isMobileDrawerExpanded && (
                   <div className="flex-1 overflow-y-auto">
                     <BasinDetailPanel
@@ -381,7 +367,7 @@ export default function App() {
                       onOpenReport={() => setIsReportModalOpen(true)}
                       onOpenGuidance={() => setCurrentView('guia')}
                       onOpenSimulator={() => setCurrentView('simulador')}
-                  onOpenConnectivity={() => setCurrentView('conectividad')}
+                      onOpenConnectivity={() => setCurrentView('conectividad')}
                     />
                   </div>
                 )}
@@ -390,28 +376,13 @@ export default function App() {
           </div>
         )}
 
-        {/* Simulador para evaluadores y jurado */}
-        {currentView === 'simulador' && (
-          <div className="w-full h-full overflow-y-auto pb-16 lg:pb-0">
-            <Suspense
-              fallback={
-                <div className="h-full flex items-center justify-center gap-2 text-xs font-bold text-[#667573]">
-                  <Loader2 size={18} className="animate-spin text-[#3346a8]" /> Cargando simulador...
-                </div>
-              }
-            >
-              <RiskSimulator />
-            </Suspense>
-          </div>
-        )}
-
-        {/* Guía práctica de agua */}
+        {/* Vista 3: Guía Comunitaria */}
         {currentView === 'guia' && (
-          <div className="w-full h-full overflow-y-auto pb-16 lg:pb-0">
+          <div className="w-full h-full overflow-y-auto pb-20 lg:pb-8">
             <Suspense
               fallback={
-                <div className="h-full flex items-center justify-center gap-2 text-xs font-bold text-[#667573]">
-                  <Loader2 size={18} className="animate-spin text-[#3346a8]" /> Cargando guía comunitaria...
+                <div className="h-full flex items-center justify-center gap-2 text-sm font-bold text-[#64748b]">
+                  <Loader2 size={20} className="animate-spin text-[#1e3a8a]" /> Cargando guía...
                 </div>
               }
             >
@@ -420,13 +391,41 @@ export default function App() {
           </div>
         )}
 
-        {/* Datos científicos */}
-        {currentView === 'cientifico' && (
-          <div className="w-full h-full overflow-y-auto pb-16 lg:pb-0">
+        {/* Vista 4: Más Opciones (Ayuda, Sincronización, Jurado) */}
+        {currentView === 'mas' && (
+          <div className="w-full h-full overflow-y-auto pb-20 lg:pb-8">
+            <MoreOptionsView
+              onOpenOnboarding={() => setIsOnboardingOpen(true)}
+              onOpenConnectivity={() => setCurrentView('conectividad')}
+              onOpenSync={() => setIsSyncModalOpen(true)}
+              pendingReportsCount={pendingReports.length}
+              onOpenSimulator={() => setCurrentView('simulador')}
+              onOpenScientific={() => setCurrentView('cientifico')}
+            />
+          </div>
+        )}
+
+        {/* Vistas Secundarias (Jurado / Conectividad) */}
+        {currentView === 'simulador' && (
+          <div className="w-full h-full overflow-y-auto pb-20 lg:pb-8">
             <Suspense
               fallback={
-                <div className="h-full flex items-center justify-center gap-2 text-xs font-bold text-[#667573]">
-                  <Loader2 size={18} className="animate-spin text-[#3346a8]" /> Cargando datos científicos...
+                <div className="h-full flex items-center justify-center gap-2 text-sm font-bold text-[#64748b]">
+                  <Loader2 size={20} className="animate-spin text-[#1e3a8a]" /> Cargando simulador...
+                </div>
+              }
+            >
+              <RiskSimulator />
+            </Suspense>
+          </div>
+        )}
+
+        {currentView === 'cientifico' && (
+          <div className="w-full h-full overflow-y-auto pb-20 lg:pb-8">
+            <Suspense
+              fallback={
+                <div className="h-full flex items-center justify-center gap-2 text-sm font-bold text-[#64748b]">
+                  <Loader2 size={20} className="animate-spin text-[#1e3a8a]" /> Cargando datos...
                 </div>
               }
             >
@@ -435,13 +434,12 @@ export default function App() {
           </div>
         )}
 
-        {/* Mapa de Conexión a Internet Rural y Tambos Satelitales */}
         {currentView === 'conectividad' && (
-          <div className="w-full h-full overflow-hidden pb-16 lg:pb-0">
+          <div className="w-full h-full overflow-hidden pb-20 lg:pb-8">
             <Suspense
               fallback={
-                <div className="h-full flex items-center justify-center gap-2 text-xs font-bold text-[#667573]">
-                  <Loader2 size={18} className="animate-spin text-[#3346a8]" /> Cargando mapa de conexión...
+                <div className="h-full flex items-center justify-center gap-2 text-sm font-bold text-[#64748b]">
+                  <Loader2 size={20} className="animate-spin text-[#1e3a8a]" /> Cargando mapa...
                 </div>
               }
             >
@@ -451,60 +449,58 @@ export default function App() {
         )}
       </main>
 
-      {/* Mobile Bottom Navigation Bar: Nativa, rápida e intuitiva (< lg) */}
-      <nav className="lg:hidden fixed bottom-0 inset-x-0 h-14 bg-white border-t border-[#dfe7e5] z-50 flex items-center justify-around px-2 shadow-lg select-none">
+      {/* Mobile Bottom Navigation Bar: Máximo 4 Ítems con Altura Accesible 56px+ */}
+      <nav
+        className="lg:hidden fixed bottom-0 inset-x-0 h-16 bg-white border-t border-[#cbd5e1] z-50 flex items-center justify-around px-2 shadow-xl select-none"
+        role="navigation"
+        aria-label="Navegación principal"
+      >
         <button
+          type="button"
+          onClick={() => setCurrentView('agua')}
+          className={`touch-target flex flex-col items-center justify-center gap-1 flex-1 py-1 transition-all ${
+            currentView === 'agua' ? 'text-[#1e3a8a] font-black' : 'text-[#64748b]'
+          }`}
+        >
+          <Droplet size={22} />
+          <span className="text-[11px] leading-none">¿Uso el agua?</span>
+        </button>
+
+        <button
+          type="button"
           onClick={() => setCurrentView('mapa')}
-          className={`flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-xl transition-all ${
-            currentView === 'mapa' ? 'text-[#3346a8] font-bold' : 'text-[#667573]'
+          className={`touch-target flex flex-col items-center justify-center gap-1 flex-1 py-1 transition-all ${
+            currentView === 'mapa' ? 'text-[#1e3a8a] font-black' : 'text-[#64748b]'
           }`}
         >
-          <MapPin size={18} />
-          <span className="text-[10px]">Mapa</span>
+          <MapPin size={22} />
+          <span className="text-[11px] leading-none">{t('nav_map')}</span>
         </button>
 
         <button
-          onClick={() => setCurrentView('guia')}
-          className={`flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-xl transition-all ${
-            currentView === 'guia' ? 'text-[#3346a8] font-bold' : 'text-[#667573]'
-          }`}
-        >
-          <BookOpen size={18} />
-          <span className="text-[10px]">¿Agua Segura?</span>
-        </button>
-
-        <button
-          onClick={() => setCurrentView('conectividad')}
-          className={`flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-xl transition-all ${
-            currentView === 'conectividad' ? 'text-[#3346a8] font-bold' : 'text-[#667573]'
-          }`}
-        >
-          <Wifi size={18} />
-          <span className="text-[10px]">Internet</span>
-        </button>
-
-        <button
+          type="button"
           onClick={() => setIsReportModalOpen(true)}
-          className="flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-xl text-[#3346a8] font-bold"
+          className="touch-target flex flex-col items-center justify-center gap-1 flex-1 py-1 text-[#1e3a8a] font-black"
         >
-          <div className="w-8 h-8 rounded-full bg-[#3346a8] text-white flex items-center justify-center shadow-md -mt-3 border-2 border-white">
-            <PlusCircle size={20} />
+          <div className="w-10 h-10 rounded-2xl bg-[#1e3a8a] text-white flex items-center justify-center shadow-md -mt-4 border-2 border-white">
+            <PlusCircle size={22} />
           </div>
-          <span className="text-[10px] text-[#3346a8]">Avisar Turbia</span>
+          <span className="text-[11px] leading-none text-[#1e3a8a]">Avisar</span>
         </button>
 
         <button
-          onClick={() => setCurrentView(currentView === 'simulador' ? 'mapa' : 'simulador')}
-          className={`flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-xl transition-all ${
-            currentView === 'simulador' ? 'text-[#3346a8] font-bold' : 'text-[#667573]'
+          type="button"
+          onClick={() => setCurrentView('mas')}
+          className={`touch-target flex flex-col items-center justify-center gap-1 flex-1 py-1 transition-all ${
+            currentView === 'mas' ? 'text-[#1e3a8a] font-black' : 'text-[#64748b]'
           }`}
         >
-          <Sliders size={18} />
-          <span className="text-[10px]">Simulador</span>
+          <Menu size={22} />
+          <span className="text-[11px] leading-none">{t('nav_more')}</span>
         </button>
       </nav>
 
-      {/* Global Modals */}
+      {/* Modales Globales */}
       <ReportModal
         isOpen={isReportModalOpen}
         onClose={() => setIsReportModalOpen(false)}
@@ -521,6 +517,11 @@ export default function App() {
         onSyncAll={handleSyncAll}
         onClearCache={handleClearCache}
         onOpenConnectivity={() => setCurrentView('conectividad')}
+      />
+
+      <OnboardingModal
+        isOpen={isOnboardingOpen}
+        onClose={() => setIsOnboardingOpen(false)}
       />
     </div>
   )

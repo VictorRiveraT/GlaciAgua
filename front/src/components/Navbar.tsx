@@ -1,27 +1,29 @@
 import React from 'react'
 import { Season } from '../types'
+import { LanguageSelector } from './LanguageSelector'
+import { AudioPlayButton } from './AudioPlayButton'
+import { useI18n } from '../i18n/I18nContext'
 import {
   Droplet,
   MapPin,
-  Sliders,
   PlusCircle,
   BookOpen,
-  FlaskConical,
   Wifi,
   WifiOff,
   CloudRain,
   SunMedium,
-  ChevronDown,
+  Menu,
 } from 'lucide-react'
 
 interface NavbarProps {
-  currentView: 'mapa' | 'simulador' | 'reportar' | 'guia' | 'cientifico' | 'conectividad'
-  onSelectView: (view: 'mapa' | 'simulador' | 'reportar' | 'guia' | 'cientifico' | 'conectividad') => void
+  currentView: 'agua' | 'mapa' | 'guia' | 'mas' | 'simulador' | 'cientifico' | 'conectividad'
+  onSelectView: (view: 'agua' | 'mapa' | 'guia' | 'mas' | 'simulador' | 'cientifico' | 'conectividad') => void
   season: Season
   onSetSeason: (s: Season) => void
   isOnline: boolean
   onOpenSync: () => void
   pendingReportsCount: number
+  onOpenReport: () => void
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -32,133 +34,152 @@ export const Navbar: React.FC<NavbarProps> = ({
   isOnline,
   onOpenSync,
   pendingReportsCount,
+  onOpenReport,
 }) => {
+  const { t } = useI18n()
+
   return (
-    <header className="bg-white border-b border-[#dfe7e5] px-4 lg:px-6 py-2.5 flex items-center justify-between gap-3 shadow-xs sticky top-0 z-30 select-none">
+    <header className="bg-white border-b border-[#cbd5e1] px-3 sm:px-5 py-2 flex items-center justify-between gap-2 shadow-xs sticky top-0 z-30 select-none">
       {/* Brand */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         <button
-          onClick={() => onSelectView('mapa')}
-          className="flex items-center gap-2.5 text-left group"
+          type="button"
+          onClick={() => onSelectView('agua')}
+          className="touch-target flex items-center gap-2 text-left group"
+          aria-label="GlaciAgua inicio"
         >
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-[#3346a8] group-hover:bg-[#25368f] text-white flex items-center justify-center font-black transition-colors shadow-xs">
-            <Droplet size={20} className="sm:w-5.5 sm:h-5.5" />
+          <div className="w-10 h-10 rounded-2xl bg-[#1e3a8a] text-white flex items-center justify-center font-black shadow-xs">
+            <Droplet size={22} />
           </div>
-          <div>
-            <span className="text-lg sm:text-xl font-black text-[#172726] tracking-tight">GlaciAgua</span>
+          <div className="hidden xs:block">
+            <span className="text-lg sm:text-xl font-black text-[#0f172a] tracking-tight block leading-tight">
+              GlaciAgua
+            </span>
+            <span className="text-[10px] text-[#64748b] font-bold block leading-none">
+              Cordillera Blanca
+            </span>
           </div>
         </button>
       </div>
 
-      {/* Main Navigation Tabs: Esenciales, directas y claras */}
-      <nav className="hidden md:flex items-center gap-1 bg-[#f4f7f6] p-1 rounded-2xl border border-[#dfe7e5]">
+      {/* Desktop Main Navigation Tabs (4 Items Only) */}
+      <nav className="hidden lg:flex items-center gap-1 bg-[#f1f5f9] p-1 rounded-2xl border border-[#cbd5e1]">
         <button
+          type="button"
+          onClick={() => onSelectView('agua')}
+          className={`touch-target px-3.5 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 ${
+            currentView === 'agua'
+              ? 'bg-white text-[#1e3a8a] shadow-xs'
+              : 'text-[#475569] hover:text-[#0f172a]'
+          }`}
+        >
+          <Droplet size={16} />
+          <span>{t('nav_water')}</span>
+        </button>
+
+        <button
+          type="button"
           onClick={() => onSelectView('mapa')}
-          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+          className={`touch-target px-3.5 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 ${
             currentView === 'mapa'
-              ? 'bg-white text-[#3346a8] shadow-xs'
-              : 'text-[#667573] hover:text-[#172726]'
+              ? 'bg-white text-[#1e3a8a] shadow-xs'
+              : 'text-[#475569] hover:text-[#0f172a]'
           }`}
         >
-          <MapPin size={14} /> Mapa de Quebradas
+          <MapPin size={16} />
+          <span>{t('nav_map')}</span>
         </button>
 
         <button
+          type="button"
+          onClick={onOpenReport}
+          className="touch-target px-3.5 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 bg-[#1e3a8a] text-white hover:bg-[#172554] shadow-xs"
+        >
+          <PlusCircle size={16} />
+          <span>{t('nav_report')}</span>
+        </button>
+
+        <button
+          type="button"
           onClick={() => onSelectView('guia')}
-          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+          className={`touch-target px-3.5 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 ${
             currentView === 'guia'
-              ? 'bg-white text-[#3346a8] shadow-xs'
-              : 'text-[#667573] hover:text-[#172726]'
+              ? 'bg-white text-[#1e3a8a] shadow-xs'
+              : 'text-[#475569] hover:text-[#0f172a]'
           }`}
         >
-          <BookOpen size={14} /> ¿Puedo Usar el Agua?
+          <BookOpen size={16} />
+          <span>{t('btn_guidance')}</span>
         </button>
 
         <button
-          onClick={() => onSelectView('conectividad')}
-          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-            currentView === 'conectividad'
-              ? 'bg-white text-[#3346a8] shadow-xs'
-              : 'text-[#667573] hover:text-[#172726]'
+          type="button"
+          onClick={() => onSelectView('mas')}
+          className={`touch-target px-3.5 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 ${
+            currentView === 'mas' || currentView === 'simulador' || currentView === 'cientifico' || currentView === 'conectividad'
+              ? 'bg-white text-[#1e3a8a] shadow-xs'
+              : 'text-[#475569] hover:text-[#0f172a]'
           }`}
-          title="Mapa de señal celular, tambos satelitales y plazas con WiFi gratuito"
         >
-          <Wifi size={14} /> Puntos de Internet
-        </button>
-
-        <button
-          onClick={() => onSelectView('reportar')}
-          className="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 bg-[#3346a8] text-white hover:bg-[#25368f] shadow-xs"
-        >
-          <PlusCircle size={14} /> Avisar Agua Sucia
-        </button>
-
-        <div className="w-[1px] h-4 bg-gray-300 mx-1" />
-
-        {/* Acceso para jurado / técnicos */}
-        <button
-          onClick={() => onSelectView(currentView === 'simulador' ? 'mapa' : 'simulador')}
-          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-            currentView === 'simulador' || currentView === 'cientifico'
-              ? 'bg-[#edf0ff] text-[#3346a8] border border-[#c7d2fe]'
-              : 'text-[#667573] hover:text-[#172726]'
-          }`}
-          title="Panel de simulación y datos de laboratorio para jurado"
-        >
-          <Sliders size={13} />
-          <span>Datos / Jurado</span>
+          <Menu size={16} />
+          <span>{t('nav_more')}</span>
         </button>
       </nav>
 
-      {/* Right Controls: Temporada actual y conectividad limpia */}
-      <div className="flex items-center gap-2">
-        {/* Temporada Ambiental Automática (conmutable con un clic discreto) */}
+      {/* Right Controls: Idioma (ES | QU) + Temporada + Conexión */}
+      <div className="flex items-center gap-1.5 sm:gap-2">
+        {/* Selector de Idioma Español / Quechua */}
+        <LanguageSelector />
+
+        {/* Conmutador de Temporada */}
         <button
+          type="button"
           onClick={() => onSetSeason(season === 'humeda' ? 'seca' : 'humeda')}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-[#f4f7f6] hover:bg-[#edf0ff] text-[#3346a8] border border-[#dfe7e5] transition-all"
-          title="Clic para cambiar entre temporada de lluvias y estiaje"
+          className="touch-target flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-black bg-[#f1f5f9] hover:bg-[#e2e8f0] text-[#1e3a8a] border border-[#cbd5e1] transition-all"
+          title="Cambiar temporada ambiental"
+          aria-label={`Temporada actual: ${season === 'humeda' ? 'Lluvias' : 'Seca'}. Toca para cambiar.`}
         >
           {season === 'humeda' ? (
             <>
-              <CloudRain size={14} className="text-[#2563eb]" />
-              <span className="hidden sm:inline">Lluvias</span>
-              <span className="text-[10px] text-slate-400 font-normal hidden lg:inline">(Actual)</span>
+              <CloudRain size={16} className="text-[#2563eb]" />
+              <span className="hidden sm:inline">{t('season_humeda')}</span>
             </>
           ) : (
             <>
-              <SunMedium size={14} className="text-[#d97706]" />
-              <span className="hidden sm:inline">Estiaje</span>
-              <span className="text-[10px] text-slate-400 font-normal hidden lg:inline">(Seca)</span>
+              <SunMedium size={16} className="text-[#d97706]" />
+              <span className="hidden sm:inline">{t('season_seca')}</span>
             </>
           )}
         </button>
 
-        {/* Estado de Red / Sincronización */}
+        {/* Estado de Sincronización / Conexión */}
         {pendingReportsCount > 0 ? (
           <button
+            type="button"
             onClick={onOpenSync}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-white shadow-xs hover:bg-amber-600 transition-all animate-pulse"
-            title="Hay reportes pendientes de sincronizar"
+            className="touch-target flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-black bg-amber-500 text-white shadow-xs hover:bg-amber-600 transition-all animate-pulse"
+            title="Reportes pendientes de enviar"
           >
-            <Wifi size={14} />
-            <span>Sincronizar ({pendingReportsCount})</span>
+            <Wifi size={16} />
+            <span className="hidden sm:inline">Enviar ({pendingReportsCount})</span>
+            <span className="sm:hidden">{pendingReportsCount}</span>
           </button>
         ) : !isOnline ? (
           <button
+            type="button"
             onClick={onOpenSync}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-amber-50 text-[#a86408] border border-amber-200"
-            title="Modo sin conexión · Guardando en memoria local"
+            className="touch-target flex items-center gap-1 px-2.5 py-1.5 rounded-2xl text-xs font-bold bg-amber-50 text-[#92400e] border border-amber-300"
+            title="Sin internet · Guardando en memoria local"
           >
-            <WifiOff size={14} />
-            <span className="hidden sm:inline">Sin señal</span>
+            <WifiOff size={16} />
+            <span className="hidden md:inline">Sin señal</span>
           </button>
         ) : (
           <div
-            className="flex items-center gap-1.5 px-2 py-1.5 text-xs text-[#21835b] font-medium"
-            title="Conexión en línea activa"
+            className="hidden sm:flex items-center gap-1 px-2 py-1 text-xs text-[#166534] font-bold"
+            title="Conexión activa"
           >
-            <span className="w-2 h-2 rounded-full bg-[#16a34a] animate-pulse" />
-            <span className="hidden sm:inline text-xs font-bold text-slate-600">En línea</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#16a34a] animate-pulse" />
           </div>
         )}
       </div>
