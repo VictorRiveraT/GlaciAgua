@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="100%" height="100%" role="img" aria-label="Olla hirviendo con advertencia: hervir no quita metales">
+  <defs>
+    <filter id="flameGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#ea580c" flood-opacity="0.6" />
+    </filter>
+  </defs>
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      .anim-steam, .anim-fire { animation: none !important; }
+    }
+    .anim-steam {
+      animation: steamRise 3s ease-out infinite;
+    }
+    .anim-fire {
+      transform-origin: 80px 140px;
+      animation: fireFlicker 1.5s ease-in-out infinite alternate;
+    }
+    @keyframes steamRise {
+      0% { transform: translateY(0); opacity: 0.8; }
+      50% { opacity: 0.5; }
+      100% { transform: translateY(-8px); opacity: 0; }
+    }
+    @keyframes fireFlicker {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.06) rotate(1deg); }
+    }
+  </style>
+
+  <!-- Background circle with amber warning hue -->
+  <circle cx="80" cy="80" r="74" fill="#fff7ed" stroke="#f97316" stroke-width="3" />
+
+  <!-- Steam rising with animation -->
+  <g class="anim-steam" stroke="#94a3b8" stroke-width="3.5" fill="none" stroke-linecap="round">
+    <path d="M65 48 Q60 38 68 28" />
+    <path d="M80 44 Q86 34 80 24" />
+    <path d="M95 48 Q90 38 98 28" />
+  </g>
+
+  <!-- Campfire / Fogón Stones -->
+  <ellipse cx="50" cy="138" rx="14" ry="8" fill="#64748b" stroke="#334155" stroke-width="2" />
+  <ellipse cx="110" cy="138" rx="14" ry="8" fill="#64748b" stroke="#334155" stroke-width="2" />
+
+  <!-- Fire flames -->
+  <g class="anim-fire" filter="url(#flameGlow)">
+    <path d="M60 140 Q70 115 80 120 Q90 115 100 140 Z" fill="#ef4444" />
+    <path d="M68 140 Q75 124 80 126 Q85 124 92 140 Z" fill="#facc15" />
+  </g>
+
+  <!-- Boiling Pot (Olla de barro / metal) -->
+  <path d="M48 68 L112 68 L106 122 C106 128 54 128 54 122 Z"
+        fill="#334155" stroke="#0f172a" stroke-width="3.5" stroke-linejoin="round" />
+  <!-- Pot Rim & Handles -->
+  <ellipse cx="80" cy="68" rx="32" ry="7" fill="#64748b" stroke="#0f172a" stroke-width="3" />
+  <path d="M42 75 C34 75 34 88 44 88" fill="none" stroke="#0f172a" stroke-width="3.5" stroke-linecap="round" />
+  <path d="M118 75 C126 75 126 88 116 88" fill="none" stroke="#0f172a" stroke-width="3.5" stroke-linecap="round" />
+
+  <!-- Bubbling water in pot -->
+  <ellipse cx="80" cy="68" rx="26" ry="5" fill="#38bdf8" opacity="0.9" />
+  <circle cx="72" cy="67" r="2.5" fill="#ffffff" />
+  <circle cx="86" cy="68" r="2" fill="#ffffff" />
+
+  <!-- Prominent Red Warning Circle with Cross ✖ -->
+  <circle cx="120" cy="40" r="22" fill="#dc2626" stroke="#ffffff" stroke-width="3.5" />
+  <path d="M109 29 L131 51 M131 29 L109 51" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" />
+</svg>

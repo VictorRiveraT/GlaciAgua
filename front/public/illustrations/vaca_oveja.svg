@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="100%" height="100%" role="img" aria-label="Vaca y oveja pastando en el campo">
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      .anim-tail { animation: none !important; }
+    }
+    .anim-tail {
+      transform-origin: 120px 105px;
+      animation: wagTail 2.5s ease-in-out infinite;
+    }
+    @keyframes wagTail {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(12deg); }
+    }
+  </style>
+
+  <!-- Background circle -->
+  <circle cx="80" cy="80" r="74" fill="#f0fdf4" stroke="#16a34a" stroke-width="3" />
+
+  <!-- Green pasture hill -->
+  <path d="M8 120 Q80 85 152 115 L152 152 L8 152 Z" fill="#86efac" stroke="#15803d" stroke-width="2.5" />
+
+  <!-- Friendly Andean Cow (Vaca) -->
+  <g transform="translate(10, 5)">
+    <!-- Legs -->
+    <rect x="75" y="105" width="6" height="24" rx="3" fill="#ffffff" stroke="#0f172a" stroke-width="2" />
+    <rect x="88" y="105" width="6" height="24" rx="3" fill="#ffffff" stroke="#0f172a" stroke-width="2" />
+    <rect x="108" y="105" width="6" height="24" rx="3" fill="#ffffff" stroke="#0f172a" stroke-width="2" />
+    <rect x="120" y="105" width="6" height="24" rx="3" fill="#ffffff" stroke="#0f172a" stroke-width="2" />
+
+    <!-- Tail -->
+    <path class="anim-tail" d="M125 90 Q135 105 130 115" fill="none" stroke="#0f172a" stroke-width="3" stroke-linecap="round" />
+
+    <!-- Body -->
+    <rect x="68" y="80" width="58" height="34" rx="14" fill="#ffffff" stroke="#0f172a" stroke-width="2.5" />
+    <!-- Cow spots -->
+    <ellipse cx="88" cy="94" rx="10" ry="7" fill="#0f172a" />
+    <circle cx="112" cy="88" r="6" fill="#0f172a" />
+
+    <!-- Head -->
+    <circle cx="58" cy="85" r="16" fill="#ffffff" stroke="#0f172a" stroke-width="2.5" />
+    <!-- Ears & Horns -->
+    <path d="M48 76 Q42 80 48 84" fill="#fbcfe8" stroke="#0f172a" stroke-width="2" />
+    <path d="M52 70 Q54 62 58 68" fill="#e2e8f0" stroke="#0f172a" stroke-width="2" />
+    <path d="M64 70 Q66 62 70 68" fill="#e2e8f0" stroke="#0f172a" stroke-width="2" />
+    <!-- Snout -->
+    <ellipse cx="50" cy="92" rx="10" ry="6" fill="#fbcfe8" stroke="#0f172a" stroke-width="2" />
+    <circle cx="47" cy="92" r="1.5" fill="#701a75" />
+    <circle cx="53" cy="92" r="1.5" fill="#701a75" />
+    <!-- Eye -->
+    <circle cx="58" cy="80" r="3" fill="#0f172a" />
+    <circle cx="57" cy="79" r="1" fill="#ffffff" />
+  </g>
+
+  <!-- Fluffy Sheep (Oveja) in front -->
+  <g transform="translate(18, 20)">
+    <!-- Legs -->
+    <rect x="25" y="105" width="4" height="16" rx="2" fill="#334155" />
+    <rect x="35" y="105" width="4" height="16" rx="2" fill="#334155" />
+    <rect x="48" y="105" width="4" height="16" rx="2" fill="#334155" />
+
+    <!-- Fluffy Body (cloud-like) -->
+    <ellipse cx="38" cy="95" rx="18" ry="14" fill="#ffffff" stroke="#475569" stroke-width="2" />
+    <circle cx="28" cy="90" r="7" fill="#ffffff" />
+    <circle cx="48" cy="90" r="7" fill="#ffffff" />
+    <circle cx="38" cy="85" r="8" fill="#ffffff" />
+
+    <!-- Sheep Head -->
+    <ellipse cx="20" cy="92" rx="7" ry="6" fill="#334155" />
+    <ellipse cx="17" cy="96" rx="4" ry="2" fill="#1e293b" />
+    <!-- Eye -->
+    <circle cx="19" cy="90" r="1.5" fill="#ffffff" />
+  </g>
+</svg>

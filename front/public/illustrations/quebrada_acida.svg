@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="100%" height="100%" role="img" aria-label="Quebrada con drenaje ácido de roca y piedras anaranjadas">
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      .anim-acid { animation: none !important; }
+    }
+    .anim-acid {
+      animation: acidPulse 3s ease-in-out infinite;
+    }
+    @keyframes acidPulse {
+      0%, 100% { opacity: 0.95; }
+      50% { opacity: 0.75; }
+    }
+  </style>
+
+  <!-- Background circle with warning red/orange tint -->
+  <circle cx="80" cy="80" r="74" fill="#fff1f2" stroke="#e11d48" stroke-width="3" />
+
+  <!-- Mountain slopes with exposed rust and grey moraine -->
+  <path d="M10 65 L45 95 L10 150 Z" fill="#78350f" stroke="#451a03" stroke-width="2" />
+  <path d="M150 65 L115 95 L150 150 Z" fill="#78350f" stroke="#451a03" stroke-width="2" />
+
+  <!-- Moraine peaks with exposed reactive pyrite -->
+  <polygon points="80,20 50,65 110,65" fill="#a8a29e" stroke="#57534e" stroke-width="2" />
+  <polygon points="80,20 65,45 95,45" fill="#fde047" opacity="0.8" />
+
+  <!-- Orange Acid River Flow (Agua teñida de óxido de hierro) -->
+  <path d="M80 65 C68 90 40 105 50 155 L110 155 C120 105 92 90 80 65 Z"
+        fill="#ea580c" stroke="#9a3412" stroke-width="2" class="anim-acid" />
+
+  <!-- Iron Oxide Stained Rocks (Piedras anaranjadas características de DAR) -->
+  <ellipse cx="58" cy="132" rx="10" ry="7" fill="#c2410c" stroke="#7c2d12" stroke-width="2" />
+  <ellipse cx="98" cy="138" rx="11" ry="8" fill="#ea580c" stroke="#7c2d12" stroke-width="2" />
+  <ellipse cx="76" cy="112" rx="7" ry="5" fill="#f97316" stroke="#9a3412" stroke-width="1.8" />
+  <ellipse cx="64" cy="95" rx="5" ry="3.5" fill="#ea580c" stroke="#7c2d12" stroke-width="1.5" />
+  <ellipse cx="88" cy="98" rx="6" ry="4" fill="#c2410c" stroke="#7c2d12" stroke-width="1.5" />
+
+  <!-- Acid chemical fumes / bubbles -->
+  <circle cx="70" cy="80" r="2.5" fill="#facc15" opacity="0.8" />
+  <circle cx="85" cy="85" r="2" fill="#facc15" opacity="0.8" />
+
+  <!-- Red Danger Octagon Alert Badge -->
+  <circle cx="125" cy="35" r="15" fill="#dc2626" stroke="#ffffff" stroke-width="2.5" />
+  <text x="125" y="42" font-size="20" font-family="sans-serif" font-weight="900" text-anchor="middle" fill="#ffffff">!</text>
+</svg>

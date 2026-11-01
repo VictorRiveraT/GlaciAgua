@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="100%" height="100%" role="img" aria-label="Trucha nadando en agua limpia">
+  <defs>
+    <radialGradient id="waterFlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </radialGradient>
+  </defs>
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      .anim-swim, .anim-fin { animation: none !important; }
+    }
+    .anim-swim {
+      animation: fishSwim 3s ease-in-out infinite;
+    }
+    .anim-fin {
+      transform-origin: 125px 80px;
+      animation: finWiggle 1.5s ease-in-out infinite;
+    }
+    @keyframes fishSwim {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-4px) rotate(-2deg); }
+    }
+    @keyframes finWiggle {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(8deg); }
+    }
+  </style>
+
+  <!-- Background circle -->
+  <circle cx="80" cy="80" r="74" fill="#e0f2fe" stroke="#0284c7" stroke-width="3" />
+
+  <!-- Animated river ripples -->
+  <path d="M15 50 Q45 42 75 50 T135 50" fill="none" stroke="#bae6fd" stroke-width="4" stroke-linecap="round" />
+  <path d="M25 118 Q55 110 85 118 T145 118" fill="none" stroke="#bae6fd" stroke-width="4" stroke-linecap="round" />
+
+  <!-- Trout Body -->
+  <g class="anim-swim" transform="translate(10, 0)">
+    <!-- Tail fin with wiggle -->
+    <path class="anim-fin" d="M115 80 L138 65 Q132 80 138 95 Z" fill="#ec4899" stroke="#be185d" stroke-width="2.5" />
+
+    <!-- Main Body -->
+    <path d="M30 80 C45 60 95 62 118 80 C95 98 45 100 30 80 Z"
+          fill="#38bdf8" stroke="#0369a1" stroke-width="3" />
+
+    <!-- Trout pink rainbow stripe (trucha arcoíris) -->
+    <path d="M42 80 Q78 80 114 80" stroke="#f472b6" stroke-width="7" stroke-linecap="round" opacity="0.85" />
+    <path d="M50 78 Q78 78 106 78" stroke="#fb7185" stroke-width="3" stroke-linecap="round" opacity="0.9" />
+
+    <!-- Characteristic black trout spots -->
+    <circle cx="60" cy="74" r="1.5" fill="#0f172a" />
+    <circle cx="70" cy="73" r="1.5" fill="#0f172a" />
+    <circle cx="80" cy="74" r="1.5" fill="#0f172a" />
+    <circle cx="90" cy="73" r="1.5" fill="#0f172a" />
+    <circle cx="65" cy="86" r="1.5" fill="#0f172a" />
+    <circle cx="78" cy="87" r="1.5" fill="#0f172a" />
+
+    <!-- Dorsal Fin (top) -->
+    <path d="M68 64 Q80 54 88 64 Z" fill="#0284c7" stroke="#0369a1" stroke-width="2" />
+    <!-- Pectoral Fin -->
+    <path d="M52 84 Q58 95 65 86 Z" fill="#f472b6" stroke="#db2777" stroke-width="2" />
+
+    <!-- Fish Eye -->
+    <circle cx="42" cy="77" r="4.5" fill="#ffffff" stroke="#0369a1" stroke-width="1.5" />
+    <circle cx="41" cy="77" r="2.5" fill="#0f172a" />
+    <circle cx="40" cy="76" r="1" fill="#ffffff" />
+  </g>
+
+  <!-- Clean water air bubbles -->
+  <circle cx="36" cy="62" r="3" fill="#ffffff" stroke="#38bdf8" stroke-width="1.5" opacity="0.8" />
+  <circle cx="28" cy="54" r="2" fill="#ffffff" stroke="#38bdf8" stroke-width="1.5" opacity="0.8" />
+</svg>

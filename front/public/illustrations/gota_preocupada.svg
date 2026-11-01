@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="100%" height="100%" role="img" aria-label="Gota de agua preocupada y atenta">
+  <defs>
+    <radialGradient id="preocupadaGrad" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#fbbf24" />
+      <stop offset="65%" stop-color="#d97706" />
+      <stop offset="100%" stop-color="#78350f" />
+    </radialGradient>
+    <filter id="softShadowWarn" x="-10%" y="-10%" width="125%" height="125%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#78350f" flood-opacity="0.3" />
+    </filter>
+  </defs>
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      .anim-shiver, .anim-blink-warn { animation: none !important; }
+    }
+    .anim-shiver {
+      transform-origin: 80px 130px;
+      animation: gentleShiver 3s ease-in-out infinite;
+    }
+    .anim-blink-warn {
+      transform-origin: 80px 75px;
+      animation: eyeBlinkWarn 4s ease-in-out infinite;
+    }
+    @keyframes gentleShiver {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-2px) scale(0.99); }
+    }
+    @keyframes eyeBlinkWarn {
+      0%, 90%, 100% { transform: scaleY(1); }
+      95% { transform: scaleY(0.1); }
+    }
+  </style>
+
+  <!-- Triangular background badge representing caution/medium risk -->
+  <polygon points="80,10 152,142 8,142" fill="#fef3c7" stroke="#d97706" stroke-width="4" stroke-linejoin="round" />
+
+  <g class="anim-shiver" filter="url(#softShadowWarn)">
+    <!-- Droplet body -->
+    <path d="M80 32 C80 32 120 78 120 106 A40 40 0 0 1 40 106 C40 78 80 32 80 32 Z"
+          fill="url(#preocupadaGrad)" stroke="#78350f" stroke-width="3.5" stroke-linejoin="round" />
+
+    <!-- Shiny highlight -->
+    <ellipse cx="66" cy="72" rx="7" ry="14" transform="rotate(-25 66 72)" fill="#ffffff" opacity="0.65" />
+
+    <!-- Worried eyebrows -->
+    <path d="M58 74 Q66 70 74 76" fill="none" stroke="#451a03" stroke-width="3" stroke-linecap="round" />
+    <path d="M86 76 Q94 70 102 74" fill="none" stroke="#451a03" stroke-width="3" stroke-linecap="round" />
+
+    <!-- Wide, concerned eyes -->
+    <g class="anim-blink-warn">
+      <circle cx="66" cy="85" r="5.5" fill="#451a03" />
+      <circle cx="64" cy="83" r="2" fill="#ffffff" />
+      <circle cx="94" cy="85" r="5.5" fill="#451a03" />
+      <circle cx="92" cy="83" r="2" fill="#ffffff" />
+    </g>
+
+    <!-- Nervous, wavy small mouth -->
+    <path d="M72 102 Q76 99 80 102 Q84 105 88 102" fill="none" stroke="#451a03" stroke-width="3.5" stroke-linecap="round" />
+
+    <!-- Small sweat droplet of concern -->
+    <path d="M106 65 C106 65 112 73 112 77 A4 4 0 0 1 104 77 C104 73 106 65 106 65 Z" fill="#38bdf8" stroke="#0284c7" stroke-width="1.5" />
+  </g>
+
+  <!-- Yellow Warning Triangle Seal -->
+  <circle cx="124" cy="122" r="18" fill="#d97706" stroke="#ffffff" stroke-width="3" />
+  <text x="124" y="128" font-size="20" font-family="sans-serif" font-weight="900" text-anchor="middle" fill="#ffffff">!</text>
+</svg>

@@ -13,11 +13,11 @@ import {
   Send,
   Wifi,
   WifiOff,
-  Image as ImageIcon,
   ShieldCheck,
 } from 'lucide-react'
 import { useI18n } from '../i18n/I18nContext'
 import { AudioPlayButton } from './AudioPlayButton'
+import { AccessibleIllustration } from './AccessibleIllustration'
 
 interface ReportModalProps {
   isOpen: boolean
@@ -148,7 +148,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-xs animate-in fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-xs animate-in fade-in select-none"
       role="dialog"
       aria-modal="true"
       aria-labelledby="report-modal-title"
@@ -180,7 +180,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
           <button
             onClick={resetForm}
             className="touch-target p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100"
-            aria-label="Cerrar ventana de aviso"
+            aria-label={t('btn_close')}
           >
             <X size={22} />
           </button>
@@ -195,7 +195,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                 { s: 2, label: t('step_color') },
                 { s: 3, label: t('step_photo') },
                 { s: 4, label: t('step_send') },
-              ].map(({ s, label }) => {
+              ].map(({ s }) => {
                 const isActive = step === s
                 const isPassed = step > s
                 return (
@@ -224,10 +224,14 @@ export const ReportModal: React.FC<ReportModalProps> = ({
         {/* Modal Body */}
         <div className="p-5 flex-1">
           {submitted ? (
-            /* Success confirmation */
+            /* Success confirmation with friendly droplet illustration */
             <div className="text-center py-6 space-y-4">
-              <div className="w-20 h-20 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto shadow-sm">
-                <CheckCircle2 size={46} />
+              <div className="w-24 h-24 mx-auto flex items-center justify-center">
+                <AccessibleIllustration
+                  name="gota_tranquila"
+                  alt="Aviso registrado con éxito"
+                  className="w-full h-full"
+                />
               </div>
               <h3 className="text-2xl font-black text-slate-900">
                 ¡Gracias por avisar!
@@ -264,7 +268,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                   onClick={resetForm}
                   className="touch-target w-full py-3.5 bg-blue-700 hover:bg-blue-800 text-white font-black text-base rounded-2xl shadow-md transition-transform active:scale-98"
                 >
-                  Volver al inicio
+                  {t('btn_back_home')}
                 </button>
               </div>
             </div>
@@ -306,7 +310,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                 </select>
               </div>
 
-              {/* GPS Capture Button (Accessible Min 48px Touch Target) */}
+              {/* GPS Capture Button */}
               <div className="pt-2">
                 <button
                   type="button"
@@ -335,13 +339,13 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                   onClick={() => setStep(2)}
                   className="touch-target w-full sm:w-auto px-6 py-3.5 bg-blue-700 hover:bg-blue-800 text-white font-black text-base rounded-2xl flex items-center justify-center gap-2 shadow-md active:scale-98 transition-transform"
                 >
-                  <span>Siguiente</span>
+                  <span>{t('btn_next')}</span>
                   <ArrowRight size={18} />
                 </button>
               </div>
             </div>
           ) : step === 2 ? (
-            /* Step 2: ¿Cómo se ve el agua? */
+            /* Step 2: ¿Cómo se ve el agua? con Ilustraciones */
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -359,7 +363,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                 />
               </div>
 
-              {/* 4 Big Color Cards (High Contrast, Tactile) */}
+              {/* 4 Big Color Cards con Ilustraciones */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {/* 1. Naranja / Óxido */}
                 <button
@@ -371,15 +375,15 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                       : 'border-slate-200 bg-white hover:bg-slate-50'
                   }`}
                 >
-                  <div className="w-10 h-10 rounded-xl bg-orange-600 text-white flex items-center justify-center text-lg font-bold shrink-0 shadow-xs">
-                    🟠
+                  <div className="w-12 h-12 shrink-0">
+                    <AccessibleIllustration name="quebrada_acida" alt="Rocas teñidas de óxido" />
                   </div>
                   <div>
                     <strong className="text-sm font-black text-slate-900 block">
                       {t('color_rust')}
                     </strong>
                     <span className="text-[11px] text-slate-600 leading-tight block">
-                      Rocas manchadas de óxido rojo
+                      Rocas con costra naranja/óxido
                     </span>
                   </div>
                 </button>
@@ -394,7 +398,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                       : 'border-slate-200 bg-white hover:bg-slate-50'
                   }`}
                 >
-                  <div className="w-10 h-10 rounded-xl bg-slate-300 border border-slate-400 text-slate-800 flex items-center justify-center text-lg font-bold shrink-0 shadow-xs">
+                  <div className="w-12 h-12 rounded-xl bg-slate-300 border border-slate-400 text-slate-800 flex items-center justify-center text-lg font-bold shrink-0 shadow-xs">
                     ⚪
                   </div>
                   <div>
@@ -417,8 +421,8 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                       : 'border-slate-200 bg-white hover:bg-slate-50'
                   }`}
                 >
-                  <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg font-bold shrink-0 shadow-xs">
-                    🟢
+                  <div className="w-12 h-12 shrink-0">
+                    <AccessibleIllustration name="quebrada_limpia" alt="Agua limpia de montaña" />
                   </div>
                   <div>
                     <strong className="text-sm font-black text-slate-900 block">
@@ -440,7 +444,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                       : 'border-slate-200 bg-white hover:bg-slate-50'
                   }`}
                 >
-                  <div className="w-10 h-10 rounded-xl bg-amber-900 text-white flex items-center justify-center text-lg font-bold shrink-0 shadow-xs">
+                  <div className="w-12 h-12 rounded-xl bg-amber-900 text-white flex items-center justify-center text-lg font-bold shrink-0 shadow-xs">
                     🟤
                   </div>
                   <div>
@@ -461,14 +465,14 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                   className="touch-target px-4 py-3 border border-slate-300 text-slate-700 font-bold text-sm rounded-2xl hover:bg-slate-100 flex items-center gap-1.5"
                 >
                   <ArrowLeft size={16} />
-                  <span>Atrás</span>
+                  <span>{t('btn_back')}</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setStep(3)}
                   className="touch-target px-6 py-3.5 bg-blue-700 hover:bg-blue-800 text-white font-black text-base rounded-2xl flex items-center gap-2 shadow-md active:scale-98 transition-transform"
                 >
-                  <span>Siguiente</span>
+                  <span>{t('btn_next')}</span>
                   <ArrowRight size={18} />
                 </button>
               </div>
@@ -496,7 +500,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
               <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-3.5 flex items-start gap-2.5">
                 <AlertTriangle size={20} className="text-amber-800 shrink-0 mt-0.5" />
                 <p className="text-xs text-amber-950 font-bold leading-relaxed">
-                  Por tu seguridad: no bajes a zonas resbalosas ni cruces el río si está crecido. La foto es totalmente voluntaria.
+                  {t('photo_safety_alert')}
                 </p>
               </div>
 
@@ -549,7 +553,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                 <textarea
                   value={comentarios}
                   onChange={(e) => setComentarios(e.target.value)}
-                  placeholder="Ejemplo: huele raro, las truchas murieron, etc."
+                  placeholder="Ejemplo: piedras con costra roja, animales que no quieren beber, etc."
                   className="w-full p-3 rounded-2xl border border-slate-300 text-xs text-slate-900 min-h-[60px]"
                 />
               </div>
@@ -561,20 +565,20 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                   className="touch-target px-4 py-3 border border-slate-300 text-slate-700 font-bold text-sm rounded-2xl hover:bg-slate-100 flex items-center gap-1.5"
                 >
                   <ArrowLeft size={16} />
-                  <span>Atrás</span>
+                  <span>{t('btn_back')}</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setStep(4)}
                   className="touch-target px-6 py-3.5 bg-blue-700 hover:bg-blue-800 text-white font-black text-base rounded-2xl flex items-center gap-2 shadow-md active:scale-98 transition-transform"
                 >
-                  <span>Siguiente</span>
+                  <span>{t('btn_next')}</span>
                   <ArrowRight size={18} />
                 </button>
               </div>
             </div>
           ) : (
-            /* Step 4: Enviar */
+            /* Step 4: Enviar con Ilustración */
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -590,6 +594,11 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                   audioKey="step_send"
                   textToSpeak="Paso cuatro: Revisa que tu quebrada y color de agua sean correctos, y toca el botón grande para enviar tu aviso."
                 />
+              </div>
+
+              {/* Phone sending alert illustration */}
+              <div className="w-20 h-20 mx-auto flex items-center justify-center">
+                <AccessibleIllustration name="celular_aviso" alt="Aviso listo para enviar" />
               </div>
 
               {/* Summary Card */}
@@ -628,7 +637,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                   className="touch-target px-4 py-3.5 border border-slate-300 text-slate-700 font-bold text-sm rounded-2xl hover:bg-slate-100 flex items-center gap-1.5"
                 >
                   <ArrowLeft size={16} />
-                  <span>Atrás</span>
+                  <span>{t('btn_back')}</span>
                 </button>
                 <button
                   type="button"

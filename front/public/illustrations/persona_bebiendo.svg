@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="100%" height="100%" role="img" aria-label="Persona bebiendo agua">
+  <defs>
+    <radialGradient id="faceGrad" cx="45%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#fed7aa" />
+      <stop offset="100%" stop-color="#ea580c" />
+    </radialGradient>
+  </defs>
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      .anim-drink { animation: none !important; }
+    }
+    .anim-drink {
+      transform-origin: 90px 105px;
+      animation: drinkTilt 4s ease-in-out infinite;
+    }
+    @keyframes drinkTilt {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(-4deg); }
+    }
+  </style>
+
+  <!-- Background circle -->
+  <circle cx="80" cy="80" r="74" fill="#eff6ff" stroke="#3b82f6" stroke-width="3" />
+
+  <!-- Andean Poncho / Clothes -->
+  <path d="M35 155 Q80 120 125 155 Z" fill="#b91c1c" stroke="#7f1d1d" stroke-width="3" />
+  <path d="M60 138 L80 155 L100 138" fill="none" stroke="#facc15" stroke-width="4" stroke-linecap="round" />
+
+  <!-- Head -->
+  <circle cx="80" cy="78" r="32" fill="url(#faceGrad)" stroke="#7c2d12" stroke-width="3" />
+
+  <!-- Andean Chullo Hat -->
+  <path d="M48 68 C48 35 112 35 112 68 Z" fill="#0284c7" stroke="#0369a1" stroke-width="3" />
+  <!-- Chullo pattern -->
+  <path d="M48 60 Q80 48 112 60" fill="none" stroke="#facc15" stroke-width="4" />
+  <!-- Chullo earflaps -->
+  <path d="M48 64 L42 90 L56 74 Z" fill="#0284c7" stroke="#0369a1" stroke-width="2.5" />
+  <path d="M112 64 L118 90 L104 74 Z" fill="#0284c7" stroke="#0369a1" stroke-width="2.5" />
+  <!-- Pom-pom on top -->
+  <circle cx="80" cy="30" r="7" fill="#facc15" stroke="#ca8a04" stroke-width="2" />
+
+  <!-- Eyes closed in satisfaction drinking -->
+  <path d="M64 78 Q70 84 76 78" fill="none" stroke="#7c2d12" stroke-width="3" stroke-linecap="round" />
+  <path d="M88 78 Q94 84 100 78" fill="none" stroke="#7c2d12" stroke-width="3" stroke-linecap="round" />
+
+  <!-- Rosy cheeks -->
+  <circle cx="62" cy="88" r="5" fill="#ef4444" opacity="0.4" />
+  <circle cx="98" cy="88" r="5" fill="#ef4444" opacity="0.4" />
+
+  <!-- Drinking Cup / Mate held to mouth -->
+  <g class="anim-drink">
+    <!-- Mate bowl -->
+    <path d="M68 92 C68 118 96 118 96 92 Z" fill="#78350f" stroke="#451a03" stroke-width="3" />
+    <ellipse cx="82" cy="92" rx="14" ry="4" fill="#38bdf8" stroke="#0284c7" stroke-width="2" />
+    <!-- Hands holding bowl -->
+    <circle cx="66" cy="100" r="7" fill="#fed7aa" stroke="#7c2d12" stroke-width="2" />
+    <circle cx="98" cy="100" r="7" fill="#fed7aa" stroke="#7c2d12" stroke-width="2" />
+  </g>
+</svg>

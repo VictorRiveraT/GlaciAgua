@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="100%" height="100%" role="img" aria-label="Gota de agua enferma por acidez y metales">
+  <defs>
+    <radialGradient id="enfermaGrad" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#f87171" />
+      <stop offset="60%" stop-color="#dc2626" />
+      <stop offset="100%" stop-color="#7f1d1d" />
+    </radialGradient>
+    <filter id="softShadowRed" x="-10%" y="-10%" width="125%" height="125%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#7f1d1d" flood-opacity="0.35" />
+    </filter>
+  </defs>
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      .anim-dizzy, .anim-tremble { animation: none !important; }
+    }
+    .anim-tremble {
+      transform-origin: 80px 130px;
+      animation: gentleTremble 2.5s ease-in-out infinite;
+    }
+    .anim-dizzy {
+      transform-origin: 80px 85px;
+      animation: dizzySpin 6s linear infinite;
+    }
+    @keyframes gentleTremble {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-2deg); }
+      75% { transform: rotate(2deg); }
+    }
+    @keyframes dizzySpin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+
+  <!-- Octagon background badge representing stop/high risk -->
+  <polygon points="50,10 110,10 150,50 150,110 110,150 50,150 10,110 10,50"
+           fill="#fee2e2" stroke="#b91c1c" stroke-width="4" stroke-linejoin="round" />
+
+  <g class="anim-tremble" filter="url(#softShadowRed)">
+    <!-- Droplet body -->
+    <path d="M80 24 C80 24 122 74 122 104 A42 42 0 0 1 38 104 C38 74 80 24 80 24 Z"
+          fill="url(#enfermaGrad)" stroke="#7f1d1d" stroke-width="3.5" stroke-linejoin="round" />
+
+    <!-- Cute adhesive bandage / curita on top right -->
+    <g transform="rotate(25 96 68)">
+      <rect x="80" y="62" width="32" height="12" rx="4" fill="#fde047" stroke="#854d0e" stroke-width="1.8" />
+      <!-- Bandage dots -->
+      <circle cx="92" cy="68" r="1.2" fill="#854d0e" />
+      <circle cx="96" cy="68" r="1.2" fill="#854d0e" />
+      <circle cx="100" cy="68" r="1.2" fill="#854d0e" />
+    </g>
+
+    <!-- Dizzy spiral eyes indicating sickness -->
+    <!-- Left dizzy eye -->
+    <g transform="translate(63, 85)">
+      <path d="M-6 0 A6 6 0 0 1 6 0 A4 4 0 0 1 -4 0 A2 2 0 0 1 2 0" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" />
+    </g>
+    <!-- Right dizzy eye -->
+    <g transform="translate(97, 85)">
+      <path d="M-6 0 A6 6 0 0 1 6 0 A4 4 0 0 1 -4 0 A2 2 0 0 1 2 0" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" />
+    </g>
+
+    <!-- Drooping unhappy mouth -->
+    <path d="M68 108 Q80 96 92 108" fill="none" stroke="#450a0a" stroke-width="4" stroke-linecap="round" />
+
+    <!-- Small fever sweat droplets -->
+    <circle cx="56" cy="76" r="3" fill="#38bdf8" />
+    <circle cx="52" cy="84" r="2" fill="#38bdf8" />
+  </g>
+
+  <!-- Red Stop / Octagon Cross Seal -->
+  <circle cx="124" cy="122" r="18" fill="#b91c1c" stroke="#ffffff" stroke-width="3" />
+  <path d="M116 114 L132 130 M132 114 L116 130" stroke="#ffffff" stroke-width="4" stroke-linecap="round" />
+</svg>

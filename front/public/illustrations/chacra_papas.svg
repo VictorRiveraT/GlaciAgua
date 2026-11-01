@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="100%" height="100%" role="img" aria-label="Chacra de papas andinas en surcos">
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      .anim-leaf { animation: none !important; }
+    }
+    .anim-leaf {
+      transform-origin: 80px 105px;
+      animation: windBlow 4s ease-in-out infinite;
+    }
+    @keyframes windBlow {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(2.5deg); }
+    }
+  </style>
+
+  <!-- Background circle -->
+  <circle cx="80" cy="80" r="74" fill="#f0fdf4" stroke="#22c55e" stroke-width="3" />
+
+  <!-- Sun in sky -->
+  <circle cx="125" cy="38" r="16" fill="#facc15" stroke="#eab308" stroke-width="2.5" />
+  <g stroke="#facc15" stroke-width="2.5" stroke-linecap="round">
+    <line x1="125" y1="16" x2="125" y2="10" />
+    <line x1="147" y1="38" x2="153" y2="38" />
+    <line x1="140" y1="23" x2="145" y2="18" />
+  </g>
+
+  <!-- Distant Andean hills -->
+  <path d="M10 100 Q45 70 80 95 Q115 65 150 100 L150 150 L10 150 Z" fill="#bbf7d0" />
+
+  <!-- Soil furrows (Waru waru / Surcos de tierra fértil) -->
+  <path d="M10 115 Q80 95 150 115 L150 155 L10 155 Z" fill="#78350f" stroke="#451a03" stroke-width="2" />
+  <path d="M10 132 Q80 112 150 132" fill="none" stroke="#92400e" stroke-width="4" />
+  <path d="M10 148 Q80 128 150 148" fill="none" stroke="#92400e" stroke-width="4" />
+
+  <!-- Green Potato Plant (Mata de papa) -->
+  <g class="anim-leaf">
+    <!-- Main stem -->
+    <path d="M80 115 L80 75" stroke="#15803d" stroke-width="4" stroke-linecap="round" />
+
+    <!-- Left leaves -->
+    <path d="M80 95 C60 90 55 75 75 75 C78 85 80 95 80 95 Z" fill="#22c55e" stroke="#166534" stroke-width="2" />
+    <path d="M80 82 C65 72 65 58 80 65 Z" fill="#16a34a" stroke="#14532d" stroke-width="2" />
+
+    <!-- Right leaves -->
+    <path d="M80 90 C100 85 105 70 85 70 C82 80 80 90 80 90 Z" fill="#22c55e" stroke="#166534" stroke-width="2" />
+    <path d="M80 78 C95 68 95 54 80 61 Z" fill="#16a34a" stroke="#14532d" stroke-width="2" />
+
+    <!-- Potato flowers (white & purple) -->
+    <circle cx="80" cy="52" r="5" fill="#a855f7" stroke="#7e22ce" stroke-width="1.5" />
+    <circle cx="80" cy="52" r="2" fill="#facc15" />
+    <circle cx="68" cy="62" r="4" fill="#ffffff" stroke="#c084fc" stroke-width="1.5" />
+    <circle cx="68" cy="62" r="1.5" fill="#facc15" />
+  </g>
+
+  <!-- Potatoes growing in the soil (visible cross-section) -->
+  <ellipse cx="60" cy="132" rx="9" ry="7" fill="#d97706" stroke="#78350f" stroke-width="2" transform="rotate(-15 60 132)" />
+  <ellipse cx="98" cy="130" rx="10" ry="7.5" fill="#d97706" stroke="#78350f" stroke-width="2" transform="rotate(20 98 130)" />
+</svg>

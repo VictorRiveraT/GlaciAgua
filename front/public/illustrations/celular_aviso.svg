@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="100%" height="100%" role="img" aria-label="Celular enviando aviso comunitario">
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      .anim-pulse-wave { animation: none !important; }
+    }
+    .anim-pulse-wave {
+      animation: signalWave 2s ease-out infinite;
+    }
+    @keyframes signalWave {
+      0% { r: 16px; opacity: 0.9; }
+      100% { r: 36px; opacity: 0; }
+    }
+  </style>
+
+  <!-- Background circle -->
+  <circle cx="80" cy="80" r="74" fill="#fdf4ff" stroke="#a855f7" stroke-width="3" />
+
+  <!-- Signal transmission radio waves -->
+  <g fill="none" stroke="#a855f7" stroke-width="2.5" stroke-linecap="round">
+    <path d="M50 48 C40 58 40 78 50 88" />
+    <path d="M40 38 C26 54 26 82 40 98" stroke-width="2" />
+    <path d="M110 48 C120 58 120 78 110 88" />
+    <path d="M120 38 C134 54 134 82 120 98" stroke-width="2" />
+  </g>
+
+  <!-- Smartphone casing -->
+  <rect x="52" y="32" width="56" height="96" rx="14" fill="#0f172a" stroke="#334155" stroke-width="3" />
+  <!-- Screen -->
+  <rect x="56" y="42" width="48" height="74" rx="6" fill="#f8fafc" />
+
+  <!-- Speaker bar & camera notch -->
+  <line x1="74" y1="37" x2="86" y2="37" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+  <circle cx="70" cy="37" r="1" fill="#64748b" />
+
+  <!-- Home button bar -->
+  <line x1="72" y1="122" x2="88" y2="122" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" />
+
+  <!-- Alert screen content: water droplet inside horn -->
+  <!-- Droplet on screen -->
+  <path d="M80 54 C80 54 94 72 94 82 A14 14 0 0 1 66 82 C66 72 80 54 80 54 Z"
+        fill="#ea580c" stroke="#9a3412" stroke-width="2" />
+  <circle cx="76" cy="74" r="2.5" fill="#ffffff" />
+  <text x="80" y="86" font-size="10" font-weight="900" text-anchor="middle" fill="#ffffff">!</text>
+
+  <!-- Big green send checkmark icon below -->
+  <circle cx="80" cy="104" r="8" fill="#16a34a" />
+  <path d="M76 104 L79 107 L85 101" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" />
+</svg>

@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="100%" height="100%" role="img" aria-label="Gota de agua tranquila y sonriente">
+  <defs>
+    <radialGradient id="tranquilaGrad" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#4ade80" />
+      <stop offset="60%" stop-color="#16a34a" />
+      <stop offset="100%" stop-color="#14532d" />
+    </radialGradient>
+    <filter id="softShadow" x="-10%" y="-10%" width="125%" height="125%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#14532d" flood-opacity="0.3" />
+    </filter>
+  </defs>
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      .anim-sway, .anim-blink, .anim-shine { animation: none !important; }
+    }
+    .anim-sway {
+      transform-origin: 80px 130px;
+      animation: gentleSway 4s ease-in-out infinite;
+    }
+    .anim-blink {
+      transform-origin: 80px 75px;
+      animation: eyeBlink 5s ease-in-out infinite;
+    }
+    .anim-shine {
+      animation: softPulse 3s ease-in-out infinite;
+    }
+    @keyframes gentleSway {
+      0%, 100% { transform: rotate(-1.5deg); }
+      50% { transform: rotate(1.5deg); }
+    }
+    @keyframes eyeBlink {
+      0%, 92%, 100% { transform: scaleY(1); }
+      96% { transform: scaleY(0.1); }
+    }
+    @keyframes softPulse {
+      0%, 100% { opacity: 0.85; }
+      50% { opacity: 0.5; }
+    }
+  </style>
+
+  <!-- Circular background badge representing low risk -->
+  <circle cx="80" cy="80" r="74" fill="#dcfce7" stroke="#16a34a" stroke-width="4" />
+
+  <g class="anim-sway" filter="url(#softShadow)">
+    <!-- Water droplet body -->
+    <path d="M80 20 C80 20 125 75 125 105 A45 45 0 0 1 35 105 C35 75 80 20 80 20 Z"
+          fill="url(#tranquilaGrad)" stroke="#14532d" stroke-width="3.5" stroke-linejoin="round" />
+
+    <!-- Cute shiny highlight on top-left -->
+    <ellipse cx="65" cy="65" rx="8" ry="16" transform="rotate(-30 65 65)" fill="#ffffff" class="anim-shine" />
+    <circle cx="60" cy="88" r="4" fill="#ffffff" opacity="0.8" />
+
+    <!-- Rosy cheeks -->
+    <circle cx="58" cy="98" r="6" fill="#f87171" opacity="0.5" />
+    <circle cx="102" cy="98" r="6" fill="#f87171" opacity="0.5" />
+
+    <!-- Happy eyes with blinking animation -->
+    <g class="anim-blink">
+      <!-- Left eye: arc of joy -->
+      <path d="M60 82 Q67 74 74 82" fill="none" stroke="#064e3b" stroke-width="4" stroke-linecap="round" />
+      <!-- Right eye: arc of joy -->
+      <path d="M86 82 Q93 74 100 82" fill="none" stroke="#064e3b" stroke-width="4" stroke-linecap="round" />
+    </g>
+
+    <!-- Warm gentle smile -->
+    <path d="M70 96 Q80 110 90 96" fill="none" stroke="#064e3b" stroke-width="4" stroke-linecap="round" />
+  </g>
+
+  <!-- Green Checkmark Seal -->
+  <circle cx="122" cy="122" r="18" fill="#15803d" stroke="#ffffff" stroke-width="3" />
+  <path d="M113 122 L119 128 L132 115" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>

@@ -1,15 +1,14 @@
 import React, { useState } from 'react'
 import {
-  AlertTriangle,
-  CheckCircle2,
   Copy,
   Check,
-  ShieldAlert,
-  Droplet,
   Info,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react'
 import { RiskLevel } from '../types'
 import { AudioPlayButton } from './AudioPlayButton'
+import { AccessibleIllustration } from './AccessibleIllustration'
 import { useI18n } from '../i18n/I18nContext'
 import { getRiskTheme } from '../utils/accessibleTheme'
 
@@ -17,6 +16,7 @@ export const GuidanceView: React.FC = () => {
   const { t } = useI18n()
   const [selectedRisk, setSelectedRisk] = useState<RiskLevel>('Alto')
   const [copiedLetter, setCopiedLetter] = useState(false)
+  const [openWhyBoil, setOpenWhyBoil] = useState(false)
 
   const copyOficio = () => {
     const text = `OFICIO N° 012-2026/ALERTA-GLACIAGUA
@@ -41,8 +41,6 @@ Plataforma Comunitaria GlaciAgua. Alerta temprana. No certifica potabilidad.`
   }
 
   const audioGuidanceText = `${t('guidance_title')}. ${t('boil_alert_desc')}`
-
-  const theme = getRiskTheme(selectedRisk)
 
   return (
     <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 text-[#0f172a] select-none">
@@ -89,76 +87,238 @@ Plataforma Comunitaria GlaciAgua. Alerta temprana. No certifica potabilidad.`
         </div>
       </div>
 
-      {/* Critical Boil Alert */}
-      <div className="bg-[#fff7ed] border-2 border-[#fdba74] p-5 rounded-3xl flex items-start gap-4 shadow-xs">
-        <div className="w-12 h-12 rounded-2xl bg-[#fed7aa] text-[#9a3412] flex items-center justify-center shrink-0 mt-0.5">
-          <ShieldAlert size={28} />
+      {/* Tarjeta Ilustrada 1: Alerta Crítica sobre hervir el agua */}
+      <div className="bg-[#fff7ed] border-2 border-[#fdba74] p-5 rounded-3xl flex flex-col sm:flex-row items-center gap-5 shadow-xs">
+        <div className="w-24 h-24 sm:w-28 sm:h-28 shrink-0 flex items-center justify-center">
+          <AccessibleIllustration
+            name="persona_nohervir"
+            alt="Olla hirviendo con advertencia"
+            className="w-full h-full"
+          />
         </div>
-        <div className="space-y-1">
-          <h3 className="text-base font-black text-[#9a3412]">
-            {t('boil_alert_title')}
-          </h3>
-          <p className="text-sm text-[#7c2d12] leading-relaxed font-medium">
-            {t('boil_alert_desc')}
+        <div className="flex-1 space-y-2 text-center sm:text-left">
+          <div className="flex flex-wrap items-center justify-center sm:justify-between gap-2">
+            <h3 className="text-lg font-black text-[#9a3412]">
+              {t('boil_alert_title')}
+            </h3>
+            <AudioPlayButton
+              audioKey="alerta_hervir_olla"
+              textToSpeak={t('boil_alert_desc')}
+              compact
+            />
+          </div>
+          <p className="text-sm text-[#7c2d12] font-bold leading-relaxed">
+            Hervir el agua NO quita los metales pesados.
           </p>
+
+          <button
+            type="button"
+            onClick={() => setOpenWhyBoil(!openWhyBoil)}
+            className="text-xs font-black text-[#9a3412] hover:underline flex items-center justify-center sm:justify-start gap-1 pt-1"
+          >
+            <span>{openWhyBoil ? 'Ocultar explicación' : '¿Por qué? Toca para ver la razón'}</span>
+            {openWhyBoil ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          </button>
+
+          {openWhyBoil && (
+            <p className="text-xs text-[#7c2d12] bg-white/80 p-3 rounded-2xl border border-orange-200 animate-in fade-in">
+              {t('boil_alert_desc')}
+            </p>
+          )}
         </div>
       </div>
 
-      {/* Action Cards for Selected Risk */}
-      <div className="bg-white p-6 rounded-3xl border border-[#cbd5e1] shadow-xs space-y-4">
-        <h2 className="text-lg font-black text-[#0f172a] flex items-center gap-2">
-          <Droplet size={20} className="text-[#1e3a8a]" />
-          <span>Consejos para {selectedRisk === 'Alto' ? t('risk_alto') : selectedRisk === 'Medio' ? t('risk_medio') : t('risk_bajo')}:</span>
+      {/* Tarjetas Ilustradas de Consejos Prácticos por Nivel */}
+      <div className="space-y-4">
+        <h2 className="text-lg font-black text-[#0f172a]">
+          Consejos ilustrados para {selectedRisk === 'Alto' ? t('risk_alto') : selectedRisk === 'Medio' ? t('risk_medio') : t('risk_bajo')}:
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {selectedRisk === 'Alto' ? (
             <>
-              <div className="p-4 bg-red-50 rounded-2xl border border-red-200 space-y-1">
-                <span className="text-xs font-black text-red-900 block">🚰 Consumo Humano</span>
-                <p className="text-xs text-red-800 leading-snug">{t('tip_high_1')}</p>
+              {/* Tip 1: Beber */}
+              <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs flex items-center gap-4">
+                <div className="w-20 h-20 shrink-0">
+                  <AccessibleIllustration name="persona_bebiendo" alt="Beber en mate" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[10px] font-black uppercase text-red-700 bg-red-100 px-2 py-0.5 rounded-md inline-block mb-1">
+                    Consumo Humano
+                  </span>
+                  <p className="text-sm font-black text-slate-900 leading-snug">
+                    {t('tip_high_1')}
+                  </p>
+                </div>
               </div>
-              <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 space-y-1">
-                <span className="text-xs font-black text-amber-900 block">🌾 Riego y Chacra</span>
-                <p className="text-xs text-amber-800 leading-snug">{t('tip_high_2')}</p>
+
+              {/* Tip 2: Riego */}
+              <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs flex items-center gap-4">
+                <div className="w-20 h-20 shrink-0">
+                  <AccessibleIllustration name="chacra_papas" alt="Chacra de papas" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[10px] font-black uppercase text-amber-700 bg-amber-100 px-2 py-0.5 rounded-md inline-block mb-1">
+                    Chacra y Riego
+                  </span>
+                  <p className="text-sm font-black text-slate-900 leading-snug">
+                    {t('tip_high_2')}
+                  </p>
+                </div>
               </div>
-              <div className="p-4 bg-red-50 rounded-2xl border border-red-200 space-y-1">
-                <span className="text-xs font-black text-red-900 block">🐄 Animales y Ganado</span>
-                <p className="text-xs text-red-800 leading-snug">{t('tip_high_3')}</p>
+
+              {/* Tip 3: Ganado */}
+              <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs flex items-center gap-4">
+                <div className="w-20 h-20 shrink-0">
+                  <AccessibleIllustration name="vaca_oveja" alt="Ganado" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[10px] font-black uppercase text-red-700 bg-red-100 px-2 py-0.5 rounded-md inline-block mb-1">
+                    Ganado y Truchas
+                  </span>
+                  <p className="text-sm font-black text-slate-900 leading-snug">
+                    {t('tip_high_3')}
+                  </p>
+                </div>
               </div>
-              <div className="p-4 bg-blue-50 rounded-2xl border border-blue-200 space-y-1">
-                <span className="text-xs font-black text-blue-900 block">📢 Organización Comunitaria</span>
-                <p className="text-xs text-blue-800 leading-snug">{t('tip_high_4')}</p>
+
+              {/* Tip 4: Avisar a la comunidad */}
+              <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs flex items-center gap-4">
+                <div className="w-20 h-20 shrink-0">
+                  <AccessibleIllustration name="celular_aviso" alt="Aviso celular" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[10px] font-black uppercase text-blue-700 bg-blue-100 px-2 py-0.5 rounded-md inline-block mb-1">
+                    Avisar a la Comunidad
+                  </span>
+                  <p className="text-sm font-black text-slate-900 leading-snug">
+                    {t('tip_high_4')}
+                  </p>
+                </div>
               </div>
             </>
           ) : selectedRisk === 'Medio' ? (
             <>
-              <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 space-y-1">
-                <span className="text-xs font-black text-amber-900 block">🚰 Consumo Humano</span>
-                <p className="text-xs text-amber-800 leading-snug">{t('tip_med_1')}</p>
+              {/* Tip Med 1 */}
+              <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs flex items-center gap-4">
+                <div className="w-20 h-20 shrink-0">
+                  <AccessibleIllustration name="persona_bebiendo" alt="Beber" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[10px] font-black uppercase text-amber-700 bg-amber-100 px-2 py-0.5 rounded-md inline-block mb-1">
+                    Consumo Humano
+                  </span>
+                  <p className="text-sm font-black text-slate-900 leading-snug">
+                    {t('tip_med_1')}
+                  </p>
+                </div>
               </div>
-              <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 space-y-1">
-                <span className="text-xs font-black text-amber-900 block">🌾 Riego y Chacra</span>
-                <p className="text-xs text-amber-800 leading-snug">{t('tip_med_2')}</p>
+
+              {/* Tip Med 2 */}
+              <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs flex items-center gap-4">
+                <div className="w-20 h-20 shrink-0">
+                  <AccessibleIllustration name="chacra_papas" alt="Chacra" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[10px] font-black uppercase text-amber-700 bg-amber-100 px-2 py-0.5 rounded-md inline-block mb-1">
+                    Chacra y Riego
+                  </span>
+                  <p className="text-sm font-black text-slate-900 leading-snug">
+                    {t('tip_med_2')}
+                  </p>
+                </div>
               </div>
-              <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 space-y-1">
-                <span className="text-xs font-black text-amber-900 block">🐄 Animales y Ganado</span>
-                <p className="text-xs text-amber-800 leading-snug">{t('tip_med_3')}</p>
+
+              {/* Tip Med 3 */}
+              <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs flex items-center gap-4">
+                <div className="w-20 h-20 shrink-0">
+                  <AccessibleIllustration name="vaca_oveja" alt="Ganado" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[10px] font-black uppercase text-amber-700 bg-amber-100 px-2 py-0.5 rounded-md inline-block mb-1">
+                    Ganado y Animales
+                  </span>
+                  <p className="text-sm font-black text-slate-900 leading-snug">
+                    {t('tip_med_3')}
+                  </p>
+                </div>
+              </div>
+
+              {/* Tip Med 4: Bofedales */}
+              <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs flex items-center gap-4">
+                <div className="w-20 h-20 shrink-0">
+                  <AccessibleIllustration name="quebrada_limpia" alt="Bofedal" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[10px] font-black uppercase text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md inline-block mb-1">
+                    Filtros Naturales
+                  </span>
+                  <p className="text-sm font-black text-slate-900 leading-snug">
+                    Cuida los bofedales altoandinos; retienen minerales naturalmente.
+                  </p>
+                </div>
               </div>
             </>
           ) : (
             <>
-              <div className="p-4 bg-green-50 rounded-2xl border border-green-200 space-y-1">
-                <span className="text-xs font-black text-green-900 block">🚰 Consumo Humano</span>
-                <p className="text-xs text-green-800 leading-snug">{t('tip_low_1')}</p>
+              {/* Tip Low 1 */}
+              <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs flex items-center gap-4">
+                <div className="w-20 h-20 shrink-0">
+                  <AccessibleIllustration name="persona_bebiendo" alt="Beber" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[10px] font-black uppercase text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md inline-block mb-1">
+                    Consumo Humano
+                  </span>
+                  <p className="text-sm font-black text-slate-900 leading-snug">
+                    {t('tip_low_1')}
+                  </p>
+                </div>
               </div>
-              <div className="p-4 bg-green-50 rounded-2xl border border-green-200 space-y-1">
-                <span className="text-xs font-black text-green-900 block">🌾 Riego y Chacra</span>
-                <p className="text-xs text-green-800 leading-snug">{t('tip_low_2')}</p>
+
+              {/* Tip Low 2 */}
+              <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs flex items-center gap-4">
+                <div className="w-20 h-20 shrink-0">
+                  <AccessibleIllustration name="chacra_papas" alt="Chacra" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[10px] font-black uppercase text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md inline-block mb-1">
+                    Chacra y Riego
+                  </span>
+                  <p className="text-sm font-black text-slate-900 leading-snug">
+                    {t('tip_low_2')}
+                  </p>
+                </div>
               </div>
-              <div className="p-4 bg-green-50 rounded-2xl border border-green-200 space-y-1">
-                <span className="text-xs font-black text-green-900 block">🐄 Animales y Ganado</span>
-                <p className="text-xs text-green-800 leading-snug">{t('tip_low_3')}</p>
+
+              {/* Tip Low 3 */}
+              <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs flex items-center gap-4">
+                <div className="w-20 h-20 shrink-0">
+                  <AccessibleIllustration name="vaca_oveja" alt="Ganado" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[10px] font-black uppercase text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md inline-block mb-1">
+                    Ganado y Truchas
+                  </span>
+                  <p className="text-sm font-black text-slate-900 leading-snug">
+                    {t('tip_low_3')}
+                  </p>
+                </div>
+              </div>
+
+              {/* Tip Low 4: Truchas */}
+              <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs flex items-center gap-4">
+                <div className="w-20 h-20 shrink-0">
+                  <AccessibleIllustration name="trucha" alt="Trucha nadando" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[10px] font-black uppercase text-sky-700 bg-sky-100 px-2 py-0.5 rounded-md inline-block mb-1">
+                    Piscicultura
+                  </span>
+                  <p className="text-sm font-black text-slate-900 leading-snug">
+                    Agua apta para piscigranjas de trucha siguiendo el caudal del río.
+                  </p>
+                </div>
               </div>
             </>
           )}
