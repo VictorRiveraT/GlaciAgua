@@ -11,6 +11,7 @@ import { MoreOptionsView } from './components/MoreOptionsView'
 import { ReportModal } from './components/ReportModal'
 import { OfflineSyncModal } from './components/OfflineSyncModal'
 import { OnboardingModal } from './components/OnboardingModal'
+import { CommunityHelpModal } from './components/CommunityHelpModal'
 import { GlaciAguaApi } from './services/api'
 import { useI18n } from './i18n/I18nContext'
 import {
@@ -104,15 +105,17 @@ export default function App() {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false)
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false)
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false)
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false)
   const [isMobileDrawerExpanded, setIsMobileDrawerExpanded] = useState(false)
 
-  // Mostrar onboarding la primera vez
+  // Mostrar bienvenida la primera vez
   useEffect(() => {
     try {
-      const seen = localStorage.getItem(STORAGE_KEY_ONBOARDING_SEEN)
+      const seen =
+        localStorage.getItem('glaciagua_welcome_seen') ||
+        localStorage.getItem(STORAGE_KEY_ONBOARDING_SEEN)
       if (!seen) {
         setIsOnboardingOpen(true)
-        localStorage.setItem(STORAGE_KEY_ONBOARDING_SEEN, 'true')
       }
     } catch {}
   }, [])
@@ -397,7 +400,7 @@ export default function App() {
         {currentView === 'mas' && (
           <div className="w-full h-full overflow-y-auto pb-20 lg:pb-8">
             <MoreOptionsView
-              onOpenOnboarding={() => setIsOnboardingOpen(true)}
+              onOpenOnboarding={() => setIsHelpModalOpen(true)}
               onOpenConnectivity={() => setCurrentView('conectividad')}
               onOpenSync={() => setIsSyncModalOpen(true)}
               pendingReportsCount={pendingReports.length}
@@ -516,6 +519,17 @@ export default function App() {
         </button>
       </nav>
 
+      {/* Botón flotante permanente de Ayuda Comunitaria (?) */}
+      <button
+        type="button"
+        onClick={() => setIsHelpModalOpen(true)}
+        className="fixed bottom-20 left-4 z-40 w-12 h-12 rounded-full bg-[#1e3a8a] hover:bg-[#172554] text-white shadow-xl flex items-center justify-center font-black text-2xl border-2 border-white ring-2 ring-[#1e3a8a]/20 transition-transform active:scale-95 focus:outline-hidden focus:ring-4 focus:ring-blue-400 select-none"
+        aria-label={t('help_floating_aria')}
+        title={t('help_floating_aria')}
+      >
+        ?
+      </button>
+
       {/* Modales Globales */}
       <ReportModal
         isOpen={isReportModalOpen}
@@ -538,6 +552,12 @@ export default function App() {
       <OnboardingModal
         isOpen={isOnboardingOpen}
         onClose={() => setIsOnboardingOpen(false)}
+        onOpenHelp={() => setIsHelpModalOpen(true)}
+      />
+
+      <CommunityHelpModal
+        isOpen={isHelpModalOpen}
+        onClose={() => setIsHelpModalOpen(false)}
       />
     </div>
   )

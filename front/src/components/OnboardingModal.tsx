@@ -1,145 +1,130 @@
-import React, { useState } from 'react'
-import {
-  X,
-  ChevronRight,
-  ChevronLeft,
-  CheckCircle2,
-  Mountain,
-  AlertOctagon,
-  Camera,
-  Volume2,
-} from 'lucide-react'
+import React from 'react'
+import { X, CheckCircle2, ArrowDown } from 'lucide-react'
 import { useI18n } from '../i18n/I18nContext'
 import { AudioPlayButton } from './AudioPlayButton'
+import { AccessibleIllustration } from './AccessibleIllustration'
 
 interface OnboardingModalProps {
   isOpen: boolean
   onClose: () => void
+  onOpenHelp?: () => void
 }
 
-export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onClose }) => {
-  const { t, isQuechua } = useI18n()
-  const [step, setStep] = useState(1)
+export const OnboardingModal: React.FC<OnboardingModalProps> = ({
+  isOpen,
+  onClose,
+  onOpenHelp,
+}) => {
+  const { t } = useI18n()
 
   if (!isOpen) return null
 
-  const steps = [
-    {
-      step: 1,
-      title: t('onboarding_step1_title'),
-      desc: t('onboarding_step1_desc'),
-      icon: <Mountain size={48} className="text-[#1e3a8a]" />,
-      bg: 'bg-blue-50',
-      audioKey: 'bienvenida_paso1',
-    },
-    {
-      step: 2,
-      title: t('onboarding_step2_title'),
-      desc: t('onboarding_step2_desc'),
-      icon: <AlertOctagon size={48} className="text-[#991b1b]" />,
-      bg: 'bg-red-50',
-      audioKey: 'bienvenida_paso2',
-    },
-    {
-      step: 3,
-      title: t('onboarding_step3_title'),
-      desc: t('onboarding_step3_desc'),
-      icon: <Camera size={48} className="text-[#166534]" />,
-      bg: 'bg-green-50',
-      audioKey: 'bienvenida_paso3',
-    },
-  ]
+  const handleDismiss = () => {
+    try {
+      localStorage.setItem('glaciagua_welcome_seen', 'true')
+      localStorage.setItem('glaciagua_onboarding_seen_v1', 'true')
+    } catch {
+      // LocalStorage deshabilitado o modo incógnito
+    }
+    onClose()
+  }
 
-  const current = steps[step - 1]
-
-  const handleNext = () => {
-    if (step < 3) {
-      setStep(step + 1)
-    } else {
-      onClose()
+  const handleHelpClick = () => {
+    handleDismiss()
+    if (onOpenHelp) {
+      onOpenHelp()
     }
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in select-none">
-      <div className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-[#cbd5e1] overflow-hidden flex flex-col">
-        {/* Header */}
-        <div className="p-4 border-b border-[#e2e8f0] flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-black uppercase text-[#1e3a8a] bg-[#eff6ff] px-3 py-1 rounded-full">
-              Paso {step} de 3
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <AudioPlayButton
-              audioKey={current.audioKey}
-              textToSpeak={`${current.title}. ${current.desc}`}
-              compact
-            />
-            <button
-              type="button"
-              onClick={onClose}
-              className="touch-target w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100"
-              aria-label="Cerrar guía"
-            >
-              <X size={20} />
-            </button>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="p-6 sm:p-8 flex flex-col items-center text-center space-y-4">
-          <div
-            className={`w-24 h-24 rounded-3xl flex items-center justify-center shadow-inner ${current.bg}`}
-          >
-            {current.icon}
-          </div>
-
-          <h2 className="text-xl sm:text-2xl font-black text-[#0f172a] tracking-tight">
-            {current.title}
-          </h2>
-
-          <p className="text-base text-[#334155] leading-relaxed max-w-md font-medium">
-            {current.desc}
-          </p>
-
-          {/* Dots Indicator */}
-          <div className="flex items-center gap-2 pt-2">
-            {[1, 2, 3].map((dot) => (
-              <span
-                key={dot}
-                className={`w-3 h-3 rounded-full transition-all ${
-                  step === dot ? 'w-8 bg-[#1e3a8a]' : 'bg-[#cbd5e1]'
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Footer Actions */}
-        <div className="p-4 border-t border-[#e2e8f0] bg-[#f8fafc] flex items-center justify-between gap-3">
-          {step > 1 ? (
-            <button
-              type="button"
-              onClick={() => setStep(step - 1)}
-              className="touch-target px-4 py-3 rounded-2xl font-bold text-sm text-[#475569] hover:bg-[#e2e8f0] flex items-center gap-1"
-            >
-              <ChevronLeft size={18} />
-              Atrás
-            </button>
-          ) : (
-            <div />
-          )}
-
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="welcome-modal-title"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in select-none"
+    >
+      <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-[#cbd5e1] overflow-hidden flex flex-col p-6 sm:p-8 relative">
+        {/* Header con botón de audio y cerrar */}
+        <div className="flex items-center justify-between w-full pb-2">
+          <AudioPlayButton
+            audioKey="bienvenida_inicio"
+            textToSpeak={`${t('welcome_title')}. ${t('welcome_desc')}. ${t('welcome_help_hint')}`}
+            compact
+          />
           <button
             type="button"
-            onClick={handleNext}
-            className="touch-target px-6 py-3 rounded-2xl bg-[#1e3a8a] hover:bg-[#172554] text-white font-black text-sm flex items-center gap-1.5 shadow-md ml-auto"
+            onClick={handleDismiss}
+            className="touch-target w-10 h-10 rounded-full flex items-center justify-center text-[#64748b] hover:text-[#0f172a] hover:bg-[#f1f5f9] transition-colors"
+            aria-label="Cerrar bienvenida"
           >
-            <span>{step === 3 ? t('btn_understood') : 'Siguiente'}</span>
-            <ChevronRight size={18} />
+            <X size={22} />
           </button>
         </div>
+
+        {/* Ilustración amigable */}
+        <div className="flex justify-center my-2">
+          <div className="w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center">
+            <AccessibleIllustration
+              name="gota_tranquila"
+              alt="Gota de agua sonriente y amigable"
+              className="w-full h-full filter drop-shadow-md"
+            />
+          </div>
+        </div>
+
+        {/* Título y subtítulo */}
+        <div className="text-center mt-1">
+          <h2
+            id="welcome-modal-title"
+            className="text-2xl sm:text-3xl font-black text-[#0f172a] tracking-tight"
+          >
+            {t('welcome_title')}
+          </h2>
+          <p className="text-xs sm:text-sm font-bold text-[#1e3a8a] uppercase tracking-wide mt-1">
+            {t('welcome_subtitle')}
+          </p>
+        </div>
+
+        {/* Mensaje principal corto */}
+        <p className="text-sm sm:text-base text-[#334155] font-medium text-center mt-3 leading-relaxed">
+          {t('welcome_desc')}
+        </p>
+
+        {/* Indicación visual hacia el botón de ayuda (?) */}
+        <div className="mt-4 p-4 rounded-2xl bg-[#eff6ff] border-2 border-dashed border-[#93c5fd] w-full flex flex-col items-center gap-2 text-center">
+          <p className="text-xs sm:text-sm font-bold text-[#1e3a8a]">
+            {t('welcome_help_hint')}
+          </p>
+
+          <div className="flex items-center gap-3 my-1">
+            <div className="animate-bounce text-[#1e3a8a]">
+              <ArrowDown size={22} className="stroke-[3]" />
+            </div>
+            <button
+              type="button"
+              onClick={handleHelpClick}
+              className="touch-target w-12 h-12 rounded-full bg-[#1e3a8a] text-white flex items-center justify-center font-black text-2xl shadow-md border-2 border-white ring-2 ring-blue-300 hover:scale-105 active:scale-95 transition-transform"
+              title="Abrir guía"
+              aria-label="Botón de ayuda con signo de interrogación"
+            >
+              ?
+            </button>
+          </div>
+
+          <span className="text-xs text-[#475569] font-medium">
+            {t('welcome_help_badge')}
+          </span>
+        </div>
+
+        {/* Botón grande para empezar */}
+        <button
+          type="button"
+          onClick={handleDismiss}
+          className="touch-target w-full mt-6 py-4 px-6 rounded-2xl bg-[#1e3a8a] hover:bg-[#172554] text-white font-black text-base shadow-lg transition-transform active:scale-98 flex items-center justify-center gap-2"
+        >
+          <CheckCircle2 size={22} />
+          <span>{t('welcome_btn_start')}</span>
+        </button>
       </div>
     </div>
   )
