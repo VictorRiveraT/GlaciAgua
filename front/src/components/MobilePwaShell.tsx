@@ -247,7 +247,7 @@ export const MobilePwaShell: React.FC<MobilePwaShellProps> = ({
                     ? '🚫 No beber · Agua ácida'
                     : activeBasin.nivelRiesgo[season] === 'Medio'
                     ? '⚠️ Agua en observación'
-                    : '✅ Agua limpia de glaciar'}
+                    : '✅ Menor riesgo de acidez · Consultar a JASS'}
                 </span>
                 <span className="text-[10px] bg-white px-2 py-0.5 rounded-md shadow-2xs font-black">
                   {season === 'seca' ? 'Época Seca' : 'Lluvias'}

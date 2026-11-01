@@ -422,7 +422,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                   }`}
                 >
                   <div className="w-12 h-12 shrink-0">
-                    <AccessibleIllustration name="quebrada_limpia" alt="Agua limpia de montaña" />
+                    <AccessibleIllustration name="quebrada_limpia" alt="Quebrada con agua clara de montaña" />
                   </div>
                   <div>
                     <strong className="text-sm font-black text-slate-900 block">

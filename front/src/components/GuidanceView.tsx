@@ -316,7 +316,7 @@ Plataforma Comunitaria GlaciAgua. Alerta temprana. No certifica potabilidad.`
                     Piscicultura
                   </span>
                   <p className="text-sm font-black text-slate-900 leading-snug">
-                    Agua apta para piscigranjas de trucha siguiendo el caudal del río.
+                    Menor riesgo para piscigranjas de trucha según caudal disponible.
                   </p>
                 </div>
               </div>

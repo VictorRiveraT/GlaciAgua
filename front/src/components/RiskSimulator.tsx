@@ -356,7 +356,7 @@ export const RiskSimulator: React.FC = () => {
                 ? 'Alta probabilidad de drenaje ácido con metales pesados superando los Estándares de Calidad Ambiental (ECA Agua).'
                 : riskScore >= 35
                 ? 'Riesgo moderado. Se observan indicios de acidez que son parcialmente amortiguados por bofedales o baja lluvia.'
-                : 'Condición estable. La baja presencia de sulfuros reactivos o la alta depuración del bofedal mantienen el agua segura.'}
+                : 'Condición estable. La baja presencia de sulfuros reactivos o la alta depuración del bofedal indican menor riesgo de acidez. Tratar según indicaciones de la JASS.'}
             </p>
           </div>
 

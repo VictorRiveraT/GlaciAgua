@@ -60,7 +60,7 @@ export const SimpleWaterStatusCard: React.FC<SimpleWaterStatusCardProps> = ({
   const getAnimalsSeal = () => {
     if (currentRisk === 'Alto') return { icon: '✖', text: 'Evitar que beban', badge: 'bg-red-100 text-red-900 border-red-300' }
     if (currentRisk === 'Medio') return { icon: '⚠️', text: 'Preferir puquios', badge: 'bg-amber-100 text-amber-900 border-amber-300' }
-    return { icon: '✔', text: 'Apta para ganado', badge: 'bg-emerald-100 text-emerald-900 border-emerald-300' }
+    return { icon: '✔', text: 'Menor riesgo ganado', badge: 'bg-emerald-100 text-emerald-900 border-emerald-300' }
   }
 
   const drinkSeal = getDrinkSeal()
