@@ -262,6 +262,27 @@ export const SimpleWaterStatusCard: React.FC<SimpleWaterStatusCardProps> = ({
         </div>
       </div>
 
+      {/* Botones de Acción Inmediata: Avisar y Recomendaciones */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <button
+          type="button"
+          onClick={onOpenReport}
+          className="touch-target w-full py-3.5 px-4 rounded-2xl bg-blue-700 hover:bg-blue-800 text-white font-black text-sm flex items-center justify-center gap-2 shadow-md transition-transform active:scale-98"
+        >
+          <PlusCircle size={18} />
+          <span>{t('btn_report_here')}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={onOpenGuidance}
+          className="touch-target w-full py-3.5 px-4 rounded-2xl bg-white hover:bg-slate-50 border-2 border-blue-200 text-blue-900 font-black text-sm flex items-center justify-center gap-2 shadow-xs transition-colors"
+        >
+          <BookOpen size={18} className="text-blue-700" />
+          <span>{t('btn_guidance_full')}</span>
+        </button>
+      </div>
+
       {/* 4. Divulgación Progresiva: Detalles Científicos Ocultos */}
       <div className="bg-white rounded-3xl border border-[#cbd5e1] shadow-xs overflow-hidden">
         <button

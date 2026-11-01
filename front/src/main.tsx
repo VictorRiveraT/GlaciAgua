@@ -5,7 +5,7 @@ import './index.css'
 import { I18nProvider } from './i18n/I18nContext'
 
 // Registro del Service Worker para capacidades PWA Offline-First
-if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
       .register('/sw.js')
@@ -17,11 +17,11 @@ if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
       })
   })
 } else if ('serviceWorker' in navigator) {
-  // En desarrollo o testing local en navegador
-  window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('/sw.js')
-      .catch((err) => console.log('[GlaciAgua PWA Dev] SW registration info:', err))
+  // En modo desarrollo: limpiar y desregistrar SW para evitar colisiones con Vite HMR
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    for (const registration of registrations) {
+      registration.unregister()
+    }
   })
 }
 

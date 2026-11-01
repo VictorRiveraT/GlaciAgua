@@ -9,6 +9,7 @@ import {
   FlaskConical,
   BookOpen,
   Info,
+  Wifi,
 } from 'lucide-react'
 import { useI18n } from '../i18n/I18nContext'
 import { getRiskTheme } from '../utils/accessibleTheme'
@@ -251,6 +252,18 @@ export const BasinDetailPanel: React.FC<BasinDetailPanelProps> = ({
                 <BookOpen size={15} />
                 <span>{t('btn_guidance_full')}</span>
               </button>
+
+              {/* Link to Connectivity */}
+              {onOpenConnectivity && (
+                <button
+                  type="button"
+                  onClick={onOpenConnectivity}
+                  className="touch-target w-full py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center gap-1.5 transition-colors border border-emerald-200"
+                >
+                  <Wifi size={15} />
+                  <span>Ver puntos con señal y WiFi cerca</span>
+                </button>
+              )}
 
               {/* Link to Technical / Jury data */}
               <div className="pt-1">

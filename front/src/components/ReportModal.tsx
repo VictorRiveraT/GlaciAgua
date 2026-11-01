@@ -131,7 +131,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
       fotoUrl: photoPreview || undefined,
       comentarios,
       sincronizado: isOnline,
-      simulado: true,
+      simulado: false,
     }
 
     onSaveReport(newReport)
@@ -456,6 +456,46 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                     </span>
                   </div>
                 </button>
+              </div>
+
+              {/* Dynamic Visual Diagnostic Badge */}
+              <div
+                className={`p-3 rounded-2xl border text-xs flex items-start gap-2.5 transition-all ${
+                  colorKey === 'rust'
+                    ? 'bg-orange-50 border-orange-200 text-orange-950'
+                    : colorKey === 'milky'
+                    ? 'bg-blue-50 border-blue-200 text-blue-950'
+                    : colorKey === 'muddy'
+                    ? 'bg-amber-50 border-amber-200 text-amber-950'
+                    : 'bg-emerald-50 border-emerald-200 text-emerald-950'
+                }`}
+              >
+                <div className="shrink-0 mt-0.5">
+                  {colorKey === 'rust' && <AlertTriangle size={16} className="text-orange-700" />}
+                  {colorKey === 'milky' && <AlertTriangle size={16} className="text-blue-700" />}
+                  {colorKey === 'muddy' && <AlertTriangle size={16} className="text-amber-700" />}
+                  {colorKey === 'clear' && <CheckCircle2 size={16} className="text-emerald-700" />}
+                </div>
+                <div className="space-y-0.5">
+                  <strong className="block font-black">
+                    {colorKey === 'rust'
+                      ? 'Posible Drenaje Ácido de Roca (DAR)'
+                      : colorKey === 'milky'
+                      ? 'Posible Presencia de Aluminio o Sulfatos'
+                      : colorKey === 'muddy'
+                      ? 'Arrastre de Sedimentos o Crecida'
+                      : 'Apariencia Visual Normal'}
+                  </strong>
+                  <p className="text-[11px] leading-snug">
+                    {colorKey === 'rust'
+                      ? 'El color anaranjado/herrumbre suele asociarse a oxidación de pirita con hierro disuelto y pH ácido (< 5.0). Evite su consumo.'
+                      : colorKey === 'milky'
+                      ? 'El color blanquecino/lechoso puede indicar aluminio coloidal o yeso en disolución. Requiere precaución.'
+                      : colorKey === 'muddy'
+                      ? 'El agua marrón turbia ocurre comúnmente tras lluvias intensas por arrastre de tierra y limo.'
+                      : 'El agua cristalina y lecho sin costras es indicativo de menor carga mineral oxidable.'}
+                  </p>
+                </div>
               </div>
 
               <div className="pt-4 flex items-center justify-between gap-3">

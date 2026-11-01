@@ -1,8 +1,8 @@
 // GlaciAgua PWA Offline-First Service Worker (v2)
 // Diseñado para alta montaña y conectividad intermitente (2G/3G/Offline)
 
-const SHELL_CACHE = 'glaciagua-shell-v2'
-const RUNTIME_CACHE = 'glaciagua-runtime-v2'
+const SHELL_CACHE = 'glaciagua-shell-v3'
+const RUNTIME_CACHE = 'glaciagua-runtime-v3'
 const TILE_CACHE = 'glaciagua-tiles-v1'
 
 const PRECACHE_ASSETS = [
@@ -117,20 +117,18 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // 4. Navegación HTML (PWA App Shell): Stale-While-Revalidate
+  // 4. Navegación HTML (PWA App Shell): Network-First con fallback a Caché Offline
   event.respondWith(
-    caches.match(request).then((cached) => {
-      const networkFetch = fetch(request).then((networkResp) => {
+    fetch(request)
+      .then((networkResp) => {
         if (networkResp && networkResp.status === 200) {
-          caches.open(SHELL_CACHE).then((c) => c.put(request, networkResp.clone()))
+          const clone = networkResp.clone()
+          caches.open(SHELL_CACHE).then((c) => c.put(request, clone))
         }
         return networkResp
-      }).catch(() => {
-        return cached || caches.match('/') || caches.match('/index.html')
       })
-
-      // Retorna de inmediato la versión en caché si existe, o espera a la red
-      return cached || networkFetch
-    })
+      .catch(() => {
+        return caches.match(request).then((cached) => cached || caches.match('/') || caches.match('/index.html'))
+      })
   )
 })

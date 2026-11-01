@@ -6,6 +6,7 @@ import {
   Phone,
   Sliders,
   FlaskConical,
+  Cpu,
   ChevronRight,
 } from 'lucide-react'
 import { useI18n } from '../i18n/I18nContext'
@@ -17,6 +18,7 @@ interface MoreOptionsViewProps {
   pendingReportsCount: number
   onOpenSimulator: () => void
   onOpenScientific: () => void
+  onOpenAdmin?: () => void
 }
 
 export const MoreOptionsView: React.FC<MoreOptionsViewProps> = ({
@@ -26,6 +28,7 @@ export const MoreOptionsView: React.FC<MoreOptionsViewProps> = ({
   pendingReportsCount,
   onOpenSimulator,
   onOpenScientific,
+  onOpenAdmin,
 }) => {
   const { t } = useI18n()
 
@@ -167,6 +170,24 @@ export const MoreOptionsView: React.FC<MoreOptionsViewProps> = ({
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+          {onOpenAdmin && (
+            <button
+              type="button"
+              onClick={onOpenAdmin}
+              className="touch-target col-span-1 sm:col-span-2 p-3.5 rounded-2xl bg-blue-900/90 hover:bg-blue-800 border border-blue-500/50 text-left flex items-center justify-between transition-colors shadow-xs"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-bold shrink-0">
+                  <Cpu size={20} />
+                </div>
+                <div>
+                  <strong className="text-xs font-black block text-white">Portal de Ingeniería & Carga de Datos (Admin)</strong>
+                  <span className="text-[11px] text-blue-200">Ingreso de mediciones, aumento sintético y re-entrenamiento del modelo</span>
+                </div>
+              </div>
+              <ChevronRight size={18} className="text-blue-300 shrink-0" />
+            </button>
+          )}
           <button
             type="button"
             onClick={onOpenSimulator}
