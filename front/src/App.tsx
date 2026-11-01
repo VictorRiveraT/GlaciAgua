@@ -20,6 +20,8 @@ import {
   PlusCircle,
   Menu,
   X,
+  BookOpen,
+  Plus,
 } from 'lucide-react'
 
 // Code-splitting para optimizar la carga inicial en redes móviles lentas (2G/3G)
@@ -449,7 +451,21 @@ export default function App() {
         )}
       </main>
 
-      {/* Mobile Bottom Navigation Bar: Máximo 4 Ítems con Altura Accesible 56px+ */}
+      {/* Mobile Floating Action Button (FAB) for "Avisar agua sucia" */}
+      <button
+        type="button"
+        onClick={() => setIsReportModalOpen(true)}
+        className="lg:hidden fixed bottom-20 right-4 z-40 touch-target px-4 py-3 bg-amber-400 hover:bg-amber-500 text-slate-950 rounded-full font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-2xl border-2 border-amber-500 transition-transform active:scale-95"
+        aria-label="Avisar agua sucia"
+      >
+        <div className="flex items-center -mr-0.5">
+          <Droplet size={18} className="fill-slate-950 text-slate-950" />
+          <Plus size={14} className="-ml-1 font-black" />
+        </div>
+        <span className="font-black tracking-tight">{t('btn_report_water')}</span>
+      </button>
+
+      {/* Mobile Bottom Navigation Bar: Exactly 4 Sections with Big Touch Targets */}
       <nav
         className="lg:hidden fixed bottom-0 inset-x-0 h-16 bg-white border-t border-[#cbd5e1] z-50 flex items-center justify-around px-2 shadow-xl select-none"
         role="navigation"
@@ -479,13 +495,13 @@ export default function App() {
 
         <button
           type="button"
-          onClick={() => setIsReportModalOpen(true)}
-          className="touch-target flex flex-col items-center justify-center gap-1 flex-1 py-1 text-[#1e3a8a] font-black"
+          onClick={() => setCurrentView('guia')}
+          className={`touch-target flex flex-col items-center justify-center gap-1 flex-1 py-1 transition-all ${
+            currentView === 'guia' ? 'text-[#1e3a8a] font-black' : 'text-[#64748b]'
+          }`}
         >
-          <div className="w-10 h-10 rounded-2xl bg-[#1e3a8a] text-white flex items-center justify-center shadow-md -mt-4 border-2 border-white">
-            <PlusCircle size={22} />
-          </div>
-          <span className="text-[11px] leading-none text-[#1e3a8a]">Avisar</span>
+          <BookOpen size={22} />
+          <span className="text-[11px] leading-none">{t('btn_guidance')}</span>
         </button>
 
         <button
