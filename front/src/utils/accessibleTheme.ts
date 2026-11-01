@@ -94,3 +94,8 @@ export const DISCLAIMER_NOTE_ES =
 
 export const DISCLAIMER_NOTE_QU =
   'Willakuy yaku rikaypaq. Manam yakupa llumpaychu nintsu. JASS-nikita tapukuy.'
+
+export function getRiskTheme(level: RiskLevel): AccessibleRiskStyle {
+  return ACCESSIBLE_RISK_STYLES[level] || ACCESSIBLE_RISK_STYLES.Medio
+}
+

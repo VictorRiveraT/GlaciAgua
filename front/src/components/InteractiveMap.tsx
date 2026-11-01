@@ -18,15 +18,21 @@ import {
   Sparkles,
   Droplet,
   Wifi,
-  ShieldCheck,
   Compass,
   MapPin,
   AlertOctagon,
   Flame,
-  Info,
   X,
   Activity,
+  CheckCircle2,
+  AlertTriangle,
+  Info,
+  SlidersHorizontal,
 } from 'lucide-react'
+import { chaikinSmoothLine, chaikinSmoothPolygon, LatLngCoord } from '../utils/geoSmoothing'
+import { loadBasinsGeoJson, getBasinPolygonCoords } from '../utils/basinGeoJson'
+import { getRiskTheme } from '../utils/accessibleTheme'
+import { useI18n } from '../i18n/I18nContext'
 
 interface InteractiveMapProps {
   basins: BasinData[]
@@ -43,25 +49,40 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   season,
   measurements,
 }) => {
+  const { t } = useI18n()
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<L.Map | null>(null)
   const layersGroupRef = useRef<{ [key: string]: L.LayerGroup }>({})
   const [legendOpen, setLegendOpen] = useState(false)
+  const [layersModalOpen, setLayersModalOpen] = useState(false)
   const [dangerFilter, setDangerFilter] = useState<'all' | 'Critico' | 'Alto' | 'Medio' | 'Bajo'>('all')
   const [selectedCorridor, setSelectedCorridor] = useState<FluvialHazardCorridor | null>(null)
+  const [geoJsonPolygons, setGeoJsonPolygons] = useState<Record<string, LatLngCoord[]> | null>(null)
 
+  // Default layers: cuencas and rios only. Others are hidden by default to prevent visual clutter
   const [layersState, setLayersState] = useState({
     cuencas: true,
-    corredores: true,
-    hotspotsDAR: true,
-    bofedales: true,
-    glaciares: true,
-    monitoreo: true,
     rios: true,
+    corredores: false,
+    hotspotsDAR: false,
+    bofedales: false,
+    glaciares: false,
+    monitoreo: false,
     conectividad: false,
   })
 
-  const [mouseCoords, setMouseCoords] = useState<{ lat: number; lng: number } | null>(null)
+  // Load external GeoJSON on mount
+  useEffect(() => {
+    let isMounted = true
+    loadBasinsGeoJson().then((data) => {
+      if (isMounted && data) {
+        setGeoJsonPolygons(data)
+      }
+    })
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   const toggleLayer = (layerKey: keyof typeof layersState) => {
     setLayersState((prev) => {
@@ -81,13 +102,23 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   const getRiskColor = (level: RiskLevel) => {
     switch (level) {
       case 'Alto':
-        return '#bd3f3a'
+        return '#b91c1c'
       case 'Medio':
-        return '#a86408'
+        return '#b45309'
       case 'Bajo':
-        return '#21835b'
+        return '#15803d'
     }
   }
+
+  // Count active advanced layers
+  const activeAdvancedCount = [
+    layersState.corredores,
+    layersState.hotspotsDAR,
+    layersState.bofedales,
+    layersState.glaciares,
+    layersState.monitoreo,
+    layersState.conectividad,
+  ].filter(Boolean).length
 
   // Initialize Leaflet Map
   useEffect(() => {
@@ -98,9 +129,10 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       delete (mapContainerRef.current as any)._leaflet_id
     }
 
+    // Default center and zoom showing all 4 basins of Callejón de Huaylas
     const map = L.map(mapContainerRef.current, {
-      center: [-9.52, -77.45],
-      zoom: 11,
+      center: [-9.50, -77.45],
+      zoom: 10,
       minZoom: 8,
       maxZoom: 22,
       zoomControl: false,
@@ -108,44 +140,40 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
     mapInstanceRef.current = map
 
-    // Satélite Real HD de Máxima Resolución (Google Hybrid: Imágenes satelitales ópticas + toponimia oficial)
+    // Base satellite tile layer
     const satLayer = L.tileLayer(
       'https://mt{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
       {
         subdomains: ['0', '1', '2', '3'],
-        attribution: 'Imágenes Satelitales &copy; Google, Maxar Technologies, CNES/Airbus',
+        attribution: 'Imágenes Satelitales &copy; Google, Maxar Technologies',
         maxZoom: 22,
         maxNativeZoom: 20,
       }
     )
     satLayer.addTo(map)
 
-    map.on('mousemove', (e: L.LeafletMouseEvent) => {
-      setMouseCoords({ lat: e.latlng.lat, lng: e.latlng.lng })
-    })
-
-    // Layer Groups
+    // Layer Groups: only cuencas and rios added initially to prevent overload
     const cuencasGroup = L.layerGroup().addTo(map)
-    const corredoresGroup = L.layerGroup().addTo(map)
-    const hotspotsGroup = L.layerGroup().addTo(map)
-    const bofedalesGroup = L.layerGroup().addTo(map)
-    const glaciaresGroup = L.layerGroup().addTo(map)
-    const monitoreoGroup = L.layerGroup().addTo(map)
     const riosGroup = L.layerGroup().addTo(map)
+    const corredoresGroup = L.layerGroup()
+    const hotspotsGroup = L.layerGroup()
+    const bofedalesGroup = L.layerGroup()
+    const glaciaresGroup = L.layerGroup()
+    const monitoreoGroup = L.layerGroup()
     const conectividadGroup = L.layerGroup()
 
     layersGroupRef.current = {
       cuencas: cuencasGroup,
+      rios: riosGroup,
       corredores: corredoresGroup,
       hotspotsDAR: hotspotsGroup,
       bofedales: bofedalesGroup,
       glaciares: glaciaresGroup,
       monitoreo: monitoreoGroup,
-      rios: riosGroup,
       conectividad: conectividadGroup,
     }
 
-    // Observador de redimensionamiento para flexbox dinamico y colapso de sidebar
+    // Observer for container resize
     const resizeObserver = new ResizeObserver(() => {
       if (mapInstanceRef.current) {
         mapInstanceRef.current.invalidateSize()
@@ -155,20 +183,15 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       resizeObserver.observe(mapContainerRef.current)
     }
 
-    // Ticks para recalcular tamano de viewport inmediatamente tras montarse
-    const t1 = setTimeout(() => map.invalidateSize(), 150)
-    const t2 = setTimeout(() => map.invalidateSize(), 500)
+    const t1 = setTimeout(() => map.invalidateSize(), 200)
 
     return () => {
       clearTimeout(t1)
-      clearTimeout(t2)
       resizeObserver.disconnect()
       map.remove()
       mapInstanceRef.current = null
     }
   }, [])
-
-
 
   // Update Vector Layers
   useEffect(() => {
@@ -188,7 +211,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
     if (!cuencasGroup) return
 
-    // Clear all vector layers
+    // Clear all layers
     cuencasGroup.clearLayers()
     corredoresGroup.clearLayers()
     hotspotsGroup.clearLayers()
@@ -198,34 +221,37 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     riosGroup.clearLayers()
     conectividadGroup?.clearLayers()
 
-    // 1. Líneas de Cuencas Hidrográficas (Divisoria de Aguas / Cresta)
-    // Sin relleno para que la ortofoto satelital quede 100% limpia y nítida
+    // 1. Polígonos de Cuencas Hidrográficas con Chaikin Smoothing y Semáforo
     basins.forEach((basin) => {
-      if (!basin.poligonoGeo || basin.poligonoGeo.length === 0) return
+      const rawCoords = getBasinPolygonCoords(basin, geoJsonPolygons)
+      if (!rawCoords || rawCoords.length === 0) return
 
+      const smoothedCoords = chaikinSmoothPolygon(rawCoords, 2)
       const risk = basin.nivelRiesgo[season]
       const color = getRiskColor(risk)
       const isSelected = selectedBasin?.id === basin.id
+      const theme = getRiskTheme(risk)
 
-      // Casing / Sombra oscura inferior para asegurar máximo contraste sobre nieve, roca o ciudad
-      const casing = L.polygon(basin.poligonoGeo, {
+      // Casing / Sombra de contraste
+      const casing = L.polygon(smoothedCoords, {
         color: '#020617',
         fill: false,
         weight: isSelected ? 6.5 : 4.5,
-        opacity: isSelected ? 0.95 : 0.8,
+        opacity: isSelected ? 0.95 : 0.75,
         lineCap: 'round',
         lineJoin: 'round',
         interactive: false,
       })
       cuencasGroup.addLayer(casing)
 
-      // Trazo principal de alta visibilidad (Cian eléctrico si está seleccionada, azul cielo si no)
-      const polygon = L.polygon(basin.poligonoGeo, {
-        color: isSelected ? '#00f0ff' : '#38bdf8',
-        fill: false,
-        weight: isSelected ? 3.5 : 2.5,
+      // Polígono con relleno semitransparente según semáforo
+      const polygon = L.polygon(smoothedCoords, {
+        color: isSelected ? '#38bdf8' : color,
+        fillColor: color,
+        fillOpacity: isSelected ? 0.28 : 0.16,
+        weight: isSelected ? 4 : 2.8,
         opacity: 1.0,
-        dashArray: isSelected ? undefined : '10, 6',
+        dashArray: isSelected ? undefined : '8, 6',
         lineCap: 'round',
         lineJoin: 'round',
       })
@@ -235,44 +261,50 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       })
 
       polygon.on('mouseover', () => {
-        polygon.setStyle({ weight: 4.2, color: '#00f0ff' })
+        polygon.setStyle({ weight: 5, fillOpacity: 0.35 })
       })
 
       polygon.on('mouseout', () => {
         polygon.setStyle({
-          weight: isSelected ? 3.5 : 2.5,
-          color: isSelected ? '#00f0ff' : '#38bdf8',
+          weight: isSelected ? 4 : 2.8,
+          fillOpacity: isSelected ? 0.28 : 0.16,
         })
       })
 
-      polygon.bindTooltip(`Cuenca ${basin.nombre} · Límite Hidrográfico`, {
-        sticky: false,
-        direction: 'center',
-      })
+      polygon.bindTooltip(
+        `<div style="font-family: inherit; font-size: 13px; font-weight: bold; padding: 2px 4px;">
+          <strong>Cuenca ${basin.nombre}</strong><br/>
+          <span style="color: ${color}; font-weight: 800;">● ${theme.labelEs} (${season === 'seca' ? 'Época Seca' : 'Época Lluviosa'})</span>
+        </div>`,
+        { sticky: false, direction: 'center' }
+      )
 
       cuencasGroup.addLayer(polygon)
 
-      // Center Basin Label Badge
+      // Distintivo de semáforo en centroide accesible con forma geométrica
+      const shapeSymbol = theme.iconName === 'octagon' ? '🛑' : theme.iconName === 'triangle' ? '⚠️' : '✓'
+
       const centerMarker = L.marker(basin.centroide, {
         icon: L.divIcon({
           className: 'custom-basin-badge',
           html: `<div style="
-            background: rgba(255, 255, 255, 0.94);
-            border: 1.5px solid ${color};
+            background: #ffffff;
+            border: 2px solid ${color};
             border-radius: 999px;
-            padding: 3px 10px;
-            font-size: 11px;
+            padding: 4px 12px;
+            font-size: 12px;
             font-weight: 900;
-            color: #172726;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+            color: #0f172a;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.25);
             white-space: nowrap;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
+            cursor: pointer;
             transform: translate(-50%, -50%);
           ">
-            <span style="width: 7px; height: 7px; border-radius: 50%; background: ${color};"></span>
-            Cuenca ${basin.nombre}
+            <span style="font-size: 13px;">${shapeSymbol}</span>
+            <span>Cuenca ${basin.nombre}</span>
           </div>`,
           iconSize: [0, 0],
         }),
@@ -282,29 +314,73 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       cuencasGroup.addLayer(centerMarker)
     })
 
-    // 2. Corredores Fluviales y Subcuencas Hidrográficas
-    // Trazos vectoriales definidos con casing oscuro para máxima claridad sin halos borrosos
+    // 2. Río Santa: Colector Principal suavizado con Chaikin
+    const smoothedSanta = chaikinSmoothLine(REAL_GEOGRAPHIC_FEATURES.rioSanta, 2)
+    const rioSantaGlow = L.polyline(smoothedSanta, {
+      color: '#38bdf8',
+      weight: 7,
+      opacity: 0.4,
+      lineCap: 'round',
+      lineJoin: 'round',
+    })
+    const rioSantaLine = L.polyline(smoothedSanta, {
+      color: '#0284c7',
+      weight: 3.5,
+      opacity: 0.95,
+      lineCap: 'round',
+      lineJoin: 'round',
+    })
+    rioSantaLine.bindTooltip(
+      '<strong>Río Santa</strong> (Colector Principal del Callejón de Huaylas)',
+      { sticky: true }
+    )
+    riosGroup.addLayer(rioSantaGlow)
+    riosGroup.addLayer(rioSantaLine)
+
+    // Ciudades en la capa de ríos / base
+    REAL_GEOGRAPHIC_FEATURES.ciudades.forEach((c) => {
+      const ciudadMarker = L.marker(c.coords, {
+        icon: L.divIcon({
+          className: 'custom-city-marker',
+          html: `<div style="
+            background: ${c.principal ? '#1e3a8a' : '#ffffff'};
+            color: ${c.principal ? '#ffffff' : '#0f172a'};
+            border: 1.5px solid ${c.principal ? '#ffffff' : '#64748b'};
+            border-radius: 6px;
+            padding: 2px 7px;
+            font-size: 11px;
+            font-weight: 800;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+            white-space: nowrap;
+            transform: translate(-50%, -50%);
+          ">
+            ${c.nombre}
+          </div>`,
+          iconSize: [0, 0],
+        }),
+      })
+      riosGroup.addLayer(ciudadMarker)
+    })
+
+    // 3. Corredores Fluviales (capa opcional avanzada)
     const corridorsToRender = FLUVIAL_HAZARD_CORRIDORS.filter(
       (c) => dangerFilter === 'all' || c.nivelPeligro === dangerFilter
     )
 
     corridorsToRender.forEach((corridor) => {
-      const handleSelect = () => {
-        setSelectedCorridor(corridor)
-      }
+      const smoothedThalweg = chaikinSmoothLine(corridor.thalweg, 2)
+      const handleSelect = () => setSelectedCorridor(corridor)
 
-      // Borde de contraste oscuro para delimitar el cauce sobre la ortofoto
-      const riverCasing = L.polyline(corridor.thalweg, {
+      const riverCasing = L.polyline(smoothedThalweg, {
         color: '#020617',
-        weight: 5.4,
+        weight: 5.5,
         opacity: 0.85,
         lineCap: 'round',
         lineJoin: 'round',
         interactive: false,
       })
 
-      // Cauce Central Activo con color vivo según nivel de riesgo
-      const thalwegLine = L.polyline(corridor.thalweg, {
+      const thalwegLine = L.polyline(smoothedThalweg, {
         color: corridor.color,
         weight: 3.2,
         opacity: 1.0,
@@ -312,128 +388,56 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         lineJoin: 'round',
       })
 
-      // Pulso de flujo dinámico sutil
-      const flowPulse = L.polyline(corridor.thalweg, {
-        color: '#ffffff',
-        weight: 1.5,
-        dashArray: '10, 18',
-        opacity: 0.85,
-        lineCap: 'round',
-        lineJoin: 'round',
-      })
-
       thalwegLine.on('click', handleSelect)
-      flowPulse.on('click', handleSelect)
 
-      thalwegLine.on('mouseover', () => {
-        thalwegLine.setStyle({ weight: 4.5 })
-      })
-      thalwegLine.on('mouseout', () => {
-        thalwegLine.setStyle({ weight: 3.2 })
-      })
-
-      const popupContent = `
-        <div style="font-family: 'DM Sans', sans-serif; max-width: 260px;">
-          <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 4px;">
-            <span style="font-size: 9px; font-weight: 900; text-transform: uppercase; color: white; background: ${corridor.color}; padding: 2px 7px; border-radius: 999px;">
-              Peligro ${corridor.nivelPeligro}
-            </span>
-            <span style="font-size: 10px; font-weight: 800; color: ${corridor.color};">
-              pH ${corridor.phPromedio}
-            </span>
+      thalwegLine.bindTooltip(
+        `<div style="font-family: inherit; max-width: 260px; padding: 2px;">
+          <div style="font-size: 10px; font-weight: 900; color: ${corridor.color}; text-transform: uppercase;">
+            Peligro ${corridor.nivelPeligro} · pH ${corridor.phPromedio}
           </div>
-          <h4 style="margin: 4px 0 2px; font-size: 13px; font-weight: 900; color: #0f172a;">${corridor.nombre}</h4>
-          <p style="margin: 0 0 6px; font-size: 10.5px; color: #475569; line-height: 1.3;">${corridor.descripcion}</p>
-          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px; font-size: 9.5px; color: #334155;">
-            <div><strong>Hierro (Fe):</strong> ${corridor.hierro}</div>
-            <div><strong>Aluminio (Al):</strong> ${corridor.aluminio}</div>
-            <div style="margin-top: 3px; color: #64748b;"><strong>Impacto:</strong> ${corridor.poblacionAfectada}</div>
-          </div>
-          <div style="font-size: 9px; color: #0f766e; margin-top: 4px; font-weight: bold;">
-            🌿 ${corridor.bofedalAmortiguador}
-          </div>
-        </div>
-      `
-
-      thalwegLine.bindTooltip(popupContent, { sticky: true })
+          <h4 style="margin: 2px 0; font-size: 13px; font-weight: 900; color: #0f172a;">${corridor.nombre}</h4>
+          <p style="margin: 0; font-size: 11px; color: #475569;">${corridor.descripcion}</p>
+        </div>`,
+        { sticky: true }
+      )
 
       corredoresGroup.addLayer(riverCasing)
       corredoresGroup.addLayer(thalwegLine)
-      corredoresGroup.addLayer(flowPulse)
-
-      // Insignia identificadora de subcuenca en cabecera
-      const originCoord = corridor.thalweg[0]
-      if (originCoord) {
-        const subbasinBadge = L.marker(originCoord, {
-          icon: L.divIcon({
-            className: 'custom-subbasin-badge',
-            html: `<div style="
-              background: rgba(15, 23, 42, 0.92);
-              color: #ffffff;
-              border: 1px solid rgba(255, 255, 255, 0.35);
-              border-left: 3.5px solid ${corridor.color};
-              border-radius: 6px;
-              padding: 2px 7px;
-              font-size: 9.5px;
-              font-weight: 800;
-              white-space: nowrap;
-              display: flex;
-              align-items: center;
-              gap: 4px;
-              box-shadow: 0 3px 10px rgba(0,0,0,0.4);
-              transform: translate(-50%, -100%);
-            ">
-              <span style="font-size: 9px; opacity: 0.85;">Subcuenca:</span>
-              <strong style="color: #f8fafc;">${corridor.quebrada}</strong>
-            </div>`,
-            iconSize: [0, 0],
-          }),
-        })
-        subbasinBadge.on('click', handleSelect)
-        corredoresGroup.addLayer(subbasinBadge)
-      }
     })
 
-    // 3. Focos de Drenaje Ácido de Roca (DAR) en Frentes Glaciares
-    // Se elimina el polígono rojo para no tapar la montaña, manteniendo un pin nítido
+    // 4. Focos DAR (capa opcional avanzada)
     DAR_HAZARD_HOTSPOTS.forEach((spot) => {
       const centerCoord = spot.coords[0]
       const hazardBadge = L.marker(centerCoord, {
         icon: L.divIcon({
           className: 'custom-hazard-icon',
           html: `<div style="
-            background: #dc2626;
+            background: #b91c1c;
             color: white;
             border: 2px solid white;
             border-radius: 999px;
             padding: 3px 8px;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 900;
             display: flex;
             align-items: center;
             gap: 4px;
-            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.5);
+            box-shadow: 0 4px 10px rgba(185, 28, 28, 0.4);
             white-space: nowrap;
             transform: translate(-50%, -50%);
           ">
-            <span>🔥</span> Foco DAR pH ${spot.ph}
+            <span>🔥</span> Foco DAR (pH ${spot.ph})
           </div>`,
           iconSize: [0, 0],
         }),
       })
 
       hazardBadge.bindTooltip(
-        `<div style="font-family: 'DM Sans', sans-serif; max-width: 230px;">
-          <div style="display: flex; align-items: center; gap: 4px; color: #b91c1c; font-weight: 900; font-size: 10px; text-transform: uppercase;">
-            <span>🔥</span> Foco de Drenaje Ácido de Roca (DAR)
+        `<div style="font-family: inherit; max-width: 240px; padding: 2px;">
+          <strong style="color: #b91c1c;">Foco de Acidez: ${spot.nombre}</strong>
+          <div style="font-size: 11px; color: #334155; margin-top: 2px;">
+            pH: ${spot.ph} · Hierro: ${spot.hierro} · Aluminio: ${spot.aluminio}
           </div>
-          <h4 style="margin: 2px 0; font-size: 12px; font-weight: 900; color: #1e293b;">${spot.nombre}</h4>
-          <div style="font-size: 11px; font-weight: bold; color: #b91c1c; margin-top: 2px;">
-            pH Crítico: ${spot.ph} · Fe: ${spot.hierro} · Al: ${spot.aluminio}
-          </div>
-          <p style="margin: 3px 0 0; font-size: 9.5px; color: #64748b;">
-            Morena con sulfuros reactivos expuestos. Lavado activo de acidez por deshielo.
-          </p>
         </div>`,
         { sticky: true }
       )
@@ -441,8 +445,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       hotspotsGroup.addLayer(hazardBadge)
     })
 
-    // 4. Bofedales (Humedales de Fondo de Valle)
-    // Se elimina el polígono verde que cubría el valle, reemplazado por un marcador ecológico limpio
+    // 5. Bofedales (capa opcional avanzada)
     REAL_VALLEY_BOFEDALES.forEach((bof) => {
       const centerCoord = bof.coords[0]
       const cleanName = bof.nombre.replace('Bofedal de ', '').replace('Bofedales del ', '').replace('Humedal Aluvial ', '')
@@ -450,38 +453,30 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         icon: L.divIcon({
           className: 'custom-bof-icon',
           html: `<div style="
-            background: #047857;
+            background: #15803d;
             color: white;
             border: 1.5px solid white;
             border-radius: 999px;
-            padding: 2.5px 8px;
-            font-size: 9.5px;
+            padding: 3px 8px;
+            font-size: 11px;
             font-weight: 800;
             display: flex;
             align-items: center;
             gap: 3px;
-            box-shadow: 0 3px 8px rgba(4, 120, 87, 0.4);
+            box-shadow: 0 3px 8px rgba(21, 128, 61, 0.4);
             white-space: nowrap;
             transform: translate(-50%, -50%);
           ">
-            <span>🌿</span> Bofedal ${cleanName}
+            <span>🌿</span> ${cleanName}
           </div>`,
           iconSize: [0, 0],
         }),
       })
 
       bofBadge.bindTooltip(
-        `<div style="font-family: 'DM Sans', sans-serif;">
-          <div style="display: flex; align-items: center; gap: 4px; color: #047857; font-weight: 900; font-size: 10px; text-transform: uppercase;">
-            <span>🌿</span> Bofedal (Humedal Amortiguador)
-          </div>
-          <h4 style="margin: 2px 0; font-size: 12px; font-weight: 900; color: #064e3b;">${bof.nombre}</h4>
-          <div style="font-size: 10px; color: #047857; font-weight: bold; margin-top: 2px;">
-            Área: ${bof.areaHa} hectáreas · ${bof.eficienciaRetencion}
-          </div>
-          <p style="margin: 3px 0 0; font-size: 9.5px; color: #475569;">
-            Filtro biológico natural: neutraliza acidez y absorbe metales pesados disueltos.
-          </p>
+        `<div style="font-family: inherit; padding: 2px;">
+          <strong style="color: #15803d;">Humedal: ${bof.nombre}</strong>
+          <div style="font-size: 11px; color: #475569;">Área: ${bof.areaHa} ha · Filtro natural</div>
         </div>`,
         { sticky: true }
       )
@@ -489,7 +484,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       bofedalesGroup.addLayer(bofBadge)
     })
 
-    // 5. Glaciares y Crestas Nevadas
+    // 6. Glaciares (capa opcional avanzada)
     REAL_GEOGRAPHIC_FEATURES.picos.forEach((p) => {
       const picoMarker = L.marker(p.coords, {
         icon: L.divIcon({
@@ -499,13 +494,12 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
             color: white;
             border: 1px solid rgba(255,255,255,0.4);
             border-radius: 8px;
-            padding: 2px 6px;
-            font-size: 10px;
+            padding: 2px 7px;
+            font-size: 11px;
             font-weight: 800;
             display: flex;
             align-items: center;
             gap: 4px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
             white-space: nowrap;
             transform: translate(-50%, -100%);
           ">
@@ -515,139 +509,52 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           iconSize: [0, 0],
         }),
       })
-
       glaciaresGroup.addLayer(picoMarker)
     })
 
-    // 6. Ciudades y Poblaciones principales
-    REAL_GEOGRAPHIC_FEATURES.ciudades.forEach((c) => {
-      const ciudadMarker = L.marker(c.coords, {
-        icon: L.divIcon({
-          className: 'custom-city-marker',
-          html: `<div style="
-            background: ${c.principal ? '#3346a8' : 'white'};
-            color: ${c.principal ? 'white' : '#1e293b'};
-            border: 1.5px solid ${c.principal ? 'white' : '#94a3b8'};
-            border-radius: 6px;
-            padding: 2px 6px;
-            font-size: 10px;
-            font-weight: 900;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-            white-space: nowrap;
-            transform: translate(-50%, -50%);
-          ">
-            ${c.nombre}
-          </div>`,
-          iconSize: [0, 0],
-        }),
-      })
-
-      riosGroup.addLayer(ciudadMarker)
-    })
-
-    // 7. Río Santa: Colector Principal con Meandros Reales de Alta Resolución (OSM / IGN)
-    const rioSantaGlow = L.polyline(REAL_GEOGRAPHIC_FEATURES.rioSanta, {
-      color: '#38bdf8',
-      weight: 8,
-      opacity: 0.35,
-      lineCap: 'round',
-      lineJoin: 'round',
-    })
-    const rioSantaLine = L.polyline(REAL_GEOGRAPHIC_FEATURES.rioSanta, {
-      color: '#0284c7',
-      weight: 3.6,
-      opacity: 0.95,
-      lineCap: 'round',
-      lineJoin: 'round',
-    })
-    rioSantaLine.bindTooltip(
-      '<strong>Río Santa</strong> (Colector Principal del Callejón de Huaylas - Cauce Exacto)',
-      { sticky: true }
-    )
-    riosGroup.addLayer(rioSantaGlow)
-    riosGroup.addLayer(rioSantaLine)
-
-    // 8. Puntos de Monitoreo Hidroquímico INAIGEM / UPCH
+    // 7. Puntos de Monitoreo (capa opcional avanzada)
     measurements.forEach((m) => {
       const isBad = !m.cumpleECA
-      const color = isBad ? '#bd3f3a' : '#16a34a'
+      const color = isBad ? '#b91c1c' : '#15803d'
 
       const customIcon = L.divIcon({
         className: 'custom-meas-marker',
         html: `<div style="
           background: ${color};
           color: white;
-          width: 22px;
-          height: 22px;
+          width: 24px;
+          height: 24px;
           border-radius: 50%;
           border: 2px solid white;
           box-shadow: 0 2px 8px rgba(0,0,0,0.3);
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 9px;
+          font-size: 11px;
           font-weight: 900;
         ">
           ${isBad ? '!' : '✓'}
         </div>`,
-        iconSize: [22, 22],
-        iconAnchor: [11, 11],
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
       })
 
       const marker = L.marker([m.lat, m.lng], { icon: customIcon })
-
       marker.bindPopup(`
-        <div style="font-family: 'DM Sans', sans-serif; min-width: 230px; padding: 2px;">
-          <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; margin-bottom: 6px;">
-            <span style="font-size: 9px; font-weight: 800; text-transform: uppercase; color: #3346a8; background: #eff6ff; padding: 2px 6px; border-radius: 4px;">
-              ${m.fuente}
-            </span>
-            <h4 style="margin: 4px 0 0; font-size: 13px; font-weight: 900; color: #0f172a;">${m.punto}</h4>
-            <span style="font-size: 11px; color: #64748b;">${m.quebrada}</span>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px;">
-            <div style="background: ${m.ph < 6.5 ? '#fef2f2' : '#f0fdf4'}; padding: 6px; border-radius: 8px; border: 1px solid ${m.ph < 6.5 ? '#fecaca' : '#bbf7d0'};">
-              <span style="font-size: 9px; color: #64748b; font-weight: bold; display: block;">pH Medido</span>
-              <strong style="font-size: 15px; color: ${m.ph < 6.5 ? '#b91c1c' : '#15803d'};">${m.ph.toFixed(2)}</strong>
-              <span style="font-size: 8px; display: block; color: ${m.ph < 6.5 ? '#b91c1c' : '#15803d'}; font-weight: 800;">
-                ${m.ph < 6.5 ? 'Ácido (< 6.5)' : 'Dentro de ECA'}
-              </span>
-            </div>
-
-            <div style="background: #f8fafc; padding: 6px; border-radius: 8px; border: 1px solid #e2e8f0;">
-              <span style="font-size: 9px; color: #64748b; font-weight: bold; display: block;">Conductividad</span>
-              <strong style="font-size: 15px; color: #0f172a;">${m.conductividad}</strong>
-              <span style="font-size: 8px; display: block; color: #64748b;">µS/cm</span>
-            </div>
-          </div>
-
-          <div style="font-size: 10px; background: #f8fafc; padding: 6px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 6px;">
-            <div><strong>Hierro (Fe):</strong> <span style="color: ${m.hierro > 1.0 ? '#b91c1c' : '#15803d'}; font-weight: 800;">${m.hierro} mg/L</span> ${m.hierro > 1.0 ? '(ECA: 1.0)' : ''}</div>
-            <div><strong>Aluminio (Al):</strong> <span style="color: ${m.aluminio > 0.9 ? '#b91c1c' : '#15803d'}; font-weight: 800;">${m.aluminio} mg/L</span> ${m.aluminio > 0.9 ? '(ECA: 0.9)' : ''}</div>
-          </div>
-
-          <p style="margin: 0; font-size: 9.5px; color: #475569; font-style: italic; line-height: 1.3;">
-            "${m.notas}"
-          </p>
+        <div style="font-family: inherit; min-width: 220px; padding: 4px;">
+          <h4 style="margin: 0 0 4px; font-size: 13px; font-weight: 900; color: #0f172a;">${m.punto}</h4>
+          <div style="font-size: 12px; margin-bottom: 4px;">pH Medido: <strong style="color: ${color};">${m.ph.toFixed(2)}</strong></div>
+          <div style="font-size: 11px; color: #64748b;">${m.fuente} · ${m.quebrada}</div>
         </div>
       `)
-
       monitoreoGroup.addLayer(marker)
     })
 
-    // 9. Puntos de Conectividad e Internet Rural
+    // 8. Tambos y Conectividad (capa opcional avanzada)
     if (conectividadGroup) {
       CONNECTIVITY_POINTS.forEach((pt) => {
-        let badgeBg = '#3346a8'
-        let badgeIcon = '📶'
-        if (pt.tipo === 'tambo_satelital') {
-          badgeBg = '#059669'
-          badgeIcon = '🏛️'
-        } else if (pt.tipo === 'zona_sombra') {
-          badgeBg = '#dc2626'
-          badgeIcon = '⚠️'
-        }
+        const badgeBg = pt.tipo === 'tambo_satelital' ? '#047857' : '#1d4ed8'
+        const badgeIcon = pt.tipo === 'tambo_satelital' ? '🏛️' : '📶'
 
         const icon = L.divIcon({
           className: 'custom-wifi-marker',
@@ -656,453 +563,419 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
             color: white;
             border: 2px solid white;
             border-radius: 999px;
-            padding: 2px 7px;
-            font-size: 9.5px;
+            padding: 3px 8px;
+            font-size: 11px;
             font-weight: 900;
             display: flex;
             align-items: center;
-            gap: 3px;
+            gap: 4px;
             box-shadow: 0 3px 8px rgba(0,0,0,0.3);
             white-space: nowrap;
             transform: translate(-50%, -50%);
           ">
             <span>${badgeIcon}</span>
-            <span>${pt.tieneWifiLibre ? 'WiFi Libre' : pt.tecnologia}</span>
+            <span>${pt.nombre}</span>
           </div>`,
           iconSize: [0, 0],
         })
 
         const ptMarker = L.marker([pt.lat, pt.lng], { icon })
         ptMarker.bindTooltip(
-          `<div style="font-family: 'DM Sans', sans-serif;">
-            <strong style="color: ${badgeBg}; font-size: 11px;">${pt.nombre}</strong>
-            <div style="font-size: 10px; color: #475569;">${pt.descripcion}</div>
-            <div style="font-size: 9.5px; color: #059669; font-weight: bold; margin-top: 2px;">
-              ${pt.tieneWifiLibre ? '✓ Acceso Gratuito a Internet' : 'Señal Móvil'}
-            </div>
+          `<div style="font-family: inherit; padding: 2px;">
+            <strong style="color: ${badgeBg};">${pt.nombre}</strong>
+            <div style="font-size: 11px; color: #475569;">${pt.descripcion}</div>
           </div>`,
           { sticky: true }
         )
         conectividadGroup.addLayer(ptMarker)
       })
     }
-  }, [basins, selectedBasin, season, measurements, dangerFilter])
+  }, [basins, selectedBasin, season, measurements, dangerFilter, geoJsonPolygons])
 
-  // Center and fit bounds on selected basin
+  // Center on selected basin
   useEffect(() => {
     if (!selectedBasin || !mapInstanceRef.current) return
-    if (selectedBasin.poligonoGeo && selectedBasin.poligonoGeo.length > 0) {
-      const bounds = L.latLngBounds(selectedBasin.poligonoGeo)
+    const coords = getBasinPolygonCoords(selectedBasin, geoJsonPolygons)
+    if (coords && coords.length > 0) {
+      const bounds = L.latLngBounds(coords)
       mapInstanceRef.current.flyToBounds(bounds, {
-        padding: [50, 50],
-        maxZoom: 13,
-        duration: 1.2,
+        padding: [40, 40],
+        maxZoom: 12,
+        duration: 1.0,
       })
     } else {
-      mapInstanceRef.current.flyTo([selectedBasin.centroide.lat, selectedBasin.centroide.lng], 12, {
-        duration: 1.2,
+      mapInstanceRef.current.flyTo([selectedBasin.centroide.lat, selectedBasin.centroide.lng], 11, {
+        duration: 1.0,
       })
     }
-  }, [selectedBasin])
+  }, [selectedBasin, geoJsonPolygons])
 
-  const focusLocation = (lat: number, lng: number, zoom = 12) => {
-    mapInstanceRef.current?.flyTo([lat, lng], zoom, { duration: 1.2 })
+  const focusLocation = (lat: number, lng: number, zoom = 11) => {
+    mapInstanceRef.current?.flyTo([lat, lng], zoom, { duration: 1.0 })
   }
 
   return (
-    <div className="relative w-full h-full flex-1 min-h-0 flex flex-col overflow-hidden select-none">
-      {/* Real Map Container */}
+    <div className="relative w-full h-full flex-1 min-h-0 flex flex-col overflow-hidden select-none bg-slate-900">
+      {/* Map Container */}
       <div ref={mapContainerRef} className="absolute inset-0 z-0 bg-[#0f172a]" />
 
-      {/* Top Floating Control Bar */}
-      <div className="absolute top-4 left-4 z-20 flex flex-wrap items-center gap-2 max-w-[calc(100%-80px)] pointer-events-auto">
-        {/* Satélite Real HD Exclusivo con Alta Precisión (Zoom hasta nivel 22) */}
-        <div className="bg-[#172726]/95 text-white backdrop-blur-md rounded-2xl px-3.5 py-1.5 shadow-lg border border-slate-700/60 flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <Compass size={14} className="text-emerald-400" />
-          <span className="text-xs font-black tracking-wide">Satélite Real HD</span>
-          <span className="text-[10px] text-slate-300 border-l border-slate-600 pl-2 font-medium">Zoom máx. 22</span>
-        </div>
+      {/* Top Floating Control Bar - Simplified & Accessible */}
+      <div className="absolute top-3 left-3 right-16 z-20 flex flex-wrap items-center gap-2 pointer-events-auto">
+        {/* Layer Manager Modal Toggle Button (Min 48px tactile) */}
+        <button
+          onClick={() => setLayersModalOpen(true)}
+          className="touch-target bg-white/95 hover:bg-white text-slate-800 backdrop-blur-md rounded-2xl px-4 py-2.5 shadow-lg border border-slate-200 font-bold text-sm flex items-center gap-2 transition-transform active:scale-95"
+          aria-label="Abrir panel de capas del mapa"
+        >
+          <Layers size={18} className="text-blue-700" />
+          <span>{t('map_layers')}</span>
+          {activeAdvancedCount > 0 && (
+            <span className="bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full font-black">
+              {activeAdvancedCount}
+            </span>
+          )}
+        </button>
 
-        {/* Hazard Level Quick Filter Pills */}
-        <div className="bg-white/95 backdrop-blur-md rounded-2xl p-1 shadow-lg border border-[#dfe7e5] flex items-center gap-1">
-          <span className="text-[11px] font-black text-[#667573] px-2 flex items-center gap-1">
-            <Flame size={13} className="text-[#dc2626]" /> Peligro DAR:
-          </span>
-          <button
-            onClick={() => setDangerFilter('all')}
-            className={`px-2 py-1 text-xs rounded-lg font-bold transition-all ${
-              dangerFilter === 'all'
-                ? 'bg-[#3346a8] text-white'
-                : 'text-[#667573] hover:bg-gray-100'
-            }`}
-          >
-            Todos
-          </button>
-          <button
-            onClick={() => setDangerFilter('Critico')}
-            className={`px-2 py-1 text-xs rounded-lg font-bold transition-all flex items-center gap-1 ${
-              dangerFilter === 'Critico'
-                ? 'bg-[#dc2626] text-white'
-                : 'text-[#dc2626] hover:bg-red-50'
-            }`}
-          >
-            🔴 Crítico
-          </button>
-          <button
-            onClick={() => setDangerFilter('Alto')}
-            className={`px-2 py-1 text-xs rounded-lg font-bold transition-all flex items-center gap-1 ${
-              dangerFilter === 'Alto'
-                ? 'bg-[#ea580c] text-white'
-                : 'text-[#ea580c] hover:bg-orange-50'
-            }`}
-          >
-            🟠 Alto
-          </button>
-          <button
-            onClick={() => setDangerFilter('Medio')}
-            className={`px-2 py-1 text-xs rounded-lg font-bold transition-all flex items-center gap-1 ${
-              dangerFilter === 'Medio'
-                ? 'bg-[#d97706] text-white'
-                : 'text-[#d97706] hover:bg-amber-50'
-            }`}
-          >
-            🟡 Medio
-          </button>
-          <button
-            onClick={() => setDangerFilter('Bajo')}
-            className={`px-2 py-1 text-xs rounded-lg font-bold transition-all flex items-center gap-1 ${
-              dangerFilter === 'Bajo'
-                ? 'bg-[#16a34a] text-white'
-                : 'text-[#16a34a] hover:bg-green-50'
-            }`}
-          >
-            🟢 Seguro
-          </button>
-        </div>
+        {/* Legend Button */}
+        <button
+          onClick={() => setLegendOpen(!legendOpen)}
+          className="touch-target bg-white/95 hover:bg-white text-slate-800 backdrop-blur-md rounded-2xl px-3.5 py-2.5 shadow-lg border border-slate-200 font-bold text-sm flex items-center gap-1.5 transition-transform active:scale-95"
+          aria-label="Ver leyenda de colores"
+        >
+          <Info size={16} className="text-slate-600" />
+          <span>{t('legend')}</span>
+        </button>
 
-        {/* Detailed Layer Toggles */}
-        <div className="bg-white/95 backdrop-blur-md rounded-2xl p-1.5 shadow-lg border border-[#dfe7e5] flex items-center gap-1 overflow-x-auto">
-          <span className="text-[11px] font-black text-[#667573] px-2 flex items-center gap-1">
-            <Layers size={13} className="text-[#3346a8]" /> Capas:
-          </span>
-          <button
-            onClick={() => toggleLayer('cuencas')}
-            className={`px-2.5 py-1 text-xs rounded-lg font-bold transition-all flex items-center gap-1 ${
-              layersState.cuencas
-                ? 'bg-[#edf0ff] text-[#3346a8] border border-[#3346a8]/20'
-                : 'text-[#667573] hover:bg-gray-100'
-            }`}
-            title="Límites de cuenca hidrográfica (Divisoria de aguas)"
-          >
-            <ShieldCheck size={12} /> Divisoria Cuencas
-          </button>
-          <button
-            onClick={() => toggleLayer('corredores')}
-            className={`px-2.5 py-1 text-xs rounded-lg font-bold transition-all flex items-center gap-1 ${
-              layersState.corredores
-                ? 'bg-amber-50 text-[#a86408] border border-amber-300'
-                : 'text-[#667573] hover:bg-gray-100'
-            }`}
-            title="Corredores fluviales de peligro geoquímico"
-          >
-            <AlertOctagon size={12} /> Corredores Fluviales
-          </button>
-          <button
-            onClick={() => toggleLayer('hotspotsDAR')}
-            className={`px-2.5 py-1 text-xs rounded-lg font-bold transition-all flex items-center gap-1 ${
-              layersState.hotspotsDAR
-                ? 'bg-red-50 text-[#dc2626] border border-red-300'
-                : 'text-[#667573] hover:bg-gray-100'
-            }`}
-            title="Zonas críticas de morrenas donde brota el drenaje ácido de roca"
-          >
-            <Flame size={12} /> Focos Morrena DAR
-          </button>
-          <button
-            onClick={() => toggleLayer('bofedales')}
-            className={`px-2.5 py-1 text-xs rounded-lg font-bold transition-all flex items-center gap-1 ${
-              layersState.bofedales
-                ? 'bg-[#e8f5ed] text-[#21835b] border border-[#21835b]/20'
-                : 'text-[#667573] hover:bg-gray-100'
-            }`}
-            title="Humedales de fondo de valle con retención biológica"
-          >
-            <Sparkles size={12} /> Bofedales
-          </button>
-          <button
-            onClick={() => toggleLayer('monitoreo')}
-            className={`px-2.5 py-1 text-xs rounded-lg font-bold transition-all flex items-center gap-1 ${
-              layersState.monitoreo
-                ? 'bg-blue-50 text-[#2563eb] border border-blue-200'
-                : 'text-[#667573] hover:bg-gray-100'
-            }`}
-            title="Puntos de monitoreo científico INAIGEM y UPCH"
-          >
-            <Droplet size={12} /> Monitoreo
-          </button>
-          <button
-            onClick={() => toggleLayer('conectividad')}
-            className={`px-2.5 py-1 text-xs rounded-lg font-bold transition-all flex items-center gap-1 ${
-              layersState.conectividad
-                ? 'bg-emerald-50 text-[#059669] border border-emerald-300'
-                : 'text-[#667573] hover:bg-gray-100'
-            }`}
-            title="Puntos de internet satelital, tambos y WiFi libre para sincronizar reportes"
-          >
-            <Wifi size={12} /> Internet y Señal
-          </button>
+        {/* Cautious Permanent Disclaimer Pill */}
+        <div className="hidden lg:flex items-center gap-1.5 bg-amber-50/95 backdrop-blur-md border border-amber-300 text-amber-900 text-xs font-semibold px-3 py-2 rounded-2xl shadow-sm">
+          <AlertTriangle size={14} className="text-amber-700 shrink-0" />
+          <span>{t('disclaimer_short')}</span>
         </div>
       </div>
 
-      {/* Right Zoom Controls */}
-      <div className="absolute top-4 right-4 z-20 flex flex-col gap-1.5 bg-white/95 backdrop-blur-md p-1.5 rounded-2xl shadow-lg border border-[#dfe7e5] pointer-events-auto">
+      {/* Right Zoom & View Controls */}
+      <div className="absolute top-3 right-3 z-20 flex flex-col gap-2 bg-white/95 backdrop-blur-md p-1.5 rounded-2xl shadow-lg border border-slate-200 pointer-events-auto">
         {selectedBasin && (
           <button
             onClick={() => {
-              if (selectedBasin.poligonoGeo?.length) {
-                mapInstanceRef.current?.flyToBounds(L.latLngBounds(selectedBasin.poligonoGeo), {
-                  padding: [50, 50],
-                  maxZoom: 13,
-                  duration: 1.2,
+              const coords = getBasinPolygonCoords(selectedBasin, geoJsonPolygons)
+              if (coords?.length) {
+                mapInstanceRef.current?.flyToBounds(L.latLngBounds(coords), {
+                  padding: [40, 40],
+                  maxZoom: 12,
+                  duration: 1.0,
                 })
               } else {
-                focusLocation(selectedBasin.centroide.lat, selectedBasin.centroide.lng, 12)
+                focusLocation(selectedBasin.centroide.lat, selectedBasin.centroide.lng, 11)
               }
             }}
-            className="w-8 h-8 rounded-xl flex items-center justify-center bg-[#edf0ff] text-[#3346a8] hover:bg-[#3346a8] hover:text-white transition-colors shadow-xs"
+            className="touch-target rounded-xl flex items-center justify-center bg-blue-100 text-blue-800 hover:bg-blue-700 hover:text-white transition-colors"
             title={`Centrar en Cuenca ${selectedBasin.nombre}`}
+            aria-label={`Centrar en Cuenca ${selectedBasin.nombre}`}
           >
-            <MapPin size={16} />
+            <MapPin size={20} />
           </button>
         )}
         <button
           onClick={() => mapInstanceRef.current?.zoomIn()}
-          className="w-8 h-8 rounded-xl flex items-center justify-center text-[#172726] hover:bg-[#edf0ff] hover:text-[#3346a8] transition-colors"
+          className="touch-target rounded-xl flex items-center justify-center text-slate-800 hover:bg-slate-100 transition-colors"
           title="Acercar mapa"
+          aria-label="Acercar mapa"
         >
-          <ZoomIn size={18} />
+          <ZoomIn size={20} />
         </button>
         <button
           onClick={() => mapInstanceRef.current?.zoomOut()}
-          className="w-8 h-8 rounded-xl flex items-center justify-center text-[#172726] hover:bg-[#edf0ff] hover:text-[#3346a8] transition-colors"
+          className="touch-target rounded-xl flex items-center justify-center text-slate-800 hover:bg-slate-100 transition-colors"
           title="Alejar mapa"
+          aria-label="Alejar mapa"
         >
-          <ZoomOut size={18} />
+          <ZoomOut size={20} />
         </button>
         <button
-          onClick={() => focusLocation(-9.52, -77.45, 11)}
-          className="w-8 h-8 rounded-xl flex items-center justify-center text-[#667573] hover:bg-gray-100 transition-colors"
-          title="Restablecer vista general"
+          onClick={() => focusLocation(-9.50, -77.45, 10)}
+          className="touch-target rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors"
+          title="Ver todas las cuencas"
+          aria-label="Restablecer vista general"
         >
-          <RotateCcw size={16} />
+          <RotateCcw size={18} />
         </button>
       </div>
 
-      {/* Corridor Detailed Card (When a corridor is clicked) */}
+      {/* Corridor Detail Popover (If a corridor is selected) */}
       {selectedCorridor && (
-        <div className="absolute top-20 right-4 z-30 w-80 bg-white/95 backdrop-blur-md rounded-2xl p-4 shadow-2xl border border-[#dfe7e5] animate-in fade-in slide-in-from-top-3 pointer-events-auto">
-          <div className="flex items-start justify-between border-b border-[#e2e8f0] pb-2.5 mb-2.5">
+        <div className="absolute top-20 right-3 left-3 sm:left-auto sm:w-88 z-30 bg-white/95 backdrop-blur-md rounded-2xl p-4 shadow-2xl border border-slate-200 pointer-events-auto animate-in fade-in">
+          <div className="flex items-start justify-between border-b border-slate-200 pb-2 mb-2">
             <div>
-              <div className="flex items-center gap-1.5 mb-1">
-                <span
-                  className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md text-white"
-                  style={{ background: selectedCorridor.color }}
-                >
-                  Peligro {selectedCorridor.nivelPeligro}
-                </span>
-                <span className="text-xs font-bold text-gray-500">pH {selectedCorridor.phPromedio}</span>
-              </div>
-              <h3 className="text-sm font-black text-slate-900 leading-tight">
+              <span
+                className="text-xs font-black uppercase px-2 py-0.5 rounded-md text-white inline-block mb-1"
+                style={{ background: selectedCorridor.color }}
+              >
+                Peligro {selectedCorridor.nivelPeligro} · pH {selectedCorridor.phPromedio}
+              </span>
+              <h3 className="text-base font-black text-slate-900 leading-tight">
                 {selectedCorridor.nombre}
               </h3>
             </div>
             <button
               onClick={() => setSelectedCorridor(null)}
-              className="p-1 text-gray-400 hover:text-gray-700 rounded-lg hover:bg-gray-100"
+              className="touch-target text-slate-400 hover:text-slate-700 rounded-lg p-1"
+              aria-label="Cerrar detalle del río"
             >
-              <X size={16} />
+              <X size={20} />
             </button>
           </div>
-
-          <p className="text-xs text-slate-600 leading-relaxed mb-3">
-            {selectedCorridor.descripcion}
-          </p>
-
-          <div className="grid grid-cols-2 gap-2 mb-3">
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-2">
-              <span className="text-[10px] text-slate-500 font-bold block">Hierro (Fe)</span>
-              <span className="text-xs font-black text-slate-800">{selectedCorridor.hierro}</span>
-            </div>
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-2">
-              <span className="text-[10px] text-slate-500 font-bold block">Aluminio (Al)</span>
-              <span className="text-xs font-black text-slate-800">{selectedCorridor.aluminio}</span>
-            </div>
+          <p className="text-xs text-slate-600 mb-3">{selectedCorridor.descripcion}</p>
+          <div className="bg-slate-100 p-2.5 rounded-xl text-xs space-y-1 mb-3 text-slate-700">
+            <div><strong>Hierro (Fe):</strong> {selectedCorridor.hierro}</div>
+            <div><strong>Aluminio (Al):</strong> {selectedCorridor.aluminio}</div>
+            <div className="text-emerald-700 font-bold">🌿 {selectedCorridor.bofedalAmortiguador}</div>
           </div>
-
-          <div className="space-y-1.5 text-xs text-slate-700 bg-slate-50 p-2.5 rounded-xl border border-slate-200 mb-3">
-            <div>
-              <strong className="text-slate-900">Origen:</strong> {selectedCorridor.origenDrenaje}
-            </div>
-            <div>
-              <strong className="text-slate-900">Impacto:</strong> {selectedCorridor.poblacionAfectada}
-            </div>
-            <div className="text-[#0f766e] font-bold">
-              🌿 {selectedCorridor.bofedalAmortiguador}
-            </div>
-          </div>
-
           <button
             onClick={() => {
               const center = selectedCorridor.thalweg[Math.floor(selectedCorridor.thalweg.length / 2)]
-              focusLocation(center[0], center[1], 13)
+              focusLocation(center[0], center[1], 12)
             }}
-            className="w-full py-2 rounded-xl text-xs font-black text-white flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+            className="touch-target w-full rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2"
             style={{ background: selectedCorridor.color }}
           >
-            <Activity size={14} /> Enfocar este Corredor
+            <Activity size={18} /> Enfocar este río
           </button>
         </div>
       )}
 
-      {/* Bottom Nav / Focus Hotspots Bar */}
-      <div className="absolute bottom-4 left-4 z-20 flex flex-wrap items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-lg border border-[#dfe7e5] text-xs pointer-events-auto">
-        <span className="font-black text-[#3346a8] flex items-center gap-1">
-          <MapPin size={14} /> Enfocar:
-        </span>
-        <button
-          onClick={() => focusLocation(-9.524, -77.410, 13)}
-          className="px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 font-bold text-[#b91c1c] border border-red-200 transition-colors flex items-center gap-1"
-        >
-          <Flame size={12} /> Quebrada Shallap (Crítico DAR)
-        </button>
-        <button
-          onClick={() => focusLocation(-9.495, -77.420, 13)}
-          className="px-2.5 py-1 rounded-lg bg-orange-50 hover:bg-orange-100 font-bold text-[#ea580c] border border-orange-200 transition-colors"
-        >
-          Quilcayhuanca (Alto)
-        </button>
-        <button
-          onClick={() => focusLocation(-9.460, -77.445, 13)}
-          className="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 font-bold text-[#b45309] border border-amber-200 transition-colors"
-        >
-          Quebrada Cojup (Captación)
-        </button>
-        <button
-          onClick={() => focusLocation(-9.920, -77.195, 13)}
-          className="px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 font-bold text-[#b91c1c] border border-red-200 transition-colors flex items-center gap-1"
-        >
-          <Flame size={12} /> Pastoruri (Morrena Pirita)
-        </button>
-        <button
-          onClick={() => focusLocation(-9.882, -77.285, 13)}
-          className="px-2.5 py-1 rounded-lg bg-green-50 hover:bg-green-100 font-bold text-[#15803d] border border-green-200 transition-colors flex items-center gap-1"
-        >
-          <Sparkles size={12} /> Bofedal Pumapampa
-        </button>
-        <button
-          onClick={() => focusLocation(-8.980, -77.700, 12)}
-          className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 font-bold text-[#059669] border border-emerald-200 transition-colors"
-        >
-          Santa Cruz / Río Blanco (Seguro)
-        </button>
+      {/* Floating Legend Panel */}
+      {legendOpen && (
+        <div className="absolute bottom-16 right-3 left-3 sm:left-auto sm:w-80 z-20 pointer-events-auto bg-white/95 backdrop-blur-md rounded-2xl p-4 shadow-2xl border border-slate-200 text-xs space-y-3 animate-in fade-in">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+            <strong className="text-sm font-black text-slate-900 flex items-center gap-2">
+              <Info size={16} className="text-blue-700" /> {t('legend')}
+            </strong>
+            <button
+              onClick={() => setLegendOpen(false)}
+              className="touch-target text-slate-400 hover:text-slate-700 p-1"
+              aria-label="Cerrar leyenda"
+            >
+              <X size={18} />
+            </button>
+          </div>
 
-        {mouseCoords && (
-          <span className="hidden xl:inline-block ml-2 pl-2 border-l border-[#dfe7e5] text-[11px] text-[#667573] font-mono">
-            {mouseCoords.lat.toFixed(4)}°, {mouseCoords.lng.toFixed(4)}°
-          </span>
-        )}
-      </div>
+          <div className="space-y-2.5">
+            <div className="flex items-center gap-2.5">
+              <span className="w-5 h-5 rounded-full bg-red-700 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                🛑
+              </span>
+              <div>
+                <strong className="text-red-700 text-xs block">Riesgo Alto</strong>
+                <span className="text-slate-600 text-[11px]">Agua probablemente ácida con minerales disueltos.</span>
+              </div>
+            </div>
 
-      {/* Floating Glassmorphic Legend */}
-      <div className="absolute bottom-4 right-4 z-20 pointer-events-auto flex flex-col items-end gap-2">
-        {legendOpen && (
-          <div className="bg-white/95 backdrop-blur-md rounded-2xl p-4 shadow-xl border border-[#dfe7e5] w-72 text-xs space-y-2.5 animate-in fade-in slide-in-from-bottom-2">
-            <div className="flex items-center justify-between border-b border-[#dfe7e5] pb-2">
-              <strong className="text-xs font-black text-[#172726] flex items-center gap-1.5">
-                <Layers size={14} className="text-[#3346a8]" /> Simbología Hidro-Geoquímica
-              </strong>
+            <div className="flex items-center gap-2.5">
+              <span className="w-5 h-5 rounded-full bg-amber-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                ⚠️
+              </span>
+              <div>
+                <strong className="text-amber-700 text-xs block">Riesgo Medio</strong>
+                <span className="text-slate-600 text-[11px]">Agua con variaciones o cercanía a fuentes ácidas.</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5">
+              <span className="w-5 h-5 rounded-full bg-emerald-700 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                ✓
+              </span>
+              <div>
+                <strong className="text-emerald-700 text-xs block">Riesgo Bajo</strong>
+                <span className="text-slate-600 text-[11px]">Agua de roca limpia sin acidez de morrena.</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5 pt-2 border-t border-slate-100">
+              <span className="w-5 h-1.5 bg-blue-600 rounded-full shrink-0" />
+              <span className="text-slate-700 text-xs font-semibold">Río Santa (Colector Central)</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Advanced Layers Modal (Accessible Drawer / Popover) */}
+      {layersModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-blue-100 text-blue-800 flex items-center justify-center">
+                  <SlidersHorizontal size={22} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-slate-900 leading-tight">
+                    {t('map_layers')}
+                  </h3>
+                  <p className="text-xs text-slate-500">Activa o desactiva información visual</p>
+                </div>
+              </div>
               <button
-                onClick={() => setLegendOpen(false)}
-                className="text-gray-400 hover:text-gray-700 text-xs p-0.5"
+                onClick={() => setLayersModalOpen(false)}
+                className="touch-target p-2 text-slate-400 hover:text-slate-700 rounded-xl"
+                aria-label="Cerrar capas"
               >
-                ✕
+                <X size={24} />
               </button>
             </div>
 
-            <div className="space-y-2 text-[11px]">
-              <div className="flex items-center gap-2">
-                <span className="w-4 h-4 rounded-md bg-[#dc2626] border border-red-700 shrink-0 flex items-center justify-center text-[9px] text-white font-bold">
-                  🔥
-                </span>
-                <div>
-                  <strong className="text-[#dc2626] block leading-tight">Foco / Morrena DAR</strong>
-                  <span className="text-[#667573] text-[9.5px]">Pirita expuesta, pH &lt; 4.0, lixiviación</span>
+            <div className="space-y-3">
+              {/* Cuencas (Principal) */}
+              <label className="flex items-center justify-between p-3 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-slate-100 cursor-pointer">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs">
+                    🗺️
+                  </div>
+                  <div>
+                    <strong className="text-sm text-slate-900 block">Cuencas con Semáforo</strong>
+                    <span className="text-xs text-slate-500">Límites y color de riesgo por quebrada</span>
+                  </div>
                 </div>
-              </div>
+                <input
+                  type="checkbox"
+                  checked={layersState.cuencas}
+                  onChange={() => toggleLayer('cuencas')}
+                  className="w-6 h-6 text-blue-600 rounded-lg cursor-pointer"
+                />
+              </label>
 
-              <div className="flex items-center gap-2">
-                <span className="w-4 h-4 rounded-md bg-[#dc2626]/40 border-2 border-[#dc2626] shrink-0" />
-                <div>
-                  <strong className="text-[#dc2626] block leading-tight">Corredor Crítico (Shallap/Pastoruri)</strong>
-                  <span className="text-[#667573] text-[9.5px]">pH 3.8 - 4.1 · Fe &gt; 5x ECA · Agua naranja</span>
+              {/* Río Santa */}
+              <label className="flex items-center justify-between p-3 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-slate-100 cursor-pointer">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-sky-600 text-white flex items-center justify-center font-bold text-xs">
+                    🌊
+                  </div>
+                  <div>
+                    <strong className="text-sm text-slate-900 block">Río Santa</strong>
+                    <span className="text-xs text-slate-500">Cauce central del Callejón de Huaylas</span>
+                  </div>
                 </div>
+                <input
+                  type="checkbox"
+                  checked={layersState.rios}
+                  onChange={() => toggleLayer('rios')}
+                  className="w-6 h-6 text-blue-600 rounded-lg cursor-pointer"
+                />
+              </label>
+
+              <div className="pt-2">
+                <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider mb-2">
+                  Capas Científicas Opcionales
+                </h4>
               </div>
 
-              <div className="flex items-center gap-2">
-                <span className="w-4 h-4 rounded-md bg-[#ea580c]/35 border-2 border-[#ea580c] shrink-0" />
-                <div>
-                  <strong className="text-[#ea580c] block leading-tight">Corredor Alto (Quilcayhuanca)</strong>
-                  <span className="text-[#667573] text-[9.5px]">pH 4.25 · Metales disueltos y aluminio</span>
+              {/* Corredores */}
+              <label className="flex items-center justify-between p-3 rounded-2xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center font-bold text-xs">
+                    ⚠️
+                  </div>
+                  <div>
+                    <strong className="text-sm text-slate-900 block">Ríos y Quebradas Internas</strong>
+                    <span className="text-xs text-slate-500">Cauces con nivel de acidez y pH</span>
+                  </div>
                 </div>
-              </div>
+                <input
+                  type="checkbox"
+                  checked={layersState.corredores}
+                  onChange={() => toggleLayer('corredores')}
+                  className="w-6 h-6 text-blue-600 rounded-lg cursor-pointer"
+                />
+              </label>
 
-              <div className="flex items-center gap-2">
-                <span className="w-4 h-4 rounded-md bg-[#d97706]/35 border-2 border-[#d97706] shrink-0" />
-                <div>
-                  <strong className="text-[#d97706] block leading-tight">Corredor Moderado (Cojup)</strong>
-                  <span className="text-[#667573] text-[9.5px]">pH 4.55 · Captación agua potable Huaraz</span>
+              {/* Focos DAR */}
+              <label className="flex items-center justify-between p-3 rounded-2xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-red-600 text-white flex items-center justify-center font-bold text-xs">
+                    🔥
+                  </div>
+                  <div>
+                    <strong className="text-sm text-slate-900 block">Focos de Acidez (DAR)</strong>
+                    <span className="text-xs text-slate-500">Morrenas con sulfuros reactivos</span>
+                  </div>
                 </div>
-              </div>
+                <input
+                  type="checkbox"
+                  checked={layersState.hotspotsDAR}
+                  onChange={() => toggleLayer('hotspotsDAR')}
+                  className="w-6 h-6 text-blue-600 rounded-lg cursor-pointer"
+                />
+              </label>
 
-              <div className="flex items-center gap-2">
-                <span className="w-4 h-4 rounded-md bg-[#16a34a]/30 border-2 border-[#16a34a] shrink-0" />
-                <div>
-                  <strong className="text-[#16a34a] block leading-tight">Corredor Seguro (Santa Cruz)</strong>
-                  <span className="text-[#667573] text-[9.5px]">pH 7.20 · Litología granítica sin sulfuros</span>
+              {/* Bofedales */}
+              <label className="flex items-center justify-between p-3 rounded-2xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">
+                    🌿
+                  </div>
+                  <div>
+                    <strong className="text-sm text-slate-900 block">Bofedales y Humedales</strong>
+                    <span className="text-xs text-slate-500">Filtros naturales que retienen metales</span>
+                  </div>
                 </div>
-              </div>
+                <input
+                  type="checkbox"
+                  checked={layersState.bofedales}
+                  onChange={() => toggleLayer('bofedales')}
+                  className="w-6 h-6 text-blue-600 rounded-lg cursor-pointer"
+                />
+              </label>
 
-              <div className="flex items-center gap-2">
-                <span className="w-4 h-4 rounded-md bg-[#10b981]/50 border-2 border-[#059669] shrink-0" />
-                <div>
-                  <strong className="text-[#059669] block leading-tight">Bofedal (Humedal Amortiguador)</strong>
-                  <span className="text-[#667573] text-[9.5px]">Filtro natural depurador (atrapa 65% metales)</span>
+              {/* Monitoreo */}
+              <label className="flex items-center justify-between p-3 rounded-2xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs">
+                    🔬
+                  </div>
+                  <div>
+                    <strong className="text-sm text-slate-900 block">Puntos de Monitoreo</strong>
+                    <span className="text-xs text-slate-500">Mediciones INAIGEM y UPCH</span>
+                  </div>
                 </div>
-              </div>
+                <input
+                  type="checkbox"
+                  checked={layersState.monitoreo}
+                  onChange={() => toggleLayer('monitoreo')}
+                  className="w-6 h-6 text-blue-600 rounded-lg cursor-pointer"
+                />
+              </label>
 
-              <div className="flex items-center gap-2">
-                <span className="w-5 h-1 bg-[#0284c7] rounded-full shrink-0" />
-                <span className="text-[#172726] font-bold">Río Santa (Colector Central)</span>
-              </div>
+              {/* Tambos / Conectividad */}
+              <label className="flex items-center justify-between p-3 rounded-2xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center font-bold text-xs">
+                    📶
+                  </div>
+                  <div>
+                    <strong className="text-sm text-slate-900 block">Tambos e Internet Rural</strong>
+                    <span className="text-xs text-slate-500">Puntos con señal para sincronizar</span>
+                  </div>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={layersState.conectividad}
+                  onChange={() => toggleLayer('conectividad')}
+                  className="w-6 h-6 text-blue-600 rounded-lg cursor-pointer"
+                />
+              </label>
+            </div>
 
-              <div className="flex items-center gap-2">
-                <span className="w-5 h-0.5 border-t-2 border-dashed border-[#475569] shrink-0" />
-                <span className="text-[#667573] text-[10px]">Líneas de cresta / Divisoria de aguas</span>
-              </div>
+            <div className="mt-5 pt-3 border-t border-slate-200">
+              <button
+                onClick={() => setLayersModalOpen(false)}
+                className="touch-target w-full py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-2xl text-center shadow-md active:scale-98 transition-transform"
+              >
+                Listo / Ver mapa
+              </button>
             </div>
           </div>
-        )}
-
-        <button
-          onClick={() => setLegendOpen(!legendOpen)}
-          className="bg-white/95 backdrop-blur-md hover:bg-white px-3 py-2 rounded-2xl shadow-lg border border-[#dfe7e5] text-xs font-black text-[#3346a8] flex items-center gap-1.5 transition-all"
-        >
-          <Layers size={14} />
-          <span>Leyenda</span>
-          <span className="text-[10px] text-gray-400">{legendOpen ? '▲' : '▼'}</span>
-        </button>
-      </div>
+        </div>
+      )}
     </div>
   )
 }
