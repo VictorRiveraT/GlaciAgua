@@ -61,12 +61,12 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
           </button>
         </div>
 
-        {/* Ilustración amigable */}
+        {/* Ilustración amigable de bienvenida */}
         <div className="flex justify-center my-2">
           <div className="w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center">
             <AccessibleIllustration
-              name="gota_tranquila"
-              alt="Gota de agua sonriente y amigable"
+              name="guia_ayuda"
+              alt="Comunero andino saludando y ofreciendo ayuda"
               className="w-full h-full filter drop-shadow-md"
             />
           </div>

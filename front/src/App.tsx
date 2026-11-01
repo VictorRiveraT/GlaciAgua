@@ -458,7 +458,11 @@ export default function App() {
       <button
         type="button"
         onClick={() => setIsReportModalOpen(true)}
-        className="lg:hidden fixed bottom-20 right-4 z-40 touch-target px-4 py-3 bg-amber-400 hover:bg-amber-500 text-slate-950 rounded-full font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-2xl border-2 border-amber-500 transition-transform active:scale-95"
+        style={{
+          bottom: 'calc(8.25rem + env(safe-area-inset-bottom, 0px))',
+          right: 'calc(1rem + env(safe-area-inset-right, 0px))',
+        }}
+        className="lg:hidden fixed z-40 touch-target px-4 py-3 bg-amber-400 hover:bg-amber-500 text-slate-950 rounded-full font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-2xl border-2 border-amber-500 transition-transform active:scale-95"
         aria-label="Avisar agua sucia"
       >
         <div className="flex items-center -mr-0.5">
@@ -519,11 +523,15 @@ export default function App() {
         </button>
       </nav>
 
-      {/* Botón flotante permanente de Ayuda Comunitaria (?) */}
+      {/* Botón flotante permanente de Ayuda Comunitaria (?) en esquina inferior DERECHA con margen seguro */}
       <button
         type="button"
         onClick={() => setIsHelpModalOpen(true)}
-        className="fixed bottom-20 left-4 z-40 w-12 h-12 rounded-full bg-[#1e3a8a] hover:bg-[#172554] text-white shadow-xl flex items-center justify-center font-black text-2xl border-2 border-white ring-2 ring-[#1e3a8a]/20 transition-transform active:scale-95 focus:outline-hidden focus:ring-4 focus:ring-blue-400 select-none"
+        style={{
+          bottom: 'calc(4.75rem + env(safe-area-inset-bottom, 0px))',
+          right: 'calc(1rem + env(safe-area-inset-right, 0px))',
+        }}
+        className="fixed z-40 w-12 h-12 rounded-full bg-[#1e3a8a] hover:bg-[#172554] text-white shadow-xl flex items-center justify-center font-black text-2xl border-2 border-white ring-2 ring-[#1e3a8a]/20 transition-transform active:scale-95 focus:outline-hidden focus:ring-4 focus:ring-blue-400 select-none lg:bottom-6 lg:right-6"
         aria-label={t('help_floating_aria')}
         title={t('help_floating_aria')}
       >

@@ -75,6 +75,25 @@ body {
   }
 }
 
+/* Animaciones suaves para ilustraciones accesibles */
+@keyframes gentleFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes gentlePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.animate-float {
+  animation: gentleFloat 4s ease-in-out infinite;
+}
+
+.animate-gentle-pulse {
+  animation: gentlePulse 3.5s ease-in-out infinite;
+}
+
 /* Accessible touch targets & keyboard focus */
 button,
 a,
