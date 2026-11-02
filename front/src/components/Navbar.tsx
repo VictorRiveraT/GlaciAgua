@@ -19,6 +19,7 @@ import {
 interface NavbarProps {
   currentView: 'agua' | 'mapa' | 'guia' | 'mas' | 'simulador' | 'cientifico' | 'conectividad'
   onSelectView: (view: 'agua' | 'mapa' | 'guia' | 'mas' | 'simulador' | 'cientifico' | 'conectividad') => void
+  onGoHome: () => void
   season: Season
   onSetSeason: (s: Season) => void
   isOnline: boolean
@@ -31,6 +32,7 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   currentView,
   onSelectView,
+  onGoHome,
   season,
   onSetSeason,
   isOnline,
@@ -47,7 +49,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="flex items-center gap-2 sm:gap-3">
         <button
           type="button"
-          onClick={() => onSelectView('agua')}
+          onClick={onGoHome}
           className="touch-target flex items-center gap-2 text-left group"
           aria-label="GlaciAgua inicio"
         >
