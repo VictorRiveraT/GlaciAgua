@@ -278,7 +278,9 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
       polygon.on('click', () => {
         onSelectBasin(basin)
-        setSheetBasin(basin)
+        if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+          setSheetBasin(basin)
+        }
       })
 
       polygon.on('mouseover', () => {
@@ -329,7 +331,9 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
       centerMarker.on('click', () => {
         onSelectBasin(basin)
-        setSheetBasin(basin)
+        if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+          setSheetBasin(basin)
+        }
       })
       cuencasGroup.addLayer(centerMarker)
     })
@@ -1047,10 +1051,10 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       )}
       {/* Tap/Click Bottom Sheet para Cuenca: panel inferior con nombre, icono-estado, 1 frase y botón "Ver más" */}
       {sheetBasin && (
-        <>
+        <div className="lg:hidden">
           <div
             onClick={() => setSheetBasin(null)}
-            className="absolute inset-0 z-20 bg-black/25 backdrop-blur-2xs transition-opacity"
+            className="absolute inset-0 z-20 transition-opacity"
             aria-hidden="true"
           />
 
@@ -1137,7 +1141,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
               <ChevronRight size={18} />
             </button>
           </div>
-        </>
+        </div>
       )}
     </div>
   )
