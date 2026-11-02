@@ -19,15 +19,18 @@ from services.data_service import DataService
 from services.db import init_db, insertar_reporte, obtener_reportes
 from services.ml_client import MLClient
 from services.email_service import EmailService
+from auth import router as auth_router, init_auth_db as iniciar_autenticacion
 
 # Inicializar base de datos SQLite
 init_db()
+iniciar_autenticacion()
 
 app = FastAPI(
     title="GlaciAgua API",
     description="API REST de Alerta Temprana de Drenaje Ácido de Roca (DAR) en la Cordillera Blanca (Huaraz, Áncash)",
     version="1.2.0",
 )
+app.include_router(auth_router)
 
 # Configuración de CORS para permitir peticiones desde el frontend de Vite y dominios personalizados
 app.add_middleware(
