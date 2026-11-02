@@ -1,11 +1,13 @@
+import os
 import sqlite3
 import json
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 
-DB_PATH = "glaciagua.db"
+DB_PATH = os.getenv("GLACIAGUA_DB_PATH", "glaciagua.db")
 
 def get_connection():
+    os.makedirs(os.path.dirname(os.path.abspath(DB_PATH)), exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
@@ -53,42 +55,55 @@ def insertar_reporte(reporte_data: Dict[str, Any]) -> bool:
             tiene_foto, foto_base64, comentarios, simulado
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
-        reporte_data["id"],
-        reporte_data["cuenca_id"],
-        reporte_data["quebrada"],
-        reporte_data["lat"],
-        reporte_data["lng"],
+        reporte_data.get("id"),
+        reporte_data.get("cuenca_id"),
+        reporte_data.get("quebrada"),
+        reporte_data.get("lat"),
+        reporte_data.get("lng"),
         reporte_data.get("precision_m", 10.0),
-        reporte_data["color_agua"],
-        reporte_data.get("olor_sabor", ""),
+        reporte_data.get("color_agua"),
+        reporte_data.get("olor_sabor"),
         usos_json,
         reporte_data.get("ph_medido"),
         1 if reporte_data.get("tiene_foto") else 0,
-        reporte_data.get("foto_base64", ""),
-        reporte_data.get("comentarios", ""),
+        reporte_data.get("foto_base64"),
+        reporte_data.get("comentarios"),
         1 if reporte_data.get("simulado", True) else 0
     ))
 
-    rows_affected = cursor.rowcount
+    nuevo = cursor.rowcount > 0
     conn.commit()
     conn.close()
-
-    return rows_affected > 0
+    return nuevo
 
 def obtener_reportes() -> List[Dict[str, Any]]:
+    """
+    Retorna la lista histórica de reportes ciudadanos ordenados por fecha descendente.
+    """
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM reportes ORDER BY fecha_registro DESC")
     rows = cursor.fetchall()
+
+    reportes = []
+    for r in rows:
+        reportes.append({
+            "id": r["id"],
+            "cuenca_id": r["cuenca_id"],
+            "quebrada": r["quebrada"],
+            "lat": r["lat"],
+            "lng": r["lng"],
+            "precision_m": r["precision_m"],
+            "color_agua": r["color_agua"],
+            "olor_sabor": r["olor_sabor"],
+            "usos_afectados": json.loads(r["usos_afectados"]) if r["usos_afectados"] else [],
+            "ph_medido": r["ph_medido"],
+            "tiene_foto": bool(r["tiene_foto"]),
+            "foto_base64": r["foto_base64"],
+            "comentarios": r["comentarios"],
+            "simulado": bool(r["simulado"]),
+            "fecha": r["fecha_registro"]
+        })
+
     conn.close()
-
-    result = []
-    for row in rows:
-        r = dict(row)
-        try:
-            r["usos_afectados"] = json.loads(r["usos_afectados"])
-        except:
-            r["usos_afectados"] = []
-        result.append(r)
-
-    return result
+    return reportes

@@ -34,6 +34,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - ML_API_URL=http://api:8001
+      - GLACIAGUA_DB_PATH=/app/data/glaciagua.db
       - SMTP_HOST=${SMTP_HOST:-}
       - SMTP_PORT=${SMTP_PORT:-587}
       - SMTP_USER=${SMTP_USER:-}
@@ -41,7 +42,7 @@ services:
       - EMAIL_FROM=${EMAIL_FROM:-alertas@glaciagua.pe}
       - SMTP_USE_TLS=${SMTP_USE_TLS:-true}
     volumes:
-      - ./backend/glaciagua.db:/app/glaciagua.db
+      - ./backend/data:/app/data
     depends_on:
       api:
         condition: service_healthy
