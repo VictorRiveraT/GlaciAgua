@@ -1,5 +1,6 @@
 """Servicio de envío de correos electrónicos para GlaciAgua (alertas, oficios y notificaciones).
-Soporta proveedores SMTP estándar (Resend, Brevo, Google Workspace, Zoho)
+Soporta proveedores SMTP estándar (Resend, Brevo, Google Workspace, Zoho),
+envío directo vía Resend REST API (HTTPS puerto 443)
 y modo simulado/local para desarrollo sin credenciales configuradas.
 """
 import os
@@ -10,6 +11,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from datetime import datetime
 from typing import Dict, Any
+import httpx
 
 from models.schemas import EmailAlertaRequest, EmailAlertaResponse
 
@@ -20,9 +22,14 @@ SMTP_HOST = os.getenv("SMTP_HOST", "").strip()
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
 SMTP_USER = os.getenv("SMTP_USER", "").strip()
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "").strip()
-EMAIL_FROM = os.getenv("EMAIL_FROM", "alertas@glaciagua.pe").strip()
+RESEND_API_KEY = os.getenv("RESEND_API_KEY", "").strip()
+EMAIL_FROM = os.getenv("EMAIL_FROM", "alertas@glaciagua.lat").strip()
 SMTP_USE_TLS = os.getenv("SMTP_USE_TLS", "true").lower() in ("true", "1", "yes")
 SMTP_USE_SSL = os.getenv("SMTP_USE_SSL", "false").lower() in ("true", "1", "yes") or SMTP_PORT == 465
+
+# Si SMTP_PASSWORD comienza con re_, también sirve como RESEND_API_KEY
+if not RESEND_API_KEY and SMTP_PASSWORD.startswith("re_"):
+    RESEND_API_KEY = SMTP_PASSWORD
 
 
 class EmailService:
@@ -149,7 +156,7 @@ class EmailService:
     </div>
 
     <div class="footer">
-      <p>Este oficio fue generado y tramitado formalmente a través de la plataforma <strong>GlaciAgua</strong>.</p>
+      <p>Este oficio fue generado y tramitado formalmente a través de la plataforma <strong>GlaciAgua</strong> ({EMAIL_FROM}).</p>
       <p class="disclaimer">
         Aviso importante: Los datos e índices generados por la plataforma comunitaria GlaciAgua tienen carácter preventivo y referencial para alertar a las JASS, regantes y autoridades de salud. No reemplazan análisis oficiales de laboratorio acreditado por INACAL.
       </p>
@@ -163,13 +170,50 @@ class EmailService:
     def enviar_oficio_alerta(cls, req: EmailAlertaRequest) -> EmailAlertaResponse:
         """
         Envía el oficio de alerta por correo electrónico.
-        Si las credenciales SMTP no están configuradas en el entorno, opera de manera transparente
-        en modo 'simulado' para permitir pruebas locales y desarrollo offline sin arrojar error.
+        Prioriza la API REST de Resend si RESEND_API_KEY está configurada (más rápida y sin bloqueos de puerto).
+        Si no, utiliza el servidor SMTP configurado (Resend, Brevo, Gmail, etc.).
+        Si no hay credenciales, opera de forma simulada para desarrollo local.
         """
         asunto = req.asunto or f"[GlaciAgua] Solicitud Comunitaria de Inspección de Calidad de Agua - Microcuenca {req.cuenca_nombre}"
         fecha_actual = datetime.now().isoformat()
+        remitente_display = f"GlaciAgua Alertas <{EMAIL_FROM}>"
 
-        # Si no hay SMTP_HOST configurado, operamos en modo simulado
+        # 1. Enviar vía Resend REST API (HTTPS puerto 443)
+        if RESEND_API_KEY:
+            try:
+                html_contenido = cls._construir_html_oficio(req)
+                with httpx.Client(timeout=10.0) as client:
+                    resp = client.post(
+                        "https://api.resend.com/emails",
+                        headers={
+                            "Authorization": f"Bearer {RESEND_API_KEY}",
+                            "Content-Type": "application/json"
+                        },
+                        json={
+                            "from": remitente_display,
+                            "to": [req.destinatario],
+                            "subject": asunto,
+                            "html": html_contenido,
+                        }
+                    )
+                    if resp.status_code in (200, 201):
+                        data = resp.json()
+                        envio_id = data.get("id", f"resend-{uuid.uuid4().hex[:10]}")
+                        logger.info(f"[RESEND API EXITO] Enviado a {req.destinatario} ID {envio_id}")
+                        return EmailAlertaResponse(
+                            enviado=True,
+                            modo="resend",
+                            mensaje=f"Oficio formal enviado exitosamente a {req.destinatario} desde {EMAIL_FROM}.",
+                            destinatario=req.destinatario,
+                            id_envio=envio_id,
+                            fecha_envio=fecha_actual
+                        )
+                    else:
+                        logger.warning(f"[RESEND API FALLO {resp.status_code}] {resp.text}. Intentando fallback SMTP...")
+            except Exception as e:
+                logger.warning(f"[RESEND API EXCEPCION] {str(e)}. Intentando fallback SMTP...")
+
+        # 2. Si no hay SMTP_HOST configurado, operamos en modo simulado
         if not SMTP_HOST:
             simulated_id = f"sim-{uuid.uuid4().hex[:10]}"
             logger.info(
@@ -179,21 +223,20 @@ class EmailService:
             return EmailAlertaResponse(
                 enviado=True,
                 modo="simulado",
-                mensaje="Oficio registrado exitosamente en modo simulado. Para envíos reales hacia buzones, configure SMTP_HOST, SMTP_USER y SMTP_PASSWORD en el servidor.",
+                mensaje="Oficio registrado exitosamente en modo simulado. Para envíos reales hacia buzones, configure RESEND_API_KEY o SMTP_HOST en el servidor.",
                 destinatario=req.destinatario,
                 id_envio=simulated_id,
                 fecha_envio=fecha_actual
             )
 
-        # Enviar vía servidor SMTP real
+        # 3. Enviar vía servidor SMTP estándar
         try:
             msg = MIMEMultipart("alternative")
             msg["Subject"] = asunto
-            msg["From"] = f"GlaciAgua Alertas <{EMAIL_FROM}>"
+            msg["From"] = remitente_display
             msg["To"] = req.destinatario
             msg["Reply-To"] = EMAIL_FROM
 
-            # Versión texto plano
             texto_plano = (
                 f"GLACIAGUA - ALERTA Y SOLICITUD COMUNITARIA DE AGUA\n\n"
                 f"Destinatario: {req.destinatario_nombre or req.destinatario}\n"
@@ -203,7 +246,7 @@ class EmailService:
                 f"--------------------------------------------------\n"
                 f"{req.cuerpo_texto}\n"
                 f"--------------------------------------------------\n"
-                f"Mensaje preventivo generado por la plataforma GlaciAgua."
+                f"Mensaje preventivo generado por la plataforma GlaciAgua ({EMAIL_FROM})."
             )
             html_contenido = cls._construir_html_oficio(req)
 
@@ -224,7 +267,7 @@ class EmailService:
                     server.send_message(msg)
 
             envio_id = f"smtp-{uuid.uuid4().hex[:12]}"
-            logger.info(f"[EMAIL ENVIADO] Exitoso a {req.destinatario} con ID {envio_id}")
+            logger.info(f"[EMAIL ENVIADO SMTP] Exitoso a {req.destinatario} con ID {envio_id}")
 
             return EmailAlertaResponse(
                 enviado=True,
@@ -237,4 +280,4 @@ class EmailService:
 
         except Exception as e:
             logger.error(f"[ERROR ENVIO EMAIL] Falló envío a {req.destinatario}: {str(e)}")
-            raise RuntimeError(f"Error al enviar correo electrónico vía SMTP ({SMTP_HOST}:{SMTP_PORT}): {str(e)}")
+            raise RuntimeError(f"Error al enviar correo electrónico: {str(e)}")
