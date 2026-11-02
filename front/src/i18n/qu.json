@@ -851,5 +851,21 @@
   "oficio_disclaimer": {
     "text": "Comunidadpa willakuynin. Manam certificado potabilidadchu.",
     "_revisar": true
+  },
+  "oficio_btn_email": {
+    "text": "Correo chaskiman apachiy",
+    "_revisar": true
+  },
+  "oficio_email_placeholder": {
+    "text": "Autoridadpa chaski correon (ej: jass@gmail.com)",
+    "_revisar": true
+  },
+  "oficio_email_sent": {
+    "text": "Oficio chaskiman allin apachisqa",
+    "_revisar": true
+  },
+  "oficio_email_sending": {
+    "text": "Oficiota chaskiman apachichkan...",
+    "_revisar": true
   }
 }
