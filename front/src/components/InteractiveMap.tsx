@@ -64,11 +64,11 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   const [geoJsonPolygons, setGeoJsonPolygons] = useState<Record<string, LatLngCoord[]> | null>(null)
   const [sheetBasin, setSheetBasin] = useState<BasinData | null>(null)
 
-  // Default layers: cuencas and rios only. Others are hidden by default to prevent visual clutter
+  // Capas por defecto: cuencas, rios y lineas de subcuencas/quebradas activas
   const [layersState, setLayersState] = useState({
     cuencas: true,
     rios: true,
-    corredores: false,
+    corredores: true,
     hotspotsDAR: false,
     bofedales: false,
     glaciares: false,
@@ -172,10 +172,10 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     )
     satLayer.addTo(map)
 
-    // Layer Groups: only cuencas and rios added initially to prevent overload
+    // Grupos de capas: cuencas, rios y lineas de subcuencas activas al cargar
     const cuencasGroup = L.layerGroup().addTo(map)
     const riosGroup = L.layerGroup().addTo(map)
-    const corredoresGroup = L.layerGroup()
+    const corredoresGroup = L.layerGroup().addTo(map)
     const hotspotsGroup = L.layerGroup()
     const bofedalesGroup = L.layerGroup()
     const glaciaresGroup = L.layerGroup()
@@ -422,6 +422,36 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
       corredoresGroup.addLayer(riverCasing)
       corredoresGroup.addLayer(thalwegLine)
+
+      // Distintivo flotante con el nombre de la subcuenca / quebrada
+      const midPoint = corridor.thalweg[Math.floor(corridor.thalweg.length / 2)]
+      const subbasinBadge = L.marker(midPoint, {
+        icon: L.divIcon({
+          className: 'custom-subbasin-badge',
+          html: `<div style="
+            background: rgba(15, 23, 42, 0.90);
+            color: white;
+            border: 1.5px solid ${corridor.color};
+            border-radius: 999px;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: 800;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+            transform: translate(-50%, -100%);
+            cursor: pointer;
+          ">
+            <span style="font-size: 9px; opacity: 0.85;">Subcuenca:</span>
+            <strong style="color: #f8fafc;">${corridor.quebrada}</strong>
+          </div>`,
+          iconSize: [0, 0],
+        }),
+      })
+      subbasinBadge.on('click', handleSelect)
+      corredoresGroup.addLayer(subbasinBadge)
     })
 
     // 4. Focos DAR (capa opcional avanzada)
@@ -829,6 +859,11 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
               <span className="w-5 h-1.5 bg-blue-600 rounded-full shrink-0" />
               <span className="text-slate-700 text-xs font-semibold">Río Santa (Colector Central)</span>
             </div>
+
+            <div className="flex items-center gap-2.5">
+              <span className="w-5 h-1 bg-gradient-to-r from-red-600 via-amber-500 to-emerald-600 rounded-full shrink-0" />
+              <span className="text-slate-700 text-xs font-semibold">Líneas de Subcuencas / Quebradas</span>
+            </div>
           </div>
         </div>
       )}
@@ -897,21 +932,15 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 />
               </label>
 
-              <div className="pt-2">
-                <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider mb-2">
-                  Capas Científicas Opcionales
-                </h4>
-              </div>
-
-              {/* Corredores */}
-              <label className="flex items-center justify-between p-3 rounded-2xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+              {/* Líneas de Subcuencas / Quebradas */}
+              <label className="flex items-center justify-between p-3 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-slate-100 cursor-pointer">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center font-bold text-xs">
-                    ⚠️
+                    ⚡
                   </div>
                   <div>
-                    <strong className="text-sm text-slate-900 block">Ríos y Quebradas Internas</strong>
-                    <span className="text-xs text-slate-500">Cauces con nivel de acidez y pH</span>
+                    <strong className="text-sm text-slate-900 block">Líneas de Subcuencas (Quebradas)</strong>
+                    <span className="text-xs text-slate-500">Cauces interiores con nivel de acidez y pH</span>
                   </div>
                 </div>
                 <input
@@ -921,6 +950,12 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                   className="w-6 h-6 text-blue-600 rounded-lg cursor-pointer"
                 />
               </label>
+
+              <div className="pt-2">
+                <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider mb-2">
+                  Capas Científicas Opcionales
+                </h4>
+              </div>
 
               {/* Focos DAR */}
               <label className="flex items-center justify-between p-3 rounded-2xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
