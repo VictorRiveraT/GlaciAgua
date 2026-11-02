@@ -214,5 +214,9 @@
   "oficio_label_name": "Tu nombre o directivo comunal:",
   "oficio_label_to": "¿A quién va dirigida la carta?",
   "oficio_label_date": "Fecha:",
-  "oficio_disclaimer": "Dato referencial comunitario. No certifica potabilidad."
+  "oficio_disclaimer": "Dato referencial comunitario. No certifica potabilidad.",
+  "oficio_btn_email": "Enviar por Correo",
+  "oficio_email_placeholder": "Correo de autoridad o tu correo (ej: jass@gmail.com)",
+  "oficio_email_sent": "Oficio enviado por correo con éxito",
+  "oficio_email_sending": "Enviando oficio..."
 }

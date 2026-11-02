@@ -161,4 +161,52 @@ export class GlaciAguaApi {
       return { success: false, mensaje: 'Sin conexión con el servidor. Guardado en cola local.' }
     }
   }
+
+  /**
+   * Envía un oficio formal o alerta por correo a la JASS, ALA o autoridad
+   */
+  static async enviarEmailAlerta(payload: {
+    destinatario: string
+    destinatarioNombre?: string
+    remitenteNombre: string
+    remitenteRol?: string
+    cuencaNombre: string
+    motivo: string
+    cuerpoTexto: string
+    asunto?: string
+    nivelRiesgo?: string
+  }): Promise<{ success: boolean; mensaje: string; modo?: string; idEnvio?: string }> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/alertas/enviar-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          destinatario: payload.destinatario,
+          destinatario_nombre: payload.destinatarioNombre,
+          remitente_nombre: payload.remitenteNombre,
+          remitente_rol: payload.remitenteRol,
+          cuenca_nombre: payload.cuencaNombre,
+          motivo: payload.motivo,
+          cuerpo_texto: payload.cuerpoTexto,
+          asunto: payload.asunto,
+          nivel_riesgo: payload.nivelRiesgo,
+        }),
+        signal: AbortSignal.timeout(6000),
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        return {
+          success: true,
+          mensaje: data.mensaje || 'Oficio enviado exitosamente por correo.',
+          modo: data.modo,
+          idEnvio: data.id_envio,
+        }
+      }
+      const err = await res.json().catch(() => ({}))
+      return { success: false, mensaje: err.detail || 'Error al procesar el envío de correo.' }
+    } catch {
+      return { success: false, mensaje: 'No se pudo conectar con el servidor de correo. Verifique su conexión.' }
+    }
+  }
 }

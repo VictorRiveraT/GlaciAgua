@@ -23,7 +23,7 @@ services:
     networks:
       - glaciagua-net
 
-  # 2. Backend Orquestador FastAPI (Cuencas, Reportes, SQLite, Proxy ML)
+  # 2. Backend Orquestador FastAPI (Cuencas, Reportes, SQLite, Proxy ML, Email)
   backend:
     container_name: glaciagua-backend
     build:
@@ -34,6 +34,12 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - ML_API_URL=http://api:8001
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
+      - EMAIL_FROM=${EMAIL_FROM:-alertas@glaciagua.pe}
+      - SMTP_USE_TLS=${SMTP_USE_TLS:-true}
     volumes:
       - ./backend/glaciagua.db:/app/glaciagua.db
     depends_on:
@@ -50,6 +56,7 @@ services:
       context: ./front
       dockerfile: Dockerfile
     ports:
+      - "80:80"
       - "5173:80"
     depends_on:
       - backend

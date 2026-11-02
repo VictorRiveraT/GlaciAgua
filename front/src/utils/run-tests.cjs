@@ -138,6 +138,7 @@ runTest('Contrato API: Preservación de endpoints y métodos de GlaciAguaApi', (
     'getMediciones',
     'simularRiesgo',
     'enviarReporte',
+    'enviarEmailAlerta',
   ]
 
   for (const method of requiredMethods) {
@@ -146,7 +147,7 @@ runTest('Contrato API: Preservación de endpoints y métodos de GlaciAguaApi', (
     }
   }
 
-  const requiredRoutes = ['/cuencas', '/mediciones', '/simular', '/reportes', '/ml/salud', '/ml/modelo']
+  const requiredRoutes = ['/cuencas', '/mediciones', '/simular', '/reportes', '/ml/salud', '/ml/modelo', '/alertas/enviar-email']
   for (const route of requiredRoutes) {
     if (!apiCode.includes(route)) {
       throw new Error(`La ruta contractual "${route}" no está presente en api.ts`)

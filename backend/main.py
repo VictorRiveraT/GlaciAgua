@@ -11,11 +11,14 @@ from models.schemas import (
     MedicionResponse,
     CuencaResumen,
     GeoJSONFeatureCollection,
+    EmailAlertaRequest,
+    EmailAlertaResponse,
 )
 from services.risk_engine import RiskEngine
 from services.data_service import DataService
 from services.db import init_db, insertar_reporte, obtener_reportes
 from services.ml_client import MLClient
+from services.email_service import EmailService
 
 # Inicializar base de datos SQLite
 init_db()
@@ -23,15 +26,16 @@ init_db()
 app = FastAPI(
     title="GlaciAgua API",
     description="API REST de Alerta Temprana de Drenaje Ácido de Roca (DAR) en la Cordillera Blanca (Huaraz, Áncash)",
-    version="1.1.0",
+    version="1.2.0",
 )
 
-# Configuración de CORS para permitir peticiones desde el frontend de Vite
+# Configuración de CORS para permitir peticiones desde el frontend de Vite y dominios personalizados
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
         "http://localhost:3000",
+        "http://localhost:80",
         "http://127.0.0.1:5173",
         "http://127.0.0.1:3000",
         "*",
@@ -47,7 +51,7 @@ def root():
         "proyecto": "GlaciAgua",
         "descripcion": "Sistema de alerta temprana comunitaria para agua de deshielo y drenaje acido",
         "cuencas_piloto": ["Quillcay (Huaraz)", "Pachacoto (Pastoruri)", "Canray Chico", "Río Blanco"],
-        "version": "1.1.0",
+        "version": "1.2.0",
         "docs": "/docs",
         "endpoints": {
             "cuencas": "/cuencas",
@@ -55,6 +59,7 @@ def root():
             "mediciones": "/mediciones",
             "simular": "/simular",
             "reportes": "/reportes",
+            "alertas_email": "/alertas/enviar-email",
             "ml_salud": "/ml/salud",
             "ml_modelo": "/ml/modelo",
             "ml_predecir": "/ml/predecir",
@@ -183,6 +188,22 @@ def registrar_reporte(reporte: ReporteCreate):
 def listar_reportes_ciudadanos():
     """Retorna todos los reportes comunitarios almacenados en la base de datos."""
     return obtener_reportes()
+
+# 6. Alertas y Oficios Formales por Correo Electrónico
+@app.post("/alertas/enviar-email", response_model=EmailAlertaResponse, tags=["Alertas y Notificaciones"])
+def enviar_oficio_email(solicitud: EmailAlertaRequest):
+    """
+    Envía una notificación u oficio formal por correo a la JASS, Junta de Regantes, Autoridad Local o ciudadano.
+    Si el entorno no tiene credenciales SMTP configuradas, el servicio opera de manera transparente
+    en modo simulado para desarrollo local y pruebas sin error.
+    """
+    try:
+        return EmailService.enviar_oficio_alerta(solicitud)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error en el servicio de correo electrónico: {str(e)}"
+        )
 
 if __name__ == "__main__":
     import uvicorn

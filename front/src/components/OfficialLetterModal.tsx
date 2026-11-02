@@ -12,10 +12,14 @@ import {
   User,
   AlertCircle,
   FileCheck,
+  Mail,
+  Send,
+  Loader2,
 } from 'lucide-react'
 import { Illustration } from './Illustration'
 import { useI18n } from '../i18n/I18nContext'
 import { PILOT_BASINS } from '../data/basinsData'
+import { GlaciAguaApi } from '../services/api'
 
 interface OfficialLetterModalProps {
   isOpen: boolean
@@ -55,6 +59,11 @@ export const OfficialLetterModal: React.FC<OfficialLetterModalProps> = ({
     return new Date().toISOString().split('T')[0]
   })
   const [copied, setCopied] = useState(false)
+
+  // Estado para envío por correo
+  const [recipientEmail, setRecipientEmail] = useState('')
+  const [isSendingEmail, setIsSendingEmail] = useState(false)
+  const [emailResult, setEmailResult] = useState<{ success: boolean; mensaje: string } | null>(null)
 
   if (!isOpen) return null
 
@@ -108,9 +117,47 @@ DNI / Teléfono:
     window.open(`https://wa.me/?text=${encoded}`, '_blank')
   }
 
+  const handleSendEmail = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!recipientEmail.trim() || !recipientEmail.includes('@')) {
+      setEmailResult({ success: false, mensaje: 'Por favor ingresa un correo electrónico válido.' })
+      return
+    }
+
+    setIsSendingEmail(true)
+    setEmailResult(null)
+
+    try {
+      const resp = await GlaciAguaApi.enviarEmailAlerta({
+        destinatario: recipientEmail.trim(),
+        destinatarioNombre: recipient,
+        remitenteNombre: applicantName.trim() || 'Comuneros y Usuarios del Agua',
+        remitenteRol: applicantRole,
+        cuencaNombre: basinName,
+        motivo: reason,
+        cuerpoTexto: letterText,
+        asunto: `[GlaciAgua] Solicitud Comunitaria de Inspección - ${basinName}`,
+        nivelRiesgo: 'Atención Preventiva',
+      })
+
+      setEmailResult({
+        success: resp.success,
+        mensaje: resp.mensaje,
+      })
+    } catch {
+      setEmailResult({
+        success: false,
+        mensaje: 'Error al conectar con el servidor de correo.',
+      })
+    } finally {
+      setIsSendingEmail(false)
+    }
+  }
+
   const handleClose = () => {
     onClose()
     setStep(1)
+    setEmailResult(null)
   }
 
   return (
@@ -199,50 +246,46 @@ DNI / Teléfono:
             </div>
           )}
 
-          {/* PASO 2: DATOS DEL SOLICITANTE Y DESTINATARIO */}
+          {/* PASO 2: DESTINATARIO Y FIRMA */}
           {step === 2 && (
             <div className="space-y-4 animate-in fade-in">
               <div>
-                <label className="text-xs sm:text-sm font-black text-[#0f172a] flex items-center gap-1.5 mb-1.5">
+                <label className="text-xs sm:text-sm font-black text-[#0f172a] block mb-1.5 flex items-center gap-1">
                   <Building2 size={16} className="text-[#1e3a8a]" />
                   {t('oficio_label_to')}
                 </label>
-                <select
-                  value={recipient}
-                  onChange={(e) => setRecipient(e.target.value)}
-                  className="touch-target w-full p-3 rounded-2xl border-2 border-slate-300 font-bold text-xs sm:text-sm text-[#0f172a] bg-white focus:outline-hidden focus:border-[#1e3a8a]"
-                >
-                  {AUTHORITIES.map((a) => (
-                    <option key={a} value={a}>
-                      {a}
-                    </option>
+                <div className="space-y-2">
+                  {AUTHORITIES.map((auth) => (
+                    <button
+                      key={auth}
+                      type="button"
+                      onClick={() => setRecipient(auth)}
+                      className={`touch-target w-full p-3 rounded-2xl text-xs sm:text-sm font-bold border-2 text-left flex items-center justify-between gap-2 transition-all ${
+                        recipient === auth
+                          ? 'border-[#1e3a8a] bg-[#eff6ff] text-[#1e3a8a] shadow-xs'
+                          : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
+                      }`}
+                    >
+                      <span>{auth}</span>
+                      {recipient === auth && (
+                        <Check size={18} className="text-[#1e3a8a] shrink-0" />
+                      )}
+                    </button>
                   ))}
-                </select>
+                </div>
               </div>
 
-              <div>
-                <label className="text-xs sm:text-sm font-black text-[#0f172a] flex items-center gap-1.5 mb-1.5">
-                  <User size={16} className="text-[#1e3a8a]" />
-                  {t('oficio_label_name')}
-                </label>
-                <input
-                  type="text"
-                  placeholder="Ej: Juan Mendoza Pantoja"
-                  value={applicantName}
-                  onChange={(e) => setApplicantName(e.target.value)}
-                  className="touch-target w-full p-3.5 rounded-2xl border-2 border-slate-300 font-bold text-base text-[#0f172a] bg-white focus:outline-hidden focus:border-[#1e3a8a]"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                 <div>
-                  <label className="text-xs font-black text-[#475569] block mb-1">
-                    Tu rol o cargo comunal:
+                  <label className="text-xs font-black text-[#475569] flex items-center gap-1 mb-1">
+                    <User size={14} />
+                    {t('oficio_label_name')}
                   </label>
                   <input
                     type="text"
-                    value={applicantRole}
-                    onChange={(e) => setApplicantRole(e.target.value)}
+                    value={applicantName}
+                    onChange={(e) => setApplicantName(e.target.value)}
+                    placeholder="Ej. Juan Pérez / Junta Directiva"
                     className="touch-target w-full p-3 rounded-2xl border-2 border-slate-300 font-bold text-xs sm:text-sm text-[#0f172a] bg-white focus:outline-hidden focus:border-[#1e3a8a]"
                   />
                 </div>
@@ -278,7 +321,7 @@ DNI / Teléfono:
                 </div>
               </div>
 
-              {/* 3 Grandes Acciones Táctiles */}
+              {/* 3 Grandes Acciones Táctiles Rápidas */}
               <div className="no-print grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <button
                   type="button"
@@ -306,6 +349,61 @@ DNI / Teléfono:
                   <Share2 size={18} />
                   <span>{t('oficio_btn_whatsapp')}</span>
                 </button>
+              </div>
+
+              {/* Acción de Envío por Correo Electrónico Formal */}
+              <div className="no-print bg-[#eff6ff] p-3.5 sm:p-4 rounded-2xl border border-blue-200 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Mail size={16} className="text-[#1e3a8a] shrink-0" />
+                  <h3 className="text-xs sm:text-sm font-black text-[#1e3a8a]">
+                    {t('oficio_btn_email')} a la Autoridad o a tu buzón
+                  </h3>
+                </div>
+                <form onSubmit={handleSendEmail} className="flex flex-col sm:flex-row gap-2">
+                  <input
+                    type="email"
+                    value={recipientEmail}
+                    onChange={(e) => {
+                      setRecipientEmail(e.target.value)
+                      if (emailResult) setEmailResult(null)
+                    }}
+                    placeholder={t('oficio_email_placeholder')}
+                    className="touch-target flex-1 p-2.5 sm:p-3 rounded-xl border border-blue-300 font-medium text-xs sm:text-sm text-[#0f172a] bg-white focus:outline-hidden focus:border-[#1e3a8a]"
+                  />
+                  <button
+                    type="submit"
+                    disabled={isSendingEmail || !recipientEmail.trim()}
+                    className="touch-target py-2.5 px-4 rounded-xl bg-[#0284c7] hover:bg-[#0369a1] disabled:opacity-50 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-transform active:scale-95 shrink-0"
+                  >
+                    {isSendingEmail ? (
+                      <>
+                        <Loader2 size={16} className="animate-spin" />
+                        <span>{t('oficio_email_sending')}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send size={16} />
+                        <span>Enviar</span>
+                      </>
+                    )}
+                  </button>
+                </form>
+                {emailResult && (
+                  <div
+                    className={`p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 ${
+                      emailResult.success
+                        ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                        : 'bg-red-50 text-red-800 border border-red-200'
+                    }`}
+                  >
+                    {emailResult.success ? (
+                      <Check size={16} className="shrink-0" />
+                    ) : (
+                      <AlertCircle size={16} className="shrink-0" />
+                    )}
+                    <span>{emailResult.mensaje}</span>
+                  </div>
+                )}
               </div>
 
               {/* Vista previa tipo carta con formato formal imprimible */}

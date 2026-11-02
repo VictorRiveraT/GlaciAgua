@@ -128,3 +128,23 @@ class GeoJSONFeature(BaseModel):
 class GeoJSONFeatureCollection(BaseModel):
     type: str = "FeatureCollection"
     features: List[GeoJSONFeature]
+
+
+class EmailAlertaRequest(BaseModel):
+    destinatario: str = Field(..., description="Correo electronico del destinatario (JASS, ALA, autoridad o usuario)")
+    destinatario_nombre: Optional[str] = Field(None, description="Nombre de la institucion o persona receptora")
+    remitente_nombre: str = Field(..., description="Nombre del solicitante o representante comunitario")
+    remitente_rol: Optional[str] = Field("Comunero / Usuario de agua", description="Rol del solicitante")
+    cuenca_nombre: str = Field(..., description="Nombre de la microcuenca o sector afectado")
+    motivo: str = Field(..., description="Motivo de la solicitud u observacion en campo")
+    cuerpo_texto: str = Field(..., description="Contenido completo del oficio formal")
+    asunto: Optional[str] = Field(None, description="Asunto personalizado del correo")
+    nivel_riesgo: Optional[str] = Field("Medio", description="Nivel de riesgo estimado (Bajo, Medio, Alto)")
+
+class EmailAlertaResponse(BaseModel):
+    enviado: bool
+    modo: str
+    mensaje: str
+    destinatario: str
+    id_envio: Optional[str] = None
+    fecha_envio: str
