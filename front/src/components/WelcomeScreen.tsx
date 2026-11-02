@@ -17,7 +17,7 @@ interface WelcomeScreenProps {
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   onExplore,
 }) => {
-  const { lang } = useI18n()
+  const { t, lang } = useI18n()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [showBackToTop, setShowBackToTop] = useState(false)
 
@@ -79,9 +79,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
               </h1>
 
               <p className="text-xs font-medium text-slate-500">
-                {isQuechua
-                  ? 'Mayupa yakun imano kaykashqanta musyanapaq'
-                  : 'Monitoreo ambiental'}
+                {t('welcome_monitoring')}
               </p>
             </div>
           </div>
@@ -108,7 +106,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
               <Waves size={15} className="text-[#277d6b]" />
 
               <span className="text-xs font-bold uppercase tracking-[0.12em] text-[#277d6b]">
-                Agua · Glaciares · Comunidades
+                {t('welcome_badge_theme')}
               </span>
             </div>
 
@@ -119,19 +117,25 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                   : 'text-4xl sm:text-5xl lg:text-6xl'
               }`}
             >
-              {isQuechua
-                ? '¡Allillanchu! GlaciAgua-man shamushqa kanki'
-                : 'El agua que nace del glaciar'}
-
-              <span className="mt-2 block text-[#3346a8]">
-                merece ser comprendida.
-              </span>
+              {isQuechua ? (
+                <>
+                  ¡Allillanchu! GlaciAgua-man shamushqa kanki
+                  <span className="mt-2 block text-[#3346a8]">
+                    rasu yakuta musyanapaq.
+                  </span>
+                </>
+              ) : (
+                <>
+                  El agua que nace del glaciar
+                  <span className="mt-2 block text-[#3346a8]">
+                    merece ser comprendida.
+                  </span>
+                </>
+              )}
             </h2>
 
             <p className="mt-6 max-w-xl text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
-              {isQuechua
-                ? 'Explora las microcuencas de los Andes peruanos y conoce dónde se estima un mayor riesgo de drenaje ácido, qué factores ambientales influyen y qué información respalda cada estimación.'
-                : 'Explora las microcuencas de los Andes peruanos y conoce dónde se estima un mayor riesgo de drenaje ácido, qué factores ambientales influyen y qué información respalda cada estimación.'}
+              {t('welcome_hero_desc')}
             </p>
 
             {/* Actions */}
@@ -141,7 +145,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                 onClick={onExplore}
                 className="group inline-flex items-center justify-center gap-3 rounded-2xl bg-[#3346a8] px-7 py-4 text-sm font-bold text-white shadow-lg shadow-[#3346a8]/20 transition-all hover:-translate-y-0.5 hover:bg-[#25368f]"
               >
-                Explorar mapa de riesgo
+                {t('welcome_btn_explore')}
 
                 <ArrowRight
                   size={18}
@@ -154,7 +158,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                 onClick={handleGoToProject}
                 className="inline-flex items-center justify-center rounded-2xl border border-[#dfe7e5] bg-white px-7 py-4 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
               >
-                Conoce el proyecto
+                {t('welcome_btn_about')}
               </button>
             </div>
 
@@ -162,7 +166,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
               <ShieldCheck size={18} className="shrink-0 text-[#277d6b]" />
 
               <span>
-                Información ambiental para una mejor toma de decisiones
+                {t('welcome_safety_badge')}
               </span>
             </div>
           </div>
@@ -214,16 +218,15 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           <div className="mx-auto max-w-[1200px]">
             <div className="max-w-2xl">
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#3346a8]">
-                ¿Cómo funciona?
+                {t('welcome_how_title')}
               </p>
 
               <h3 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
-                Del territorio a la información.
+                {t('welcome_how_subtitle')}
               </h3>
 
               <p className="mt-4 leading-7 text-slate-500">
-                GlaciAgua organiza información ambiental para facilitar
-                la exploración y comprensión del riesgo hídrico.
+                {t('welcome_how_desc')}
               </p>
             </div>
 
@@ -231,21 +234,18 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
               {[
                 {
                   number: '01',
-                  title: 'Explora',
-                  description:
-                    'Localiza microcuencas y conoce las zonas de monitoreo.',
+                  title: t('welcome_step1_title'),
+                  description: t('welcome_step1_desc'),
                 },
                 {
                   number: '02',
-                  title: 'Comprende',
-                  description:
-                    'Consulta los factores ambientales y las estimaciones de riesgo.',
+                  title: t('welcome_step2_title'),
+                  description: t('welcome_step2_desc'),
                 },
                 {
                   number: '03',
-                  title: 'Actúa',
-                  description:
-                    'Revisa recomendaciones y reporta posibles problemas con el agua.',
+                  title: t('welcome_step3_title'),
+                  description: t('welcome_step3_desc'),
                 },
               ].map((item) => (
                 <article
@@ -275,7 +275,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-[#3346a8] px-6 py-3 text-sm font-bold text-white shadow-lg shadow-[#3346a8]/20 transition-all hover:-translate-y-0.5 hover:bg-[#25368f] focus:outline-none focus:ring-4 focus:ring-[#3346a8]/30"
               >
                 <ArrowUp size={18} />
-                Volver al inicio
+                {t('welcome_btn_back_to_top')}
               </button>
             </div>
           </div>

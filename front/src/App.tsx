@@ -15,6 +15,7 @@ import { CommunityHelpModal } from './components/CommunityHelpModal'
 import { OfficialLetterModal } from './components/OfficialLetterModal'
 import { AdminPortalModal } from './components/AdminPortalModal'
 import { WelcomeScreen } from './components/WelcomeScreen'
+import { ExperienceSelection } from './components/ExperienceSelection'
 import { GlaciAguaApi } from './services/api'
 import { useI18n } from './i18n/I18nContext'
 import {
@@ -141,6 +142,7 @@ export default function App() {
   const [isOficioModalOpen, setIsOficioModalOpen] = useState(false)
   const [isMobileDrawerExpanded, setIsMobileDrawerExpanded] = useState(false)
   const [isDetailsExpanded, setIsDetailsExpanded] = useState(false)
+  const [welcomeStep, setWelcomeStep] = useState<'landing' | 'experience'>('landing')
 
   // Identifica si la guía se abrió desde el onboarding
   const [helpFromOnboarding, setHelpFromOnboarding] = useState(false)
@@ -354,7 +356,10 @@ export default function App() {
         <Navbar
           currentView={currentView}
           onSelectView={(v) => setCurrentView(v)}
-          onGoHome={() => setCurrentView('welcome')}
+          onGoHome={() => {
+            setCurrentView('welcome')
+            setWelcomeStep('landing')
+          }}
           season={season}
           onSetSeason={setSeason}
           isOnline={isOnline}
@@ -388,12 +393,27 @@ export default function App() {
             : 'flex-1 min-h-0 w-full flex overflow-hidden relative'
         }`}
       >
-        {/* Vista de bienvenida */}
+        {/* Vista de bienvenida & Selección de Perfil */}
         {currentView === 'welcome' && (
           <div className="w-full">
-            <WelcomeScreen
-              onExplore={() => setCurrentView('mapa')}
-            />
+            {welcomeStep === 'landing' ? (
+              <WelcomeScreen
+                onExplore={() => setWelcomeStep('experience')}
+              />
+            ) : (
+              <ExperienceSelection
+                onSelectCommunity={() => {
+                  setCurrentView('agua')
+                  setWelcomeStep('landing')
+                }}
+                onSelectTechnical={() => {
+                  setIsAdminPortalOpen(true)
+                  setCurrentView('mapa')
+                  setWelcomeStep('landing')
+                }}
+                onBack={() => setWelcomeStep('landing')}
+              />
+            )}
           </div>
         )}
 

@@ -6,6 +6,7 @@ import {
   Droplet,
   Waves,
 } from 'lucide-react'
+import { useI18n } from '../i18n/I18nContext'
 
 interface ExperienceSelectionProps {
   onSelectCommunity: () => void
@@ -18,6 +19,8 @@ export const ExperienceSelection: React.FC<ExperienceSelectionProps> = ({
   onSelectTechnical,
   onBack,
 }) => {
+  const { t } = useI18n()
+
   return (
     <main className="min-h-screen w-full bg-[#f5f8f7] text-[#172726]">
       <div className="mx-auto flex min-h-screen w-full max-w-[1600px] flex-col px-5 py-5 sm:px-8 sm:py-6 lg:px-12 lg:py-5">
@@ -33,7 +36,7 @@ export const ExperienceSelection: React.FC<ExperienceSelectionProps> = ({
             </h1>
 
             <p className="text-xs font-medium text-slate-500">
-              Monitoreo ambiental
+              {t('welcome_monitoring')}
             </p>
           </div>
         </header>
@@ -47,17 +50,15 @@ export const ExperienceSelection: React.FC<ExperienceSelectionProps> = ({
             </div>
 
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#277d6b] sm:text-xs">
-              Explora GlaciAgua
+              GlaciAgua
             </p>
 
             <h2 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl lg:text-4xl">
-              ¿Cómo quieres explorar?
+              {t('exp_question')}
             </h2>
 
             <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-500">
-              Elige la experiencia que mejor se adapte a tus necesidades.
-              Consulta recomendaciones para el uso del agua o explora
-              información ambiental más detallada.
+              {t('exp_question_desc')}
             </p>
           </section>
 
@@ -75,17 +76,16 @@ export const ExperienceSelection: React.FC<ExperienceSelectionProps> = ({
                 </div>
 
                 <span className="rounded-full bg-[#e8f4f0] px-3 py-1.5 text-xs font-bold text-[#277d6b]">
-                  Simple y práctica
+                  {t('exp_comm_badge')}
                 </span>
               </div>
 
               <h3 className="mt-4 text-xl font-black sm:text-2xl">
-                Vista comunitaria
+                {t('exp_comm_title')}
               </h3>
 
               <p className="mt-2 text-sm leading-6 text-slate-500">
-                Consulta el estado de las cuencas y descubre recomendaciones
-                sencillas para el cuidado y uso responsable del agua.
+                {t('exp_comm_desc')}
               </p>
 
               <ul className="mt-4 space-y-2.5 text-sm text-slate-600">
@@ -112,7 +112,7 @@ export const ExperienceSelection: React.FC<ExperienceSelectionProps> = ({
 
               <div className="mt-5 flex items-center justify-between border-t border-[#e8eeec] pt-4">
                 <span className="text-sm font-bold text-[#277d6b]">
-                  Ingresar a la vista comunitaria
+                  {t('exp_comm_btn')}
                 </span>
 
                 <ArrowRight
@@ -134,17 +134,16 @@ export const ExperienceSelection: React.FC<ExperienceSelectionProps> = ({
                 </div>
 
                 <span className="rounded-full bg-[#eef0fc] px-3 py-1.5 text-xs font-bold text-[#3346a8]">
-                  Análisis detallado
+                  {t('exp_tech_badge')}
                 </span>
               </div>
 
               <h3 className="mt-4 text-xl font-black sm:text-2xl">
-                Vista técnica
+                {t('exp_tech_title')}
               </h3>
 
               <p className="mt-2 text-sm leading-6 text-slate-500">
-                Explora diagnósticos ambientales, indicadores científicos y
-                herramientas para analizar los factores que influyen en el riesgo.
+                {t('exp_tech_desc')}
               </p>
 
               <ul className="mt-4 space-y-2.5 text-sm text-slate-600">
@@ -171,7 +170,7 @@ export const ExperienceSelection: React.FC<ExperienceSelectionProps> = ({
 
               <div className="mt-5 flex items-center justify-between border-t border-[#e8eeec] pt-4">
                 <span className="text-sm font-bold text-[#3346a8]">
-                  Ingresar a la vista técnica
+                  {t('exp_tech_btn')}
                 </span>
 
                 <ArrowRight
@@ -189,7 +188,7 @@ export const ExperienceSelection: React.FC<ExperienceSelectionProps> = ({
               onClick={onBack}
               className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-500 transition hover:bg-white hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#3346a8]/20"
             >
-              ← Volver a la bienvenida
+              ← {t('exp_btn_back')}
             </button>
           </div>
         </div>

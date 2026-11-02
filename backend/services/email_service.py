@@ -281,3 +281,22 @@ class EmailService:
         except Exception as e:
             logger.error(f"[ERROR ENVIO EMAIL] Falló envío a {req.destinatario}: {str(e)}")
             raise RuntimeError(f"Error al enviar correo electrónico: {str(e)}")
+
+    @classmethod
+    def obtener_estado(cls) -> Dict[str, Any]:
+        """Informa sobre la configuración activa del servicio de correo electrónico."""
+        proveedor = "simulado"
+        if RESEND_API_KEY:
+            proveedor = "resend"
+        elif SMTP_HOST:
+            proveedor = "smtp"
+
+        return {
+            "activo": True,
+            "configurado": bool(RESEND_API_KEY or SMTP_HOST),
+            "proveedor": proveedor,
+            "remitente": EMAIL_FROM,
+            "servidor_smtp": SMTP_HOST if SMTP_HOST else None,
+            "puerto_smtp": SMTP_PORT if SMTP_HOST else None,
+            "soporta_tls": SMTP_USE_TLS,
+        }

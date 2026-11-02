@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Query, status, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional, Dict, Any, Literal
-from datetime import datetime
+from datetime import datetime, timezone
 
 from models.schemas import (
     SimulacionRequest,
@@ -24,6 +24,7 @@ from admin_usuarios import router as admin_router, init_admin_db
 from mediciones_campo import router as mediciones_router, init_mediciones_db
 from reportes_cientificos import router as reportes_router
 from avisos_reportes import init_avisos_reportes_db, preparar_avisos, enviar_aviso
+from crear_admin import garantizar_admin_por_defecto
 
 # Inicializar base de datos SQLite
 init_db()
@@ -31,6 +32,7 @@ iniciar_autenticacion()
 init_admin_db()
 init_mediciones_db()
 init_avisos_reportes_db()
+garantizar_admin_por_defecto()
 
 app = FastAPI(
     title="GlaciAgua API",
@@ -43,16 +45,21 @@ app.include_router(admin_router)
 app.include_router(mediciones_router)
 app.include_router(reportes_router)
 
-# Configuración de CORS para permitir peticiones desde el frontend de Vite y dominios personalizados
+# Configuración de CORS con credenciales permitidas para frontend local y de producción
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        "https://glaciagua.lat",
+        "https://www.glaciagua.lat",
+        "http://glaciagua.lat",
+        "http://www.glaciagua.lat",
+        "http://glaciagua.lat:5173",
+        "http://20.94.196.226",
+        "http://20.94.196.226:5173",
         "http://localhost:5173",
         "http://localhost:3000",
-        "http://localhost:80",
         "http://127.0.0.1:5173",
         "http://127.0.0.1:3000",
-        "*",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -193,7 +200,7 @@ def registrar_reporte(reporte: ReporteCreate, tareas: BackgroundTasks):
         quebrada=reporte.quebrada,
         lat=reporte.lat,
         lng=reporte.lng,
-        fecha=datetime.now().strftime("%Y-%m-%d %H:%M"),
+        fecha=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M"),
         color_agua=reporte.color_agua,
         ph_medido=reporte.ph_medido,
         sincronizado=True,
@@ -206,6 +213,11 @@ def listar_reportes_ciudadanos():
     return obtener_reportes()
 
 # 6. Alertas y Oficios Formales por Correo Electrónico
+@app.get("/alertas/estado", tags=["Alertas y Notificaciones"])
+def estado_servicio_email():
+    """Retorna el estado de configuración y conectividad del servicio de correo electrónico."""
+    return EmailService.obtener_estado()
+
 @app.post("/alertas/enviar-email", response_model=EmailAlertaResponse, tags=["Alertas y Notificaciones"])
 def enviar_oficio_email(solicitud: EmailAlertaRequest):
     """
@@ -220,6 +232,17 @@ def enviar_oficio_email(solicitud: EmailAlertaRequest):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error en el servicio de correo electrónico: {str(e)}"
         )
+
+# Endpoint de compatibilidad hacia atrás para portales existentes
+@app.post("/admin/login", tags=["Autenticación"])
+def login_admin_compat(datos: dict):
+    """Compatibilidad hacia atrás para llamadas desde el portal de administración."""
+    correo = datos.get("correo") or datos.get("username") or ""
+    if "@" not in correo and correo:
+        correo = f"{correo}@glaciagua.lat"
+    password = datos.get("password") or ""
+    from auth import LoginRequest, login as auth_login
+    return auth_login(LoginRequest(correo=correo, password=password))
 
 if __name__ == "__main__":
     import uvicorn

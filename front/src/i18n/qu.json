@@ -867,5 +867,117 @@
   "oficio_email_sending": {
     "text": "Oficiota chaskiman apachichkan...",
     "_revisar": true
+  },
+  "welcome_monitoring": {
+    "text": "Mayupa yakun imano kaykashqanta musyanapaq",
+    "_revisar": true
+  },
+  "welcome_badge_theme": {
+    "text": "Yaku · Rasukuna · Ayllukuna",
+    "_revisar": true
+  },
+  "welcome_hero_main": {
+    "text": "Rasu yakuqa musyanapaqmi alli kanman.",
+    "_revisar": true
+  },
+  "welcome_hero_desc": {
+    "text": "Andes mayukunata rikay maypachawmi qatqe yaku kanman, ima kashqanrayku chayta musyanki.",
+    "_revisar": true
+  },
+  "welcome_btn_explore": {
+    "text": "Mayupa mapanta rikay",
+    "_revisar": true
+  },
+  "welcome_btn_about": {
+    "text": "Proyectota riqsinki",
+    "_revisar": true
+  },
+  "welcome_safety_badge": {
+    "text": "Alli tantiyakunapaq willakuy",
+    "_revisar": true
+  },
+  "welcome_how_title": {
+    "text": "¿Imanotaq llamkan?",
+    "_revisar": true
+  },
+  "welcome_how_subtitle": {
+    "text": "Allpapita willakuyman.",
+    "_revisar": true
+  },
+  "welcome_how_desc": {
+    "text": "GlaciAgua willakuykunata tantan mayupa yaku sasachakuyninta musyanapaq.",
+    "_revisar": true
+  },
+  "welcome_step1_title": {
+    "text": "Rikay",
+    "_revisar": true
+  },
+  "welcome_step1_desc": {
+    "text": "Mayukunata tariy chaymanta qawanapaq lugarkunata musyay.",
+    "_revisar": true
+  },
+  "welcome_step2_title": {
+    "text": "Tantiyay",
+    "_revisar": true
+  },
+  "welcome_step2_desc": {
+    "text": "Mayupa sasachakuyninta yaku imano kaykashqantapas rikay.",
+    "_revisar": true
+  },
+  "welcome_step3_title": {
+    "text": "Ruray",
+    "_revisar": true
+  },
+  "welcome_step3_desc": {
+    "text": "Consejukunata rikay hinaspa yaku mana alli kashqanta willakuy.",
+    "_revisar": true
+  },
+  "welcome_btn_back_to_top": {
+    "text": "Qallariyman kutiy",
+    "_revisar": true
+  },
+  "exp_question": {
+    "text": "¿Imanotaq rikayta munanki?",
+    "_revisar": true
+  },
+  "exp_question_desc": {
+    "text": "Munashqaykiman hina akllay: comunidadpaq consejukunata rikay o cientifico willakuykunata qaway.",
+    "_revisar": true
+  },
+  "exp_comm_badge": {
+    "text": "Sasalla llamkanapaq",
+    "_revisar": true
+  },
+  "exp_comm_title": {
+    "text": "Comunidadpaq rikuna",
+    "_revisar": true
+  },
+  "exp_comm_desc": {
+    "text": "Mayukunapa imano kaykashqanta rikay hinaspa yakuta alli cuidapaq consejukunata chaskiy.",
+    "_revisar": true
+  },
+  "exp_comm_btn": {
+    "text": "Comunidadpaq yaykuy",
+    "_revisar": true
+  },
+  "exp_tech_badge": {
+    "text": "Científico llamkay",
+    "_revisar": true
+  },
+  "exp_tech_title": {
+    "text": "Técnica rikuna",
+    "_revisar": true
+  },
+  "exp_tech_desc": {
+    "text": "Cientifico diagnosticokunata, modelopa numeronkunata hinaspa simuladorta rikay.",
+    "_revisar": true
+  },
+  "exp_tech_btn": {
+    "text": "Técnicaman yaykuy",
+    "_revisar": true
+  },
+  "exp_btn_back": {
+    "text": "Qallariyman kutiy",
+    "_revisar": true
   }
 }

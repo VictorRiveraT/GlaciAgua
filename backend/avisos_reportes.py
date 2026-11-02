@@ -60,6 +60,9 @@ def enviar_aviso(aviso_id):
             conn.execute("UPDATE avisos_reportes SET estado='cancelado', actualizado_en=CURRENT_TIMESTAMP WHERE id=?", (aviso_id,))
             return
         reporte = conn.execute("SELECT * FROM reportes WHERE id=?", (aviso["reporte_id"],)).fetchone()
+        if reporte is None:
+            conn.execute("UPDATE avisos_reportes SET estado='cancelado', error='Reporte no encontrado', actualizado_en=CURRENT_TIMESTAMP WHERE id=?", (aviso_id,))
+            return
         conn.execute("UPDATE avisos_reportes SET estado='en_proceso', actualizado_en=CURRENT_TIMESTAMP WHERE id=?", (aviso_id,))
     # El proveedor existente inserta estos textos en HTML; escapar lo que proviene del público.
     contenido = (

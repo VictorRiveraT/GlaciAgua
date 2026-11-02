@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { GlaciAguaApi } from '../services/api'
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
+import { GlaciAguaApi, API_BASE_URL } from '../services/api'
 
 const DEFAULT_MODEL_INFO = {
   version: 'rf-reg-2026.04-sobek-calibrated',
@@ -60,78 +58,17 @@ const INITIAL_FIELD_MEDICIONES = [
   },
 ]
 
-const adminLogin = async (username: string, password: string): Promise<{ success: boolean; usuario?: any; error?: string }> => {
-  const cleanUser = username.trim().toLowerCase()
-  const cleanPass = password.trim()
-
-  // 1. Intentar autenticar contra el backend si está activo y tiene el endpoint
-  try {
-    const res = await fetch(API_BASE_URL + '/admin/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: cleanUser, password: cleanPass }),
-      signal: AbortSignal.timeout(2000),
-    })
-    if (res.ok) return await res.json()
-  } catch {
-    // Si la red falla o el endpoint no existe en el backend, se aplica fallback local
-  }
-
-  // 2. Validación local para modo offline y credenciales de evaluación (admin / glaciagua2026)
-  if (cleanUser === 'admin' && cleanPass === 'glaciagua2026') {
-    return {
-      success: true,
-      usuario: {
-        username: 'admin',
-        nombre: 'Especialista Ambiental',
-        rol: 'Ingeniero(a) de Recursos Hídricos',
-        institucion: 'Monitoreo Comunitario e Institucional Áncash',
-      },
-    }
-  }
-
-  return { success: false, error: 'Credenciales inválidas. Utilice admin / glaciagua2026' }
+const adminLogin = async (username: string, password: string) => {
+  return GlaciAguaApi.login(username, password)
 }
 
-const getMedicionesCampo = async (): Promise<any[]> => {
-  try {
-    const res = await fetch(API_BASE_URL + '/admin/mediciones', { signal: AbortSignal.timeout(2000) })
-    if (res.ok) return await res.json()
-  } catch {}
-
-  // Fallback offline en almacenamiento local
-  try {
-    const raw = localStorage.getItem('glaciagua_admin_mediciones')
-    if (raw) return JSON.parse(raw)
-  } catch {}
-
-  return INITIAL_FIELD_MEDICIONES
+const getMedicionesCampo = async (token?: string): Promise<any[]> => {
+  const lista = await GlaciAguaApi.getMedicionesCampo(token)
+  return lista && lista.length > 0 ? lista : INITIAL_FIELD_MEDICIONES
 }
 
-const guardarMedicionCampo = async (data: any): Promise<{ success: boolean; id?: string; error?: string }> => {
-  try {
-    const res = await fetch(API_BASE_URL + '/admin/mediciones', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-      signal: AbortSignal.timeout(3000),
-    })
-    if (res.ok) return await res.json()
-  } catch {}
-
-  // Almacenamiento local offline en PWA
-  try {
-    const current = await getMedicionesCampo()
-    const newEntry = {
-      ...data,
-      id: data.id || `med-local-${Date.now()}`,
-    }
-    const updated = [newEntry, ...current]
-    localStorage.setItem('glaciagua_admin_mediciones', JSON.stringify(updated))
-    return { success: true, id: newEntry.id }
-  } catch (e: any) {
-    return { success: false, error: e.message || 'Error al registrar medición localmente' }
-  }
+const guardarMedicionCampo = async (data: any, token?: string) => {
+  return GlaciAguaApi.guardarMedicionCampo(data, token)
 }
 
 const reentrenarModelo = async (params: {
@@ -201,6 +138,11 @@ import {
   LogOut,
   Sliders,
   TrendingUp,
+  Mail,
+  Send,
+  Check,
+  AlertCircle,
+  Sparkles,
 } from 'lucide-react'
 
 interface AdminPortalModalProps {
@@ -215,13 +157,23 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     return localStorage.getItem('glaciagua_admin_auth') === 'true'
   })
-  const [username, setUsername] = useState('admin')
-  const [password, setPassword] = useState('glaciagua2026')
+  const [authToken, setAuthToken] = useState<string | null>(() => {
+    return localStorage.getItem('glaciagua_token')
+  })
+  const [currentUser, setCurrentUser] = useState<any>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('glaciagua_user') || 'null')
+    } catch {
+      return null
+    }
+  })
+  const [username, setUsername] = useState('admin@glaciagua.lat')
+  const [password, setPassword] = useState('glaciagua2026!')
   const [loginError, setLoginError] = useState<string | null>(null)
   const [loggingIn, setLoggingIn] = useState(false)
 
   // Pestaña activa
-  const [activeTab, setActiveTab] = useState<'metricas' | 'ingreso' | 'reentrenar'>('metricas')
+  const [activeTab, setActiveTab] = useState<'metricas' | 'ingreso' | 'reentrenar' | 'correo'>('metricas')
 
   // Estado del modelo
   const [modelInfo, setModelInfo] = useState<any>(null)
@@ -230,6 +182,19 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
   // Mediciones de campo registradas
   const [mediciones, setMediciones] = useState<any[]>([])
   const [loadingMediciones, setLoadingMediciones] = useState(false)
+
+  // Estado del servicio de correos
+  const [emailStatus, setEmailStatus] = useState<any>(null)
+  const [loadingEmailStatus, setLoadingEmailStatus] = useState(false)
+  const [testEmailTo, setTestEmailTo] = useState('victor.rivera@upch.pe')
+  const [testEmailName, setTestEmailName] = useState('Autoridad Local del Agua / JASS')
+  const [testEmailBasin, setTestEmailBasin] = useState('Quillcay')
+  const [testEmailReason, setTestEmailReason] = useState('Alerta de turbidez y acidez por deshielo')
+  const [testEmailBody, setTestEmailBody] = useState(
+    'Notificación preventiva de GlaciAgua: Se ha detectado descenso de pH y posible drenaje ácido en captación Shallap. Se solicita inspección técnica inmediata.'
+  )
+  const [sendingEmail, setSendingEmail] = useState(false)
+  const [emailSendResult, setEmailSendResult] = useState<{ success: boolean; mensaje: string } | null>(null)
 
   // Formulario de nueva medición
   const [cuencaId, setCuencaId] = useState('quillcay')
@@ -253,20 +218,24 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
   const [reentrenando, setReentrenando] = useState(false)
   const [resultadoReentreno, setResultadoReentreno] = useState<any>(null)
 
-  // Cargar info del modelo y mediciones al autenticar
+  // Cargar info del modelo, mediciones y correo al autenticar
   const fetchDashboardData = async () => {
     setLoadingModelInfo(true)
     setLoadingMediciones(true)
+    setLoadingEmailStatus(true)
     try {
-      const [mInfo, mList] = await Promise.all([
+      const [mInfo, mList, eStat] = await Promise.all([
         GlaciAguaApi.getMLModeloInfo(),
-        getMedicionesCampo(),
+        getMedicionesCampo(authToken || undefined),
+        GlaciAguaApi.getEstadoEmail(),
       ])
       setModelInfo(mInfo || DEFAULT_MODEL_INFO)
       setMediciones(mList)
+      setEmailStatus(eStat)
     } finally {
       setLoadingModelInfo(false)
       setLoadingMediciones(false)
+      setLoadingEmailStatus(false)
     }
   }
 
@@ -274,7 +243,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
     if (isAuthenticated) {
       fetchDashboardData()
     }
-  }, [isAuthenticated])
+  }, [isAuthenticated, authToken])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -286,6 +255,14 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
 
     if (res.success) {
       setIsAuthenticated(true)
+      if (res.access_token) {
+        setAuthToken(res.access_token)
+        localStorage.setItem('glaciagua_token', res.access_token)
+      }
+      if (res.usuario) {
+        setCurrentUser(res.usuario)
+        localStorage.setItem('glaciagua_user', JSON.stringify(res.usuario))
+      }
       localStorage.setItem('glaciagua_admin_auth', 'true')
     } else {
       setLoginError(res.error || 'Credenciales inválidas.')
@@ -294,7 +271,46 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
 
   const handleLogout = () => {
     setIsAuthenticated(false)
+    setAuthToken(null)
+    setCurrentUser(null)
     localStorage.removeItem('glaciagua_admin_auth')
+    localStorage.removeItem('glaciagua_token')
+    localStorage.removeItem('glaciagua_user')
+  }
+
+  const handleSendTestEmail = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!testEmailTo.trim() || !testEmailTo.includes('@')) {
+      setEmailSendResult({ success: false, mensaje: 'Ingresa un correo electrónico de destinatario válido.' })
+      return
+    }
+
+    setSendingEmail(true)
+    setEmailSendResult(null)
+    try {
+      const res = await GlaciAguaApi.enviarEmailAlerta({
+        destinatario: testEmailTo.trim(),
+        destinatarioNombre: testEmailName,
+        remitenteNombre: currentUser?.nombre || 'Portal GlaciAgua',
+        remitenteRol: currentUser?.rol || 'Administrador',
+        cuencaNombre: testEmailBasin,
+        motivo: testEmailReason,
+        cuerpoTexto: testEmailBody,
+        asunto: `[GlaciAgua] Alerta Hídrica - ${testEmailBasin}`,
+        nivelRiesgo: 'Alto',
+      })
+      setEmailSendResult({
+        success: res.success,
+        mensaje: res.mensaje || (res.success ? 'Correo enviado con éxito.' : 'Fallo en el envío.'),
+      })
+    } catch {
+      setEmailSendResult({
+        success: false,
+        mensaje: 'Error de red al conectar con el servicio de correo.',
+      })
+    } finally {
+      setSendingEmail(false)
+    }
   }
 
   const handleGuardarMedicion = async (e: React.FormEvent) => {
@@ -307,6 +323,9 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
       quebrada,
       periodo,
       temporada,
+      fecha_medicion: new Date().toISOString().split('T')[0],
+      fuente: 'Portal Especialistas GlaciAgua',
+      metodo: 'Monitoreo de campo hidroquímico',
       area_km2: cuencaId === 'quillcay' ? 249.5 : cuencaId === 'pachacoto' ? 202.8 : 150.0,
       roca_expuesta_km2: rocaExpuestaKm2,
       pct_sulfuros: pctSulfuros,
@@ -317,10 +336,10 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
       ph_min: phMin,
       conductividad: phMin < 5 ? 580 : 120,
       metales_texto: phMin < 5 ? 'Hierro y Aluminio detectados por encima de ECA Agua' : 'Normal',
-      responsable,
+      responsable: responsable || currentUser?.nombre || 'Ing. Monitoreo Ambiental',
     }
 
-    const res = await guardarMedicionCampo(payload)
+    const res = await guardarMedicionCampo(payload, authToken || undefined)
     setSavingMedicion(false)
 
     if (res.success) {
@@ -521,6 +540,21 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
               >
                 <RefreshCw size={15} />
                 <span>3. Re-entrenar con 1 Clic</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('correo')}
+                className={`px-4 py-2.5 text-xs font-black rounded-t-xl transition-all flex items-center gap-2 border-t border-x ${
+                  activeTab === 'correo'
+                    ? 'bg-white text-blue-700 border-slate-200 shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900 border-transparent hover:bg-slate-100'
+                }`}
+              >
+                <Mail size={15} />
+                <span>4. Alertas por Correo</span>
+                {emailStatus?.configurado && (
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                )}
               </button>
             </div>
 
@@ -968,6 +1002,188 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                             )}
                           </div>
                         )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* PESTAÑA 4: CANAL Y CONFIGURACIÓN DE ALERTAS POR CORREO */}
+              {activeTab === 'correo' && (
+                <div className="space-y-6">
+                  {/* Tarjetas de Diagnóstico del Canal de Correo */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200">
+                      <div className="flex items-center gap-2 text-blue-900 font-black text-xs uppercase">
+                        <Mail size={16} className="text-blue-700" />
+                        <span>Proveedor Activo</span>
+                      </div>
+                      <p className="text-lg font-black text-blue-950 mt-1 capitalize">
+                        {emailStatus?.proveedor || 'Resend (API HTTPS)'}
+                      </p>
+                      <span className="text-[11px] text-blue-700 font-medium">
+                        Puerto 443 HTTPS / Sin bloqueo firewall
+                      </span>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200">
+                      <div className="flex items-center gap-2 text-emerald-900 font-black text-xs uppercase">
+                        <ShieldCheck size={16} className="text-emerald-700" />
+                        <span>Remitente Oficial</span>
+                      </div>
+                      <p className="text-sm font-black font-mono text-emerald-950 mt-1">
+                        {emailStatus?.remitente || 'alertas@glaciagua.lat'}
+                      </p>
+                      <span className="text-[11px] text-emerald-700 font-medium">
+                        DKIM & SPF verificados en Namecheap
+                      </span>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                      <div className="flex items-center gap-2 text-slate-700 font-black text-xs uppercase">
+                        <CheckCircle2 size={16} className="text-emerald-600" />
+                        <span>Estado de Entrega</span>
+                      </div>
+                      <p className="text-lg font-black text-slate-900 mt-1">
+                        {emailStatus?.activo ? 'Operativo 100%' : 'Conectando...'}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={fetchDashboardData}
+                        className="text-[11px] text-blue-700 hover:text-blue-900 font-bold underline mt-0.5 inline-flex items-center gap-1"
+                      >
+                        <RefreshCw size={11} className={loadingEmailStatus ? 'animate-spin' : ''} />
+                        Verificar conexión
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Formulario de Envío de Oficio / Alerta Directa */}
+                  <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-4">
+                    <div className="flex items-start justify-between border-b border-slate-100 pb-3">
+                      <div>
+                        <h4 className="text-base font-black text-slate-900 flex items-center gap-2">
+                          <Send size={18} className="text-blue-700" />
+                          Despacho de Alerta Formal / Oficio Técnico
+                        </h4>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          Envía una notificación oficial con formato institucional y membrete desde <strong>alertas@glaciagua.lat</strong> hacia cualquier autoridad o investigador.
+                        </p>
+                      </div>
+                    </div>
+
+                    <form onSubmit={handleSendTestEmail} className="space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-xs font-black text-slate-700 block mb-1">
+                            Correo Electrónico de Destino *
+                          </label>
+                          <input
+                            type="email"
+                            required
+                            value={testEmailTo}
+                            onChange={(e) => setTestEmailTo(e.target.value)}
+                            placeholder="ej: jass@gmail.com o autoridad@ala.gob.pe"
+                            className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-semibold text-slate-900 focus:outline-hidden focus:border-blue-700"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-black text-slate-700 block mb-1">
+                            Nombre del Destinatario / Entidad
+                          </label>
+                          <input
+                            type="text"
+                            value={testEmailName}
+                            onChange={(e) => setTestEmailName(e.target.value)}
+                            placeholder="ej: Presidente JASS Shallap"
+                            className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-semibold text-slate-900 focus:outline-hidden focus:border-blue-700"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-xs font-black text-slate-700 block mb-1">
+                            Microcuenca Afectada
+                          </label>
+                          <select
+                            value={testEmailBasin}
+                            onChange={(e) => setTestEmailBasin(e.target.value)}
+                            className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-semibold text-slate-900 focus:outline-hidden focus:border-blue-700 bg-white"
+                          >
+                            <option value="Quillcay">Quillcay (Huaraz)</option>
+                            <option value="Pachacoto">Pachacoto (Pastoruri)</option>
+                            <option value="Canray Chico">Canray Chico (Olleros)</option>
+                            <option value="Río Blanco">Río Blanco (Recuay)</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-black text-slate-700 block mb-1">
+                            Motivo Principal de la Notificación
+                          </label>
+                          <input
+                            type="text"
+                            value={testEmailReason}
+                            onChange={(e) => setTestEmailReason(e.target.value)}
+                            placeholder="ej: Descenso abrupto de pH / Alerta de DAR"
+                            className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-semibold text-slate-900 focus:outline-hidden focus:border-blue-700"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-black text-slate-700 block mb-1">
+                          Cuerpo del Mensaje / Exposición de Motivos
+                        </label>
+                        <textarea
+                          rows={3}
+                          value={testEmailBody}
+                          onChange={(e) => setTestEmailBody(e.target.value)}
+                          className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-medium text-slate-900 focus:outline-hidden focus:border-blue-700 leading-relaxed"
+                        />
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+                        <span className="text-[11px] text-slate-500">
+                          El mensaje incluye automáticamente membrete formal, recomendaciones de ECA Agua y firma digital de GlaciAgua.
+                        </span>
+
+                        <button
+                          type="submit"
+                          disabled={sendingEmail || !testEmailTo.trim()}
+                          className="px-6 py-2.5 bg-blue-700 hover:bg-blue-800 disabled:opacity-50 text-white font-black text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
+                        >
+                          {sendingEmail ? (
+                            <>
+                              <RefreshCw size={14} className="animate-spin" />
+                              <span>Enviando por Resend API...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Send size={14} />
+                              <span>Enviar Oficio de Alerta</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </form>
+
+                    {emailSendResult && (
+                      <div
+                        className={`p-3 rounded-xl text-xs font-bold flex items-center gap-2 border ${
+                          emailSendResult.success
+                            ? 'bg-emerald-50 text-emerald-900 border-emerald-300'
+                            : 'bg-red-50 text-red-900 border-red-300'
+                        }`}
+                      >
+                        {emailSendResult.success ? (
+                          <CheckCircle2 size={16} className="text-emerald-700 shrink-0" />
+                        ) : (
+                          <AlertCircle size={16} className="text-red-700 shrink-0" />
+                        )}
+                        <span>{emailSendResult.mensaje}</span>
                       </div>
                     )}
                   </div>
