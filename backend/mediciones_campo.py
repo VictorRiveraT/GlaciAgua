@@ -1,4 +1,7 @@
-"""Registro privado y revisión de mediciones; no ejecuta entrenamientos."""
+"""Mediciones aportadas por investigadores, sin aprobación administrativa.
+
+Conserva las tablas y revisiones anteriores como historial. No entrena modelos.
+"""
 import json
 from contextlib import closing
 from datetime import date
@@ -8,18 +11,20 @@ from uuid import uuid4
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from auth import exigir_admin, sesion_actual
+from auth import exigir_investigador, sesion_actual
 from services.data_service import DataService
 from services.db import get_connection
 
+# Se conserva la ruta existente para evitar cambios innecesarios en la integración.
 router = APIRouter(prefix="/admin/mediciones", tags=["Mediciones de campo"])
-Estado = Literal["pendiente", "aprobado", "rechazado"]
+Estado = Literal["registrado", "excluido"]
 
 
 def init_mediciones_db():
     with closing(get_connection()) as conn, conn:
         conn.execute("PRAGMA foreign_keys = ON")
-        conn.executescript("""
+        conn.execute("BEGIN IMMEDIATE")
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS mediciones_campo (
                 id TEXT PRIMARY KEY,
                 cuenca_id TEXT NOT NULL,
@@ -32,9 +37,19 @@ def init_mediciones_db():
                 revisado_por INTEGER REFERENCES usuarios(id),
                 revisado_en TEXT,
                 observacion_revision TEXT
-            );
-            CREATE INDEX IF NOT EXISTS idx_mediciones_autor ON mediciones_campo(creado_por);
-            CREATE INDEX IF NOT EXISTS idx_mediciones_filtros ON mediciones_campo(estado, cuenca_id, periodo);
+            )
+        """)
+        columnas = {fila["name"] for fila in conn.execute("PRAGMA table_info(mediciones_campo)")}
+        if "estado_registro" not in columnas:
+            conn.execute("ALTER TABLE mediciones_campo ADD COLUMN estado_registro TEXT NOT NULL DEFAULT 'registrado' CHECK (estado_registro IN ('registrado', 'excluido'))")
+            # Conservar la exclusión de los datos rechazados anteriormente; no rehabilitarlos.
+            conn.execute("UPDATE mediciones_campo SET estado_registro='excluido' WHERE estado='rechazado'")
+        if "es_prueba" not in columnas:
+            conn.execute("ALTER TABLE mediciones_campo ADD COLUMN es_prueba INTEGER NOT NULL DEFAULT 0 CHECK (es_prueba IN (0, 1))")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_mediciones_autor ON mediciones_campo(creado_por)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_mediciones_registro ON mediciones_campo(estado_registro, cuenca_id, periodo)")
+        # La tabla anterior se conserva para auditoría, sin exponer una operación de aprobación.
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS revisiones_mediciones (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 medicion_id TEXT NOT NULL UNIQUE REFERENCES mediciones_campo(id),
@@ -42,7 +57,7 @@ def init_mediciones_db():
                 estado TEXT NOT NULL CHECK (estado IN ('aprobado', 'rechazado')),
                 observacion TEXT,
                 creado_en TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-            );
+            )
         """)
 
 
@@ -66,6 +81,7 @@ class MedicionCreate(BaseModel):
     conductividad: float | None = Field(default=None, ge=0, description="Conductividad en µS/cm; solo si fue medida.")
     metales_texto: str | None = Field(default=None, max_length=2000)
     responsable: str | None = Field(default=None, max_length=200)
+    es_prueba: bool = Field(default=False, description="Marcar los datos ficticios o de pruebas; no utilizarlos para entrenamiento.")
 
     @field_validator("cuenca_id", "quebrada", "periodo", "fuente", "metodo", "responsable", "metales_texto", mode="before")
     @classmethod
@@ -86,11 +102,10 @@ class MedicionCreate(BaseModel):
 class MedicionResponse(MedicionCreate):
     id: str
     creado_por: int
+    cientifico_nombre: str
+    cientifico_institucion: str | None
     estado: Estado
     creado_en: str
-    revisado_por: int | None = None
-    revisado_en: str | None = None
-    observacion_revision: str | None = None
 
 
 class MedicionesPagina(BaseModel):
@@ -100,48 +115,45 @@ class MedicionesPagina(BaseModel):
     mediciones: list[MedicionResponse]
 
 
-class RevisionRequest(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    estado: Literal["aprobado", "rechazado"]
-    observacion: str | None = Field(default=None, max_length=2000)
-
-    @field_validator("observacion", mode="before")
-    @classmethod
-    def limpiar_observacion(cls, valor):
-        return valor.strip() if isinstance(valor, str) else valor
-
-    @model_validator(mode="after")
-    def motivo_rechazo(self):
-        if self.estado == "rechazado" and len(self.observacion or "") < 3:
-            raise ValueError("Para rechazar, indica una observación de al menos 3 caracteres.")
-        return self
+CONSULTA = """
+    SELECT m.*, u.nombre AS cientifico_nombre,
+        u.institucion AS cientifico_institucion
+    FROM mediciones_campo m JOIN usuarios u ON u.id=m.creado_por
+"""
 
 
 def respuesta(fila):
     datos = json.loads(fila["datos_json"])
     datos.update({campo: fila[campo] for campo in (
-        "id", "cuenca_id", "periodo", "creado_por", "estado", "creado_en",
-        "revisado_por", "revisado_en", "observacion_revision",
+        "id", "cuenca_id", "periodo", "creado_por", "creado_en",
+        "cientifico_nombre", "cientifico_institucion",
     )})
+    datos["estado"] = fila["estado_registro"]
+    datos["es_prueba"] = bool(fila["es_prueba"])
     return MedicionResponse(**datos)
 
 
 @router.post("", response_model=MedicionResponse, status_code=201)
-def registrar_medicion(datos: MedicionCreate, usuario=Depends(sesion_actual)):
-    """Registra una medición pendiente. La autoría proviene del token."""
+def registrar_medicion(datos: MedicionCreate, usuario=Depends(exigir_investigador)):
+    """El científico registra sus datos; el autor se obtiene del token.
+
+    'registrado' confirma almacenamiento, no certificación científica ni entrenamiento.
+    """
     if DataService.obtener_cuenca(datos.cuenca_id) is None:
         raise HTTPException(404, "Cuenca no encontrada en el catálogo actual.")
     medicion_id = str(uuid4())
     valores = datos.model_dump(mode="json")
     cuenca_id = valores.pop("cuenca_id")
     periodo = valores.pop("periodo")
+    es_prueba = valores.pop("es_prueba")
     with closing(get_connection()) as conn, conn:
         conn.execute("PRAGMA foreign_keys = ON")
         conn.execute("""
-            INSERT INTO mediciones_campo (id, cuenca_id, periodo, datos_json, creado_por)
-            VALUES (?, ?, ?, ?, ?)
-        """, (medicion_id, cuenca_id, periodo, json.dumps(valores, ensure_ascii=False, allow_nan=False), usuario["id"]))
-        fila = conn.execute("SELECT * FROM mediciones_campo WHERE id = ?", (medicion_id,)).fetchone()
+            INSERT INTO mediciones_campo
+                (id, cuenca_id, periodo, datos_json, creado_por, estado_registro, es_prueba)
+            VALUES (?, ?, ?, ?, ?, 'registrado', ?)
+        """, (medicion_id, cuenca_id, periodo, json.dumps(valores, ensure_ascii=False, allow_nan=False), usuario["id"], int(es_prueba)))
+        fila = conn.execute(CONSULTA + " WHERE m.id=?", (medicion_id,)).fetchone()
     return respuesta(fila)
 
 
@@ -150,22 +162,22 @@ def listar_mediciones(
     pagina: int = Query(1, ge=1), por_pagina: int = Query(20, ge=1, le=100),
     estado: Estado | None = None, cuenca_id: str | None = Query(None, max_length=100),
     periodo: str | None = Query(None, pattern=r"^\d{4}-(seca|humeda)$"),
-    usuario=Depends(sesion_actual),
+    es_prueba: bool | None = None, usuario=Depends(sesion_actual),
 ):
-    """El investigador ve sus cargas; el administrador ve todas."""
+    """Investigador: sus cargas; administrador: consulta general sin revisión técnica."""
     condiciones, parametros = [], []
     if usuario["rol"] != "admin":
-        condiciones.append("creado_por = ?")
+        condiciones.append("m.creado_por=?")
         parametros.append(usuario["id"])
-    for campo, valor in (("estado", estado), ("cuenca_id", cuenca_id), ("periodo", periodo)):
+    for campo, valor in (("estado_registro", estado), ("cuenca_id", cuenca_id), ("periodo", periodo), ("es_prueba", es_prueba)):
         if valor is not None:
-            condiciones.append(f"{campo} = ?")
+            condiciones.append(f"m.{campo}=?")
             parametros.append(valor)
     where = " WHERE " + " AND ".join(condiciones) if condiciones else ""
     with closing(get_connection()) as conn:
         conn.execute("BEGIN")
-        total = conn.execute("SELECT COUNT(*) FROM mediciones_campo" + where, parametros).fetchone()[0]
-        filas = conn.execute("SELECT * FROM mediciones_campo" + where + " ORDER BY creado_en DESC, id DESC LIMIT ? OFFSET ?",
+        total = conn.execute("SELECT COUNT(*) FROM mediciones_campo m" + where, parametros).fetchone()[0]
+        filas = conn.execute(CONSULTA + where + " ORDER BY m.creado_en DESC, m.id DESC LIMIT ? OFFSET ?",
                              [*parametros, por_pagina, (pagina - 1) * por_pagina]).fetchall()
     return MedicionesPagina(total=total, pagina=pagina, por_pagina=por_pagina,
                             mediciones=[respuesta(fila) for fila in filas])
@@ -174,31 +186,7 @@ def listar_mediciones(
 @router.get("/{medicion_id}", response_model=MedicionResponse)
 def detalle_medicion(medicion_id: str, usuario=Depends(sesion_actual)):
     with closing(get_connection()) as conn:
-        fila = conn.execute("SELECT * FROM mediciones_campo WHERE id = ?", (medicion_id,)).fetchone()
-    # No revelar la existencia de cargas ajenas a otro investigador.
+        fila = conn.execute(CONSULTA + " WHERE m.id=?", (medicion_id,)).fetchone()
     if fila is None or (usuario["rol"] != "admin" and fila["creado_por"] != usuario["id"]):
         raise HTTPException(404, "Medición no encontrada.")
-    return respuesta(fila)
-
-
-@router.patch("/{medicion_id}/revision", response_model=MedicionResponse)
-def revisar_medicion(medicion_id: str, datos: RevisionRequest, admin=Depends(exigir_admin)):
-    """Revisa una carga pendiente. No incorpora datos ni activa modelos automáticamente."""
-    with closing(get_connection()) as conn, conn:
-        conn.execute("PRAGMA foreign_keys = ON")
-        conn.execute("BEGIN IMMEDIATE")
-        fila = conn.execute("SELECT * FROM mediciones_campo WHERE id = ?", (medicion_id,)).fetchone()
-        if fila is None:
-            raise HTTPException(404, "Medición no encontrada.")
-        if fila["estado"] != "pendiente":
-            raise HTTPException(409, "La medición ya fue revisada.")
-        conn.execute("""
-            INSERT INTO revisiones_mediciones (medicion_id, revisor_id, estado, observacion)
-            VALUES (?, ?, ?, ?)
-        """, (medicion_id, admin["id"], datos.estado, datos.observacion))
-        conn.execute("""
-            UPDATE mediciones_campo SET estado = ?, revisado_por = ?,
-                revisado_en = CURRENT_TIMESTAMP, observacion_revision = ? WHERE id = ?
-        """, (datos.estado, admin["id"], datos.observacion, medicion_id))
-        fila = conn.execute("SELECT * FROM mediciones_campo WHERE id = ?", (medicion_id,)).fetchone()
     return respuesta(fila)

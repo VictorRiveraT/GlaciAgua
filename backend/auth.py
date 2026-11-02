@@ -22,6 +22,7 @@ def hash_password(password: str) -> str:
     digest = hashlib.pbkdf2_hmac("sha256", password.encode(), salt.encode(), ITERACIONES)
     return f"pbkdf2_sha256${ITERACIONES}${salt}${digest.hex()}"
 
+
 def verificar_password(password: str, almacenado: str) -> bool:
     try:
         algoritmo, iteraciones, salt, esperado = almacenado.split("$")
@@ -66,6 +67,7 @@ def init_auth_db():
             );
         """)
 
+
 class LoginRequest(BaseModel):
     correo: str = Field(min_length=3, max_length=254)
     password: str = Field(min_length=1, max_length=256)
@@ -85,6 +87,7 @@ class LoginResponse(BaseModel):
     token_type: str = "bearer"
     expires_in: int = 28800
     usuario: UsuarioPublico
+
 
 # Reduce las diferencias de tiempo entre un correo inexistente y uno existente.
 DUMMY_HASH = hash_password(secrets.token_urlsafe(32))
@@ -147,6 +150,12 @@ def exigir_admin(usuario=Depends(sesion_actual)):
     return usuario
 
 
+def exigir_investigador(usuario=Depends(sesion_actual)):
+    if usuario["rol"] != "investigador":
+        raise HTTPException(403, "Se requiere el rol investigador.")
+    return usuario
+
+
 @router.get("/me", response_model=UsuarioPublico)
 def me(usuario=Depends(sesion_actual)):
     return UsuarioPublico(**usuario)
@@ -155,8 +164,6 @@ def me(usuario=Depends(sesion_actual)):
 @router.post("/logout")
 def logout(usuario=Depends(sesion_actual)):
     with closing(get_connection()) as conn, conn:
-        conn.execute(
-            "UPDATE sesiones SET revocado_en = CURRENT_TIMESTAMP WHERE id = ?",
-            (usuario["sesion_id"],),
-        )
+        conn.execute("UPDATE sesiones SET revocado_en = CURRENT_TIMESTAMP WHERE id = ?",
+                     (usuario["sesion_id"],))
     return {"mensaje": "Sesión cerrada correctamente."}
