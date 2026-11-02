@@ -4,9 +4,6 @@ from typing import List, Optional, Dict, Any, Literal
 from datetime import datetime
 
 from models.schemas import (
-    AdminLoginRequest,
-    MedicionCampoCreate,
-    AdminReentrenarRequest,
     SimulacionRequest,
     SimulacionResponse,
     ReporteCreate,
@@ -17,7 +14,7 @@ from models.schemas import (
 )
 from services.risk_engine import RiskEngine
 from services.data_service import DataService
-from services.db import init_db, insertar_reporte, obtener_reportes, insertar_medicion_campo, obtener_mediciones_campo
+from services.db import init_db, insertar_reporte, obtener_reportes
 from services.ml_client import MLClient
 
 # Inicializar base de datos SQLite
@@ -186,104 +183,6 @@ def registrar_reporte(reporte: ReporteCreate):
 def listar_reportes_ciudadanos():
     """Retorna todos los reportes comunitarios almacenados en la base de datos."""
     return obtener_reportes()
-
-
-
-# 6. Portal de Administración e Ingeniería Ambiental
-@app.post("/admin/login", tags=["Administración"])
-def admin_login(creds: AdminLoginRequest):
-    """
-    Autenticación ligera para especialistas ambientales e ingenieros de monitoreo.
-    Credenciales estándar: admin / glaciagua2026
-    """
-    import os
-    admin_user = os.getenv("GLACIAGUA_ADMIN_USER", "admin")
-    admin_pass = os.getenv("GLACIAGUA_ADMIN_PASS", "glaciagua2026")
-
-    if creds.username == admin_user and creds.password == admin_pass:
-        return {
-            "success": True,
-            "token": "tok_glaciagua_admin_2026",
-            "usuario": {
-                "username": admin_user,
-                "nombre": "Especialista Ambiental",
-                "rol": "Ingeniero(a) de Recursos Hídricos",
-                "institucion": "Monitoreo Comunitario e Institucional Áncash"
-            }
-        }
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Credenciales incorrectas. Verifique usuario o contraseña."
-    )
-
-@app.get("/admin/mediciones", tags=["Administración"])
-def listar_mediciones_campo():
-    """Retorna las mediciones hidroquímicas ingresadas por los ingenieros."""
-    return obtener_mediciones_campo()
-
-@app.post("/admin/mediciones", status_code=status.HTTP_201_CREATED, tags=["Administración"])
-def registrar_medicion_campo(medicion: MedicionCampoCreate):
-    """Guarda una nueva medición de campo para el histórico de entrenamiento."""
-    import uuid
-    data = medicion.model_dump()
-    if not data.get("id"):
-        data["id"] = f"med-{int(datetime.now().timestamp())}-{uuid.uuid4().hex[:4]}"
-    insertar_medicion_campo(data)
-    return {
-        "success": True,
-        "mensaje": "Medición de campo registrada en la base de datos.",
-        "id": data["id"]
-    }
-
-@app.post("/admin/reentrenar", tags=["Administración"])
-async def reentrenar_modelo(req: AdminReentrenarRequest):
-    """
-    Toma las mediciones de campo guardadas en SQLite (más opcionales del request),
-    ejecuta aumento físico de datos si se requiere, y entrena el nuevo modelo.
-    """
-    mediciones_db = obtener_mediciones_campo()
-    filas_reales = []
-
-    for m in mediciones_db:
-        filas_reales.append({
-            "cuenca_id": m["cuenca_id"],
-            "temporada": m["temporada"],
-            "periodo": m["periodo"],
-            "area_km2": m.get("area_km2"),
-            "roca_expuesta_km2": m.get("roca_expuesta_km2"),
-            "pct_sulfuros": m.get("pct_sulfuros"),
-            "pct_carbonatos": m.get("pct_carbonatos"),
-            "lluvia_mm": m.get("lluvia_mm"),
-            "pct_bofedal": m.get("pct_bofedal"),
-            "pct_veg_humeda_est": m.get("pct_veg_humeda_est"),
-            "ph_min": m["ph_min"]
-        })
-
-    if req.filas_adicionales:
-        for f in req.filas_adicionales:
-            if "ph_min" in f and "cuenca_id" in f:
-                filas_reales.append(f)
-
-    payload = {
-        "filas_reales": filas_reales,
-        "aumentar_con_fisica": req.aumentar_con_fisica,
-        "n_sinteticos": req.n_sinteticos,
-        "n_arboles": req.n_arboles
-    }
-
-    resultado = await MLClient.reentrenar(payload)
-    return resultado
-
-@app.get("/admin/plantilla-csv", tags=["Administración"])
-def descargar_plantilla():
-    """Retorna una plantilla CSV con el formato requerido para carga masiva de mediciones."""
-    encabezados = "cuenca_id,temporada,periodo,area_km2,roca_expuesta_km2,pct_sulfuros,pct_carbonatos,lluvia_mm,pct_bofedal,pct_veg_humeda_est,ph_min,conductividad,responsable\n"
-    ejemplo1 = "quillcay,humeda,2026-humeda,249.5,35.2,55.0,8.0,180.0,28.0,32.0,4.1,540,INAIGEM\n"
-    ejemplo2 = "pachacoto,seca,2026-seca,202.8,24.0,45.0,12.0,30.0,18.0,20.0,3.9,610,UPCH\n"
-    return {
-        "contenido_csv": encabezados + ejemplo1 + ejemplo2,
-        "nombre_archivo": "plantilla_glaciagua_mediciones.csv"
-    }
 
 if __name__ == "__main__":
     import uvicorn

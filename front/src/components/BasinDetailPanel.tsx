@@ -23,6 +23,7 @@ interface BasinDetailPanelProps {
   onOpenGuidance: () => void
   onOpenSimulator?: () => void
   onOpenConnectivity?: () => void
+  forceShowDetails?: boolean
 }
 
 export const BasinDetailPanel: React.FC<BasinDetailPanelProps> = ({
@@ -33,10 +34,23 @@ export const BasinDetailPanel: React.FC<BasinDetailPanelProps> = ({
   onOpenGuidance,
   onOpenSimulator,
   onOpenConnectivity,
+  forceShowDetails = false,
 }) => {
   const { t } = useI18n()
-  const [showMore, setShowMore] = useState(false)
+  const [showMore, setShowMore] = useState(forceShowDetails)
   const [showTechnical, setShowTechnical] = useState(false)
+
+  React.useEffect(() => {
+    if (forceShowDetails) {
+      setShowMore(true)
+      setTimeout(() => {
+        const el = document.getElementById('basin-detail-more-section')
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+        }
+      }, 60)
+    }
+  }, [forceShowDetails, basin?.id])
 
   if (!basin) return null
 
@@ -218,7 +232,7 @@ export const BasinDetailPanel: React.FC<BasinDetailPanelProps> = ({
           </button>
 
           {showMore && (
-            <div className="mt-3 space-y-3 p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs animate-in fade-in">
+            <div id="basin-detail-more-section" className="mt-3 space-y-3 p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs animate-in fade-in">
               {/* Health reminder about boiling */}
               <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 space-y-1">
                 <strong className="text-amber-900 block font-black">

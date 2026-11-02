@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "test": "node src/utils/run-tests.cjs && tsc --noEmit",
     "verify:i18n": "node src/utils/verify-i18n.cjs",
     "build": "node src/utils/verify-i18n.cjs && tsc && vite build",
     "preview": "vite preview"

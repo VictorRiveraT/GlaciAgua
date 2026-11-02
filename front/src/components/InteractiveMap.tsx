@@ -28,11 +28,13 @@ import {
   AlertTriangle,
   Info,
   SlidersHorizontal,
+  ChevronRight,
 } from 'lucide-react'
 import { chaikinSmoothLine, chaikinSmoothPolygon, LatLngCoord } from '../utils/geoSmoothing'
 import { loadBasinsGeoJson, getBasinPolygonCoords } from '../utils/basinGeoJson'
 import { getRiskTheme } from '../utils/accessibleTheme'
 import { useI18n } from '../i18n/I18nContext'
+import { Illustration } from './Illustration'
 
 interface InteractiveMapProps {
   basins: BasinData[]
@@ -40,6 +42,7 @@ interface InteractiveMapProps {
   onSelectBasin: (basin: BasinData) => void
   season: Season
   measurements: RealMeasurement[]
+  onOpenDetails?: (basin: BasinData) => void
 }
 
 export const InteractiveMap: React.FC<InteractiveMapProps> = ({
@@ -48,6 +51,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   onSelectBasin,
   season,
   measurements,
+  onOpenDetails,
 }) => {
   const { t } = useI18n()
   const mapContainerRef = useRef<HTMLDivElement>(null)
@@ -58,12 +62,13 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   const [dangerFilter, setDangerFilter] = useState<'all' | 'Critico' | 'Alto' | 'Medio' | 'Bajo'>('all')
   const [selectedCorridor, setSelectedCorridor] = useState<FluvialHazardCorridor | null>(null)
   const [geoJsonPolygons, setGeoJsonPolygons] = useState<Record<string, LatLngCoord[]> | null>(null)
+  const [sheetBasin, setSheetBasin] = useState<BasinData | null>(null)
 
-  // Default layers: cuencas and rios only. Others are hidden by default to prevent visual clutter
+  // Capas por defecto: cuencas, rios y lineas de subcuencas/quebradas activas
   const [layersState, setLayersState] = useState({
     cuencas: true,
     rios: true,
-    corredores: false,
+    corredores: true,
     hotspotsDAR: false,
     bofedales: false,
     glaciares: false,
@@ -167,10 +172,10 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     )
     satLayer.addTo(map)
 
-    // Layer Groups: only cuencas and rios added initially to prevent overload
+    // Grupos de capas: cuencas, rios y lineas de subcuencas activas al cargar
     const cuencasGroup = L.layerGroup().addTo(map)
     const riosGroup = L.layerGroup().addTo(map)
-    const corredoresGroup = L.layerGroup()
+    const corredoresGroup = L.layerGroup().addTo(map)
     const hotspotsGroup = L.layerGroup()
     const bofedalesGroup = L.layerGroup()
     const glaciaresGroup = L.layerGroup()
@@ -273,6 +278,9 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
       polygon.on('click', () => {
         onSelectBasin(basin)
+        if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+          setSheetBasin(basin)
+        }
       })
 
       polygon.on('mouseover', () => {
@@ -286,13 +294,9 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         })
       })
 
-      polygon.bindTooltip(
-        `<div style="font-family: inherit; font-size: 13px; font-weight: bold; padding: 2px 4px;">
-          <strong>Cuenca ${basin.nombre}</strong><br/>
-          <span style="color: ${color}; font-weight: 800;">● ${theme.labelEs} (${season === 'seca' ? 'Época Seca' : 'Época Lluviosa'})</span>
-        </div>`,
-        { sticky: false, direction: 'center' }
-      )
+      if (typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches) {
+        polygon.bindTooltip(`<strong>Cuenca ${basin.nombre}</strong>`, { sticky: true })
+      }
 
       cuencasGroup.addLayer(polygon)
 
@@ -325,7 +329,12 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         }),
       })
 
-      centerMarker.on('click', () => onSelectBasin(basin))
+      centerMarker.on('click', () => {
+        onSelectBasin(basin)
+        if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+          setSheetBasin(basin)
+        }
+      })
       cuencasGroup.addLayer(centerMarker)
     })
 
@@ -345,10 +354,9 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       lineCap: 'round',
       lineJoin: 'round',
     })
-    rioSantaLine.bindTooltip(
-      '<strong>Río Santa</strong> (Colector Principal del Callejón de Huaylas)',
-      { sticky: true }
-    )
+    if (typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches) {
+      rioSantaLine.bindTooltip('<strong>Río Santa</strong>', { sticky: true })
+    }
     riosGroup.addLayer(rioSantaGlow)
     riosGroup.addLayer(rioSantaLine)
 
@@ -418,6 +426,36 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
       corredoresGroup.addLayer(riverCasing)
       corredoresGroup.addLayer(thalwegLine)
+
+      // Distintivo flotante con el nombre de la subcuenca / quebrada
+      const midPoint = corridor.thalweg[Math.floor(corridor.thalweg.length / 2)]
+      const subbasinBadge = L.marker(midPoint, {
+        icon: L.divIcon({
+          className: 'custom-subbasin-badge',
+          html: `<div style="
+            background: rgba(15, 23, 42, 0.90);
+            color: white;
+            border: 1.5px solid ${corridor.color};
+            border-radius: 999px;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: 800;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+            transform: translate(-50%, -100%);
+            cursor: pointer;
+          ">
+            <span style="font-size: 9px; opacity: 0.85;">Subcuenca:</span>
+            <strong style="color: #f8fafc;">${corridor.quebrada}</strong>
+          </div>`,
+          iconSize: [0, 0],
+        }),
+      })
+      subbasinBadge.on('click', handleSelect)
+      corredoresGroup.addLayer(subbasinBadge)
     })
 
     // 4. Focos DAR (capa opcional avanzada)
@@ -488,13 +526,9 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         }),
       })
 
-      bofBadge.bindTooltip(
-        `<div style="font-family: inherit; padding: 2px;">
-          <strong style="color: #15803d;">Humedal: ${bof.nombre}</strong>
-          <div style="font-size: 11px; color: #475569;">Área: ${bof.areaHa} ha · Filtro natural</div>
-        </div>`,
-        { sticky: true }
-      )
+      if (typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches) {
+        bofBadge.bindTooltip(`<strong>${bof.nombre}</strong>`, { sticky: true })
+      }
 
       bofedalesGroup.addLayer(bofBadge)
     })
@@ -829,6 +863,11 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
               <span className="w-5 h-1.5 bg-blue-600 rounded-full shrink-0" />
               <span className="text-slate-700 text-xs font-semibold">Río Santa (Colector Central)</span>
             </div>
+
+            <div className="flex items-center gap-2.5">
+              <span className="w-5 h-1 bg-gradient-to-r from-red-600 via-amber-500 to-emerald-600 rounded-full shrink-0" />
+              <span className="text-slate-700 text-xs font-semibold">Líneas de Subcuencas / Quebradas</span>
+            </div>
           </div>
         </div>
       )}
@@ -897,21 +936,15 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 />
               </label>
 
-              <div className="pt-2">
-                <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider mb-2">
-                  Capas Científicas Opcionales
-                </h4>
-              </div>
-
-              {/* Corredores */}
-              <label className="flex items-center justify-between p-3 rounded-2xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+              {/* Líneas de Subcuencas / Quebradas */}
+              <label className="flex items-center justify-between p-3 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-slate-100 cursor-pointer">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center font-bold text-xs">
-                    ⚠️
+                    ⚡
                   </div>
                   <div>
-                    <strong className="text-sm text-slate-900 block">Ríos y Quebradas Internas</strong>
-                    <span className="text-xs text-slate-500">Cauces con nivel de acidez y pH</span>
+                    <strong className="text-sm text-slate-900 block">Líneas de Subcuencas (Quebradas)</strong>
+                    <span className="text-xs text-slate-500">Cauces interiores con nivel de acidez y pH</span>
                   </div>
                 </div>
                 <input
@@ -921,6 +954,12 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                   className="w-6 h-6 text-blue-600 rounded-lg cursor-pointer"
                 />
               </label>
+
+              <div className="pt-2">
+                <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider mb-2">
+                  Capas Científicas Opcionales
+                </h4>
+              </div>
 
               {/* Focos DAR */}
               <label className="flex items-center justify-between p-3 rounded-2xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
@@ -1007,6 +1046,100 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 {t('btn_done_map')}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {/* Tap/Click Bottom Sheet para Cuenca: panel inferior con nombre, icono-estado, 1 frase y botón "Ver más" */}
+      {sheetBasin && (
+        <div className="lg:hidden">
+          <div
+            onClick={() => setSheetBasin(null)}
+            className="absolute inset-0 z-20 transition-opacity"
+            aria-hidden="true"
+          />
+
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="map-sheet-basin-title"
+            className="absolute bottom-4 left-3 right-3 sm:left-auto sm:right-4 sm:w-96 z-30 bg-white rounded-3xl p-4 sm:p-5 shadow-2xl border border-slate-200 animate-in fade-in slide-in-from-bottom-4 pointer-events-auto"
+          >
+            <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-2 mb-3">
+              <div>
+                <span className="text-[10px] font-black uppercase text-[#1e3a8a] bg-[#eff6ff] px-2.5 py-0.5 rounded-full inline-block mb-1">
+                  Microcuenca
+                </span>
+                <h3
+                  id="map-sheet-basin-title"
+                  className="text-lg sm:text-xl font-black text-[#0f172a] leading-tight"
+                >
+                  Cuenca {sheetBasin.nombre}
+                </h3>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSheetBasin(null)}
+                className="touch-target w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+                aria-label="Cerrar panel de cuenca"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="flex items-center gap-3 p-3 rounded-2xl bg-[#f8fafc] border border-slate-200 mb-3">
+              <div className="w-12 h-12 shrink-0">
+                <Illustration
+                  name={
+                    sheetBasin.nivelRiesgo[season] === 'Alto'
+                      ? 'gota_enferma'
+                      : sheetBasin.nivelRiesgo[season] === 'Medio'
+                      ? 'gota_preocupada'
+                      : 'gota_tranquila'
+                  }
+                  className="w-full h-full"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <span
+                  className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md inline-block mb-0.5 ${
+                    sheetBasin.nivelRiesgo[season] === 'Alto'
+                      ? 'bg-red-100 text-red-800'
+                      : sheetBasin.nivelRiesgo[season] === 'Medio'
+                      ? 'bg-amber-100 text-amber-900'
+                      : 'bg-emerald-100 text-emerald-800'
+                  }`}
+                >
+                  {sheetBasin.nivelRiesgo[season] === 'Alto'
+                    ? 'Alerta'
+                    : sheetBasin.nivelRiesgo[season] === 'Medio'
+                    ? 'Precaución'
+                    : 'Menor riesgo'}
+                </span>
+                <p className="text-xs sm:text-sm font-bold text-slate-800 leading-tight">
+                  {sheetBasin.nivelRiesgo[season] === 'Alto'
+                    ? 'Agua ácida con metales en cabecera'
+                    : sheetBasin.nivelRiesgo[season] === 'Medio'
+                    ? 'Agua en observación preventiva'
+                    : 'Menor riesgo de acidez'}
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                onSelectBasin(sheetBasin)
+                if (onOpenDetails) {
+                  onOpenDetails(sheetBasin)
+                }
+                setSheetBasin(null)
+              }}
+              className="touch-target w-full py-3 px-4 rounded-2xl bg-[#1e3a8a] hover:bg-[#172554] text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-transform active:scale-98"
+            >
+              <span>{t('btn_more_info')}</span>
+              <ChevronRight size={18} />
+            </button>
           </div>
         </div>
       )}

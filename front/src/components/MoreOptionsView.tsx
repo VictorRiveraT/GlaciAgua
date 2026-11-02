@@ -1,15 +1,21 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   HelpCircle,
   Wifi,
   RefreshCw,
   Phone,
+  PhoneCall,
+  Copy,
+  Check,
   Sliders,
   FlaskConical,
   Cpu,
+  FileText,
   ChevronRight,
+  AlertCircle,
 } from 'lucide-react'
 import { useI18n } from '../i18n/I18nContext'
+import { EMERGENCY_CONTACTS } from '../constants/contacts'
 
 interface MoreOptionsViewProps {
   onOpenOnboarding: () => void
@@ -19,6 +25,7 @@ interface MoreOptionsViewProps {
   onOpenSimulator: () => void
   onOpenScientific: () => void
   onOpenAdmin?: () => void
+  onOpenOficio?: () => void
 }
 
 export const MoreOptionsView: React.FC<MoreOptionsViewProps> = ({
@@ -29,8 +36,16 @@ export const MoreOptionsView: React.FC<MoreOptionsViewProps> = ({
   onOpenSimulator,
   onOpenScientific,
   onOpenAdmin,
+  onOpenOficio,
 }) => {
   const { t } = useI18n()
+  const [copiedId, setCopiedId] = useState<string | null>(null)
+
+  const copyNumber = (id: string, rawPhone: string) => {
+    navigator.clipboard?.writeText(rawPhone)
+    setCopiedId(id)
+    setTimeout(() => setCopiedId(null), 2500)
+  }
 
   return (
     <div className="max-w-2xl mx-auto p-4 sm:p-6 space-y-6 text-[#0f172a] select-none">
@@ -46,7 +61,7 @@ export const MoreOptionsView: React.FC<MoreOptionsViewProps> = ({
 
       {/* Community Section */}
       <div className="bg-white rounded-3xl border border-[#cbd5e1] shadow-xs overflow-hidden divide-y divide-[#e2e8f0]">
-        {/* Onboarding / Cómo funciona */}
+        {/* Guía de uso comunitaria */}
         <button
           type="button"
           onClick={onOpenOnboarding}
@@ -67,6 +82,30 @@ export const MoreOptionsView: React.FC<MoreOptionsViewProps> = ({
           </div>
           <ChevronRight size={18} className="text-[#94a3b8]" />
         </button>
+
+        {/* Redactar oficio para autoridades */}
+        {onOpenOficio && (
+          <button
+            type="button"
+            onClick={onOpenOficio}
+            className="touch-target w-full p-4 flex items-center justify-between text-left hover:bg-[#f8fafc] transition-colors"
+          >
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-[#eff6ff] text-[#1e3a8a] flex items-center justify-center shrink-0">
+                <FileText size={22} />
+              </div>
+              <div>
+                <strong className="text-sm font-black block text-[#0f172a]">
+                  {t('oficio_modal_title')}
+                </strong>
+                <span className="text-xs text-[#64748b]">
+                  Carta formal para JASS y municipio lista para copiar o imprimir
+                </span>
+              </div>
+            </div>
+            <ChevronRight size={18} className="text-[#94a3b8]" />
+          </button>
+        )}
 
         {/* Puntos de Internet y Tambos */}
         <button
@@ -120,42 +159,74 @@ export const MoreOptionsView: React.FC<MoreOptionsViewProps> = ({
         </button>
       </div>
 
-      {/* Emergency Contacts */}
-      <div className="bg-white p-5 rounded-3xl border border-[#cbd5e1] shadow-xs space-y-3">
-        <h2 className="text-sm font-black uppercase text-[#475569] tracking-wider flex items-center gap-2">
-          <Phone size={16} className="text-[#1e3a8a]" />
-          <span>{t('more_contacts')}</span>
-        </h2>
-        <div className="space-y-2 text-xs">
-          <div className="flex items-center justify-between p-3 rounded-2xl bg-[#f8fafc] border border-[#e2e8f0]">
-            <div>
-              <strong className="font-bold block text-[#0f172a]">{t('contact_jass')}</strong>
-              <span className="text-[#64748b]">Atención local y control de bocatomas</span>
-            </div>
-            <a href="tel:043421234" className="touch-target text-xs font-black text-[#1e3a8a] bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-200">
-              Llamar
-            </a>
-          </div>
+      {/* Emergency Contacts - Directorio con números grandes y llamada directa */}
+      <div className="bg-white p-5 rounded-3xl border border-[#cbd5e1] shadow-xs space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-black uppercase text-[#475569] tracking-wider flex items-center gap-2">
+            <Phone size={16} className="text-[#1e3a8a]" />
+            <span>{t('more_contacts')}</span>
+          </h2>
+          <span className="text-[10px] font-bold text-amber-900 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-full flex items-center gap-1">
+            <AlertCircle size={10} />
+            Números por confirmar
+          </span>
+        </div>
 
-          <div className="flex items-center justify-between p-3 rounded-2xl bg-[#f8fafc] border border-[#e2e8f0]">
-            <div>
-              <strong className="font-bold block text-[#0f172a]">{t('contact_diresa')}</strong>
-              <span className="text-[#64748b]">Salud ambiental y emergencias</span>
-            </div>
-            <a href="tel:043422020" className="touch-target text-xs font-black text-[#1e3a8a] bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-200">
-              Llamar
-            </a>
-          </div>
+        <div className="space-y-3">
+          {EMERGENCY_CONTACTS.map((contact) => (
+            <div
+              key={contact.id}
+              className="p-3.5 sm:p-4 rounded-2xl bg-[#f8fafc] border border-[#e2e8f0] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+            >
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <strong className="text-sm font-black text-[#0f172a]">
+                    {contact.name}
+                  </strong>
+                </div>
+                <p className="text-xs text-[#64748b] leading-tight font-medium">
+                  {contact.role}
+                </p>
+                {/* Número en grande con fuente tabular */}
+                <div className="pt-1">
+                  <span className="font-mono text-lg sm:text-xl font-black text-[#0f172a] tracking-wider">
+                    {contact.displayPhone}
+                  </span>
+                </div>
+              </div>
 
-          <div className="flex items-center justify-between p-3 rounded-2xl bg-[#f8fafc] border border-[#e2e8f0]">
-            <div>
-              <strong className="font-bold block text-[#0f172a]">{t('contact_municipio')}</strong>
-              <span className="text-[#64748b]">Defensa Civil y Gestión de Riesgos</span>
+              {/* Botones de acción táctiles: Llamar y Copiar */}
+              <div className="flex items-center gap-2 pt-1 sm:pt-0">
+                <a
+                  href={`tel:${contact.rawPhone}`}
+                  className="touch-target flex-1 sm:flex-none px-4 py-2.5 rounded-2xl bg-[#1e3a8a] hover:bg-[#172554] text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-xs transition-transform active:scale-95"
+                  aria-label={`Llamar a ${contact.name} al ${contact.displayPhone}`}
+                >
+                  <PhoneCall size={16} />
+                  <span>Llamar</span>
+                </a>
+
+                <button
+                  type="button"
+                  onClick={() => copyNumber(contact.id, contact.rawPhone)}
+                  className="touch-target px-3.5 py-2.5 rounded-2xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-bold text-xs flex items-center justify-center gap-1 transition-transform active:scale-95"
+                  aria-label={`Copiar número de ${contact.name}`}
+                >
+                  {copiedId === contact.id ? (
+                    <>
+                      <Check size={16} className="text-[#166534]" />
+                      <span className="text-[#166534] font-black">¡Copiado!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={16} />
+                      <span>Copiar</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
-            <a href="tel:043421661" className="touch-target text-xs font-black text-[#1e3a8a] bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-200">
-              Llamar
-            </a>
-          </div>
+          ))}
         </div>
       </div>
 
