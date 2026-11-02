@@ -6,9 +6,14 @@ from typing import List, Dict, Any, Optional
 
 DB_PATH = os.getenv("GLACIAGUA_DB_PATH", "glaciagua.db")
 
+
 def get_connection():
-    os.makedirs(os.path.dirname(os.path.abspath(DB_PATH)), exist_ok=True)
+    os.makedirs(
+        os.path.dirname(os.path.abspath(DB_PATH)),
+        exist_ok=True,
+    )
     conn = sqlite3.connect(DB_PATH)
+    conn.execute("PRAGMA foreign_keys = ON")
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -107,3 +112,50 @@ def obtener_reportes() -> List[Dict[str, Any]]:
 
     conn.close()
     return reportes
+
+def init_auth_db():
+    """Crea las tablas de acceso sin eliminar datos existentes."""
+    conn = get_connection()
+
+    try:
+        conn.executescript("""
+            CREATE TABLE IF NOT EXISTS usuarios (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nombre TEXT NOT NULL,
+                correo TEXT NOT NULL COLLATE NOCASE UNIQUE,
+                password_hash TEXT NOT NULL,
+                rol TEXT NOT NULL
+                    CHECK (rol IN ('admin', 'investigador')),
+                estado TEXT NOT NULL DEFAULT 'activo'
+                    CHECK (estado IN ('activo', 'suspendido')),
+                institucion TEXT,
+                creado_por INTEGER REFERENCES usuarios(id),
+                creado_en TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                actualizado_en TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS sesiones (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                usuario_id INTEGER NOT NULL REFERENCES usuarios(id),
+                token_hash TEXT NOT NULL UNIQUE,
+                creado_en TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                expira_en TEXT NOT NULL,
+                revocado_en TEXT
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_sesiones_usuario
+                ON sesiones(usuario_id);
+
+            CREATE TABLE IF NOT EXISTS auditoria (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                actor_id INTEGER REFERENCES usuarios(id),
+                accion TEXT NOT NULL,
+                entidad TEXT NOT NULL,
+                entidad_id TEXT,
+                detalles TEXT,
+                creado_en TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+        """)
+        conn.commit()
+    finally:
+        conn.close()

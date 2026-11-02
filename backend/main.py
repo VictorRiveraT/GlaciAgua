@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Query, status
+from fastapi import FastAPI, HTTPException, Query, status, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional, Dict, Any, Literal
 from datetime import datetime
@@ -19,15 +19,29 @@ from services.data_service import DataService
 from services.db import init_db, insertar_reporte, obtener_reportes
 from services.ml_client import MLClient
 from services.email_service import EmailService
+from auth import router as auth_router, init_auth_db as iniciar_autenticacion
+from admin_usuarios import router as admin_router, init_admin_db
+from mediciones_campo import router as mediciones_router, init_mediciones_db
+from reportes_cientificos import router as reportes_router
+from avisos_reportes import init_avisos_reportes_db, preparar_avisos, enviar_aviso
 
 # Inicializar base de datos SQLite
 init_db()
+iniciar_autenticacion()
+init_admin_db()
+init_mediciones_db()
+init_avisos_reportes_db()
 
 app = FastAPI(
     title="GlaciAgua API",
     description="API REST de Alerta Temprana de Drenaje Ácido de Roca (DAR) en la Cordillera Blanca (Huaraz, Áncash)",
     version="1.2.0",
 )
+
+app.include_router(auth_router)
+app.include_router(admin_router)
+app.include_router(mediciones_router)
+app.include_router(reportes_router)
 
 # Configuración de CORS para permitir peticiones desde el frontend de Vite y dominios personalizados
 app.add_middleware(
@@ -163,12 +177,14 @@ async def ml_predecir(microcuencas: List[Dict[str, Any]]):
 
 # 5. Reportes Comunitarios Offline
 @app.post("/reportes", response_model=ReporteResponse, status_code=status.HTTP_201_CREATED, tags=["Ciencia Ciudadana"])
-def registrar_reporte(reporte: ReporteCreate):
+def registrar_reporte(reporte: ReporteCreate, tareas: BackgroundTasks):
     """
     Recibe reportes comunitarios desde la PWA.
     Implementa idempotencia por UUID para evitar duplicados cuando el cliente reintenta la sincronización offline.
     """
     nuevo = insertar_reporte(reporte.model_dump())
+    for aviso_id in preparar_avisos(reporte.id):
+        tareas.add_task(enviar_aviso, aviso_id)
     mensaje = "Reporte guardado exitosamente." if nuevo else "Reporte ya existía previamente (idempotente por UUID)."
 
     return ReporteResponse(
