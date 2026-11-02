@@ -21,11 +21,13 @@ from services.ml_client import MLClient
 from services.email_service import EmailService
 from auth import router as auth_router, init_auth_db as iniciar_autenticacion
 from admin_usuarios import router as admin_router, init_admin_db
+from mediciones_campo import router as mediciones_router, init_mediciones_db
 
 # Inicializar base de datos SQLite
 init_db()
 iniciar_autenticacion()
 init_admin_db()
+init_mediciones_db()
 
 app = FastAPI(
     title="GlaciAgua API",
@@ -34,6 +36,7 @@ app = FastAPI(
 )
 app.include_router(auth_router)
 app.include_router(admin_router)
+app.include_router(mediciones_router)
 
 # Configuración de CORS para permitir peticiones desde el frontend de Vite y dominios personalizados
 app.add_middleware(
