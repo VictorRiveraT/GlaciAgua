@@ -14,6 +14,7 @@ import { OnboardingModal } from './components/OnboardingModal'
 import { CommunityHelpModal } from './components/CommunityHelpModal'
 import { OfficialLetterModal } from './components/OfficialLetterModal'
 import { AdminPortalModal } from './components/AdminPortalModal'
+import { WelcomeScreen } from './components/WelcomeScreen'
 import { GlaciAguaApi } from './services/api'
 import { useI18n } from './i18n/I18nContext'
 import {
@@ -29,16 +30,27 @@ import {
 
 // Code-splitting para optimizar la carga inicial en redes móviles lentas (2G/3G)
 const RiskSimulator = lazy(() =>
-  import('./components/RiskSimulator').then((m) => ({ default: m.RiskSimulator }))
+  import('./components/RiskSimulator').then((m) => ({
+    default: m.RiskSimulator,
+  }))
 )
+
 const GuidanceView = lazy(() =>
-  import('./components/GuidanceView').then((m) => ({ default: m.GuidanceView }))
+  import('./components/GuidanceView').then((m) => ({
+    default: m.GuidanceView,
+  }))
 )
+
 const ScientificDataView = lazy(() =>
-  import('./components/ScientificDataView').then((m) => ({ default: m.ScientificDataView }))
+  import('./components/ScientificDataView').then((m) => ({
+    default: m.ScientificDataView,
+  }))
 )
+
 const ConnectivityView = lazy(() =>
-  import('./components/ConnectivityView').then((m) => ({ default: m.ConnectivityView }))
+  import('./components/ConnectivityView').then((m) => ({
+    default: m.ConnectivityView,
+  }))
 )
 
 const STORAGE_KEY_REPORTS = 'glaciagua_community_reports_v2'
@@ -66,7 +78,8 @@ const INITIAL_REPORTS: CommunityReport[] = [
 
 // Detección automática de temporada según el calendario real de la sierra peruana (SENAMHI)
 const getAutoSeason = (): Season => {
-  const month = new Date().getMonth() + 1 // 1-12
+  const month = new Date().getMonth() + 1
+
   // Octubre a Abril es temporada de lluvias en Áncash
   return month >= 10 || month <= 4 ? 'humeda' : 'seca'
 }
@@ -78,8 +91,12 @@ export default function App() {
   const [season, setSeason] = useState<Season>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_SEASON)
-      if (saved === 'seca' || saved === 'humeda') return saved
+
+      if (saved === 'seca' || saved === 'humeda') {
+        return saved
+      }
     } catch {}
+
     return getAutoSeason()
   })
 
@@ -87,22 +104,34 @@ export default function App() {
   const [selectedBasin, setSelectedBasin] = useState<BasinData | null>(() => {
     try {
       const savedId = localStorage.getItem(STORAGE_KEY_BASIN)
+
       if (savedId) {
         const found = PILOT_BASINS.find((b) => b.id === savedId)
-        if (found) return found
+
+        if (found) {
+          return found
+        }
       }
     } catch {}
+
     return PILOT_BASINS[0]
   })
 
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false)
   const [offlineToast, setOfflineToast] = useState<string | null>(null)
-  
-  // Vista principal: por defecto responde a '¿Puedo usar el agua?'
+
+  // Vista principal: comienza en la bienvenida
   const [currentView, setCurrentView] = useState<
-    'agua' | 'mapa' | 'guia' | 'mas' | 'simulador' | 'cientifico' | 'conectividad'
-  >('agua')
+    | 'welcome'
+    | 'agua'
+    | 'mapa'
+    | 'guia'
+    | 'mas'
+    | 'simulador'
+    | 'cientifico'
+    | 'conectividad'
+  >('welcome')
 
   const [isReportModalOpen, setIsReportModalOpen] = useState(false)
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false)
@@ -113,29 +142,61 @@ export default function App() {
   const [isMobileDrawerExpanded, setIsMobileDrawerExpanded] = useState(false)
   const [isDetailsExpanded, setIsDetailsExpanded] = useState(false)
 
-  // Mostrar bienvenida la primera vez
+  // Identifica si la guía se abrió desde el onboarding
+  const [helpFromOnboarding, setHelpFromOnboarding] = useState(false)
+
+  // Mostrar onboarding la primera vez
   useEffect(() => {
     try {
       const seen =
         localStorage.getItem('glaciagua_welcome_seen') ||
         localStorage.getItem(STORAGE_KEY_ONBOARDING_SEEN)
+
       if (!seen) {
         setIsOnboardingOpen(true)
       }
     } catch {}
   }, [])
 
+  // Cerrar onboarding y mostrar WelcomeScreen
+  const handleOnboardingClose = () => {
+    setIsOnboardingOpen(false)
+    setCurrentView('welcome')
+  }
+
+  // Abrir la guía desde el onboarding
+  const handleOnboardingHelp = () => {
+    setHelpFromOnboarding(true)
+    setIsHelpModalOpen(true)
+  }
+
+  // Cerrar la guía de ayuda
+  const handleHelpClose = () => {
+    setIsHelpModalOpen(false)
+
+    // Si se abrió desde el onboarding, continuar a WelcomeScreen
+    if (helpFromOnboarding) {
+      setCurrentView('welcome')
+      setHelpFromOnboarding(false)
+    }
+  }
+
   // Persistencia de reportes comunitarios en LocalStorage (Offline-First)
   const [reports, setReports] = useState<CommunityReport[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_REPORTS)
+
       if (saved) {
         const parsed = JSON.parse(saved)
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed
+
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed
+        }
       }
     } catch (e) {
       console.warn('Error reading reports from cache:', e)
     }
+
     return INITIAL_REPORTS
   })
 
@@ -164,6 +225,7 @@ export default function App() {
   // Función de sincronización masiva con el backend
   const handleSyncAll = async () => {
     const unsynced = reports.filter((r) => !r.sincronizado)
+
     if (unsynced.length === 0) {
       setOfflineToast('✓ Todos los reportes locales ya están sincronizados.')
       setTimeout(() => setOfflineToast(null), 3000)
@@ -171,15 +233,20 @@ export default function App() {
     }
 
     setOfflineToast(`Enviando ${unsynced.length} reporte(s) al servidor...`)
+
     let exitosos = 0
 
     for (const report of unsynced) {
       try {
         const resp = await GlaciAguaApi.enviarReporte(report)
+
         if (resp.success) {
           exitosos++
+
           setReports((prev) =>
-            prev.map((r) => (r.id === report.id ? { ...r, sincronizado: true } : r))
+            prev.map((r) =>
+              r.id === report.id ? { ...r, sincronizado: true } : r
+            )
           )
         }
       } catch (err) {
@@ -188,10 +255,15 @@ export default function App() {
     }
 
     if (exitosos > 0) {
-      setOfflineToast(`✓ ${exitosos} reporte(s) sincronizados con la base de datos central.`)
+      setOfflineToast(
+        `✓ ${exitosos} reporte(s) sincronizados con la base de datos central.`
+      )
     } else {
-      setOfflineToast('⚡ Sin conexión al servidor. Los reportes permanecen seguros en tu dispositivo.')
+      setOfflineToast(
+        '⚡ Sin conexión al servidor. Los reportes permanecen seguros en tu dispositivo.'
+      )
     }
+
     setTimeout(() => setOfflineToast(null), 4000)
   }
 
@@ -199,17 +271,27 @@ export default function App() {
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true)
-      setOfflineToast('✓ Conexión a internet detectada · Sincronizando reportes pendientes...')
+
+      setOfflineToast(
+        '✓ Conexión a internet detectada · Sincronizando reportes pendientes...'
+      )
+
       handleSyncAll()
     }
+
     const handleOffline = () => {
       setIsOnline(false)
-      setOfflineToast('⚡ Modo sin conexión activo · Datos y mapas guardados en celular')
+
+      setOfflineToast(
+        '⚡ Modo sin conexión activo · Datos y mapas guardados en celular'
+      )
+
       setTimeout(() => setOfflineToast(null), 4500)
     }
 
     window.addEventListener('online', handleOnline)
     window.addEventListener('offline', handleOffline)
+
     return () => {
       window.removeEventListener('online', handleOnline)
       window.removeEventListener('offline', handleOffline)
@@ -223,22 +305,32 @@ export default function App() {
     if (navigator.onLine) {
       try {
         const resp = await GlaciAguaApi.enviarReporte(newReport)
+
         if (resp.success) {
           setReports((prev) =>
-            prev.map((r) => (r.id === newReport.id ? { ...r, sincronizado: true } : r))
+            prev.map((r) =>
+              r.id === newReport.id ? { ...r, sincronizado: true } : r
+            )
           )
+
           setOfflineToast('✓ Reporte guardado y sincronizado con éxito.')
           setTimeout(() => setOfflineToast(null), 3500)
+
           return
         }
       } catch {}
     }
-    setOfflineToast('⚡ Reporte guardado en tu teléfono. Se enviará al detectar internet.')
+
+    setOfflineToast(
+      '⚡ Reporte guardado en tu teléfono. Se enviará al detectar internet.'
+    )
+
     setTimeout(() => setOfflineToast(null), 4000)
   }
 
   const handleClearCache = () => {
     setReports([])
+
     try {
       localStorage.removeItem(STORAGE_KEY_REPORTS)
     } catch {}
@@ -246,25 +338,38 @@ export default function App() {
 
   const pendingReports = reports.filter((r) => !r.sincronizado)
 
+  // Mostrar la bienvenida sin la navegación habitual de la aplicación
+  const isWelcomeView = currentView === 'welcome'
+
   return (
-    <div className="h-screen h-[100dvh] w-screen w-full flex flex-col bg-[#f8fafc] text-[#0f172a] font-sans overflow-hidden">
+    <div
+      className={`${
+        isWelcomeView
+          ? 'min-h-screen w-full overflow-x-hidden bg-[#f5f8f7]'
+          : 'h-screen h-[100dvh] w-screen w-full flex flex-col bg-[#f8fafc] text-[#0f172a] font-sans overflow-hidden'
+      }`}
+    >
       {/* Top Header */}
-      <Navbar
-        currentView={currentView}
-        onSelectView={(v) => setCurrentView(v)}
-        season={season}
-        onSetSeason={setSeason}
-        isOnline={isOnline}
-        onOpenSync={() => setIsSyncModalOpen(true)}
-        pendingReportsCount={pendingReports.length}
-        onOpenReport={() => setIsReportModalOpen(true)}
-        onOpenAdmin={() => setIsAdminPortalOpen(true)}
-      />
+      {!isWelcomeView && (
+        <Navbar
+          currentView={currentView}
+          onSelectView={(v) => setCurrentView(v)}
+          onGoHome={() => setCurrentView('welcome')}
+          season={season}
+          onSetSeason={setSeason}
+          isOnline={isOnline}
+          onOpenSync={() => setIsSyncModalOpen(true)}
+          pendingReportsCount={pendingReports.length}
+          onOpenReport={() => setIsReportModalOpen(true)}
+          onOpenAdmin={() => setIsAdminPortalOpen(true)}
+        />
+      )}
 
       {/* Dynamic Offline / Online Notification Banner */}
-      {offlineToast && (
+      {offlineToast && !isWelcomeView && (
         <div className="bg-[#1e3a8a] text-white text-xs font-bold py-2 px-4 flex items-center justify-between shadow-md z-40">
           <span>{offlineToast}</span>
+
           <button
             type="button"
             onClick={() => setOfflineToast(null)}
@@ -276,8 +381,23 @@ export default function App() {
       )}
 
       {/* Main View Container */}
-      <main className="flex-1 min-h-0 w-full flex overflow-hidden relative">
-        {/* Vista 1: ¿Puedo usar el agua? (Principal por defecto) */}
+      <main
+        className={`${
+          isWelcomeView
+            ? 'w-full'
+            : 'flex-1 min-h-0 w-full flex overflow-hidden relative'
+        }`}
+      >
+        {/* Vista de bienvenida */}
+        {currentView === 'welcome' && (
+          <div className="w-full">
+            <WelcomeScreen
+              onExplore={() => setCurrentView('mapa')}
+            />
+          </div>
+        )}
+
+        {/* Vista 1: ¿Puedo usar el agua? */}
         {currentView === 'agua' && (
           <div className="w-full h-full overflow-y-auto px-4 py-5 pb-24 lg:pb-8 flex justify-center">
             <SimpleWaterStatusCard
@@ -303,7 +423,9 @@ export default function App() {
                 onSelectBasin={(b) => setSelectedBasin(b)}
                 season={season}
                 isCollapsed={isSidebarCollapsed}
-                onToggleCollapse={() => setIsSidebarCollapsed((prev) => !prev)}
+                onToggleCollapse={() =>
+                  setIsSidebarCollapsed((prev) => !prev)
+                }
               />
             </div>
 
@@ -352,7 +474,9 @@ export default function App() {
                 }`}
               >
                 <div
-                  onClick={() => setIsMobileDrawerExpanded((prev) => !prev)}
+                  onClick={() =>
+                    setIsMobileDrawerExpanded((prev) => !prev)
+                  }
                   className="touch-target w-full py-2.5 px-4 flex items-center justify-between cursor-pointer bg-[#f8fafc] rounded-t-3xl border-b border-[#e2e8f0] select-none"
                 >
                   <div className="flex items-center gap-2.5 truncate">
@@ -365,13 +489,21 @@ export default function App() {
                           : 'bg-[#16a34a]'
                       }`}
                     />
+
                     <strong className="text-sm font-black text-[#0f172a] truncate max-w-[170px]">
                       {selectedBasin.nombre}
                     </strong>
+
                     <span className="text-xs font-bold text-[#475569] hidden sm:inline">
-                      · {selectedBasin.nivelRiesgo[season] === 'Alto' ? 'Alerta' : selectedBasin.nivelRiesgo[season] === 'Medio' ? 'Precaución' : 'Menor riesgo'}
+                      ·{' '}
+                      {selectedBasin.nivelRiesgo[season] === 'Alto'
+                        ? 'Alerta'
+                        : selectedBasin.nivelRiesgo[season] === 'Medio'
+                        ? 'Precaución'
+                        : 'Menor riesgo'}
                     </span>
                   </div>
+
                   <span className="text-xs font-black text-[#1e3a8a] bg-[#eff6ff] border border-blue-200 px-3 py-1 rounded-xl shrink-0">
                     {isMobileDrawerExpanded ? '▼ Bajar' : '▲ Ver más'}
                   </span>
@@ -405,20 +537,29 @@ export default function App() {
             <Suspense
               fallback={
                 <div className="h-full flex items-center justify-center gap-2 text-sm font-bold text-[#64748b]">
-                  <Loader2 size={20} className="animate-spin text-[#1e3a8a]" /> Cargando guía...
+                  <Loader2
+                    size={20}
+                    className="animate-spin text-[#1e3a8a]"
+                  />
+                  Cargando guía...
                 </div>
               }
             >
-              <GuidanceView onOpenOficio={() => setIsOficioModalOpen(true)} />
+              <GuidanceView
+                onOpenOficio={() => setIsOficioModalOpen(true)}
+              />
             </Suspense>
           </div>
         )}
 
-        {/* Vista 4: Más Opciones (Ayuda, Sincronización, Jurado) */}
+        {/* Vista 4: Más Opciones */}
         {currentView === 'mas' && (
           <div className="w-full h-full overflow-y-auto pb-20 lg:pb-8">
             <MoreOptionsView
-              onOpenOnboarding={() => setIsHelpModalOpen(true)}
+              onOpenOnboarding={() => {
+                setHelpFromOnboarding(false)
+                setIsHelpModalOpen(true)
+              }}
               onOpenConnectivity={() => setCurrentView('conectividad')}
               onOpenSync={() => setIsSyncModalOpen(true)}
               pendingReportsCount={pendingReports.length}
@@ -430,13 +571,17 @@ export default function App() {
           </div>
         )}
 
-        {/* Vistas Secundarias (Jurado / Conectividad) */}
+        {/* Vista secundaria: Simulador */}
         {currentView === 'simulador' && (
           <div className="w-full h-full overflow-y-auto pb-20 lg:pb-8">
             <Suspense
               fallback={
                 <div className="h-full flex items-center justify-center gap-2 text-sm font-bold text-[#64748b]">
-                  <Loader2 size={20} className="animate-spin text-[#1e3a8a]" /> Cargando simulador...
+                  <Loader2
+                    size={20}
+                    className="animate-spin text-[#1e3a8a]"
+                  />
+                  Cargando simulador...
                 </div>
               }
             >
@@ -445,12 +590,17 @@ export default function App() {
           </div>
         )}
 
+        {/* Vista secundaria: Datos científicos */}
         {currentView === 'cientifico' && (
           <div className="w-full h-full overflow-y-auto pb-20 lg:pb-8">
             <Suspense
               fallback={
                 <div className="h-full flex items-center justify-center gap-2 text-sm font-bold text-[#64748b]">
-                  <Loader2 size={20} className="animate-spin text-[#1e3a8a]" /> Cargando datos...
+                  <Loader2
+                    size={20}
+                    className="animate-spin text-[#1e3a8a]"
+                  />
+                  Cargando datos...
                 </div>
               }
             >
@@ -459,12 +609,17 @@ export default function App() {
           </div>
         )}
 
+        {/* Vista secundaria: Conectividad */}
         {currentView === 'conectividad' && (
           <div className="w-full h-full overflow-hidden pb-20 lg:pb-8">
             <Suspense
               fallback={
                 <div className="h-full flex items-center justify-center gap-2 text-sm font-bold text-[#64748b]">
-                  <Loader2 size={20} className="animate-spin text-[#1e3a8a]" /> Cargando mapa...
+                  <Loader2
+                    size={20}
+                    className="animate-spin text-[#1e3a8a]"
+                  />
+                  Cargando mapa...
                 </div>
               }
             >
@@ -474,89 +629,115 @@ export default function App() {
         )}
       </main>
 
-      {/* Mobile Floating Action Button (FAB) for "Avisar agua sucia" */}
-      <button
-        type="button"
-        onClick={() => setIsReportModalOpen(true)}
-        style={{
-          bottom: 'calc(8.25rem + env(safe-area-inset-bottom, 0px))',
-          right: 'calc(1rem + env(safe-area-inset-right, 0px))',
-        }}
-        className="lg:hidden fixed z-40 touch-target px-4 py-3 bg-amber-400 hover:bg-amber-500 text-slate-950 rounded-full font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-2xl border-2 border-amber-500 transition-transform active:scale-95"
-        aria-label="Avisar agua sucia"
-      >
-        <div className="flex items-center -mr-0.5">
-          <Droplet size={18} className="fill-slate-950 text-slate-950" />
-          <Plus size={14} className="-ml-1 font-black" />
-        </div>
-        <span className="font-black tracking-tight">{t('btn_report_water')}</span>
-      </button>
-
-      {/* Mobile Bottom Navigation Bar: Exactly 4 Sections with Big Touch Targets */}
-      <nav
-        className="lg:hidden fixed bottom-0 inset-x-0 h-16 bg-white border-t border-[#cbd5e1] z-50 flex items-center justify-around px-2 shadow-xl select-none"
-        role="navigation"
-        aria-label="Navegación principal"
-      >
+      {/* Mobile Floating Action Button for "Avisar agua sucia" */}
+      {!isWelcomeView && (
         <button
           type="button"
-          onClick={() => setCurrentView('agua')}
-          className={`touch-target flex flex-col items-center justify-center gap-1 flex-1 py-1 transition-all ${
-            currentView === 'agua' ? 'text-[#1e3a8a] font-black' : 'text-[#64748b]'
-          }`}
+          onClick={() => setIsReportModalOpen(true)}
+          style={{
+            bottom: 'calc(8.25rem + env(safe-area-inset-bottom, 0px))',
+            right: 'calc(1rem + env(safe-area-inset-right, 0px))',
+          }}
+          className="lg:hidden fixed z-40 touch-target px-4 py-3 bg-amber-400 hover:bg-amber-500 text-slate-950 rounded-full font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-2xl border-2 border-amber-500 transition-transform active:scale-95"
+          aria-label="Avisar agua sucia"
         >
-          <Droplet size={22} />
-          <span className="text-[11px] leading-none">¿Uso el agua?</span>
-        </button>
+          <div className="flex items-center -mr-0.5">
+            <Droplet size={18} className="fill-slate-950 text-slate-950" />
+            <Plus size={14} className="-ml-1 font-black" />
+          </div>
 
+          <span className="font-black tracking-tight">
+            {t('btn_report_water')}
+          </span>
+        </button>
+      )}
+
+      {/* Mobile Bottom Navigation Bar */}
+      {!isWelcomeView && (
+        <nav
+          className="lg:hidden fixed bottom-0 inset-x-0 h-16 bg-white border-t border-[#cbd5e1] z-50 flex items-center justify-around px-2 shadow-xl select-none"
+          role="navigation"
+          aria-label="Navegación principal"
+        >
+          <button
+            type="button"
+            onClick={() => setCurrentView('agua')}
+            className={`touch-target flex flex-col items-center justify-center gap-1 flex-1 py-1 transition-all ${
+              currentView === 'agua'
+                ? 'text-[#1e3a8a] font-black'
+                : 'text-[#64748b]'
+            }`}
+          >
+            <Droplet size={22} />
+            <span className="text-[11px] leading-none">¿Uso el agua?</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setCurrentView('mapa')}
+            className={`touch-target flex flex-col items-center justify-center gap-1 flex-1 py-1 transition-all ${
+              currentView === 'mapa'
+                ? 'text-[#1e3a8a] font-black'
+                : 'text-[#64748b]'
+            }`}
+          >
+            <MapPin size={22} />
+            <span className="text-[11px] leading-none">
+              {t('nav_map')}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setCurrentView('guia')}
+            className={`touch-target flex flex-col items-center justify-center gap-1 flex-1 py-1 transition-all ${
+              currentView === 'guia'
+                ? 'text-[#1e3a8a] font-black'
+                : 'text-[#64748b]'
+            }`}
+          >
+            <BookOpen size={22} />
+            <span className="text-[11px] leading-none">
+              {t('btn_guidance')}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setCurrentView('mas')}
+            className={`touch-target flex flex-col items-center justify-center gap-1 flex-1 py-1 transition-all ${
+              currentView === 'mas'
+                ? 'text-[#1e3a8a] font-black'
+                : 'text-[#64748b]'
+            }`}
+          >
+            <Menu size={22} />
+            <span className="text-[11px] leading-none">
+              {t('nav_more')}
+            </span>
+          </button>
+        </nav>
+      )}
+
+      {/* Botón flotante permanente de Ayuda Comunitaria */}
+      {!isWelcomeView && (
         <button
           type="button"
-          onClick={() => setCurrentView('mapa')}
-          className={`touch-target flex flex-col items-center justify-center gap-1 flex-1 py-1 transition-all ${
-            currentView === 'mapa' ? 'text-[#1e3a8a] font-black' : 'text-[#64748b]'
-          }`}
+          onClick={() => {
+            setHelpFromOnboarding(false)
+            setIsHelpModalOpen(true)
+          }}
+          style={{
+            bottom: 'calc(4.75rem + env(safe-area-inset-bottom, 0px))',
+            right: 'calc(1rem + env(safe-area-inset-right, 0px))',
+          }}
+          className="fixed z-40 w-12 h-12 rounded-full bg-[#1e3a8a] hover:bg-[#172554] text-white shadow-xl flex items-center justify-center font-black text-2xl border-2 border-white ring-2 ring-[#1e3a8a]/20 transition-transform active:scale-95 focus:outline-hidden focus:ring-4 focus:ring-blue-400 select-none lg:bottom-6 lg:right-6"
+          aria-label={t('help_floating_aria')}
+          title={t('help_floating_aria')}
         >
-          <MapPin size={22} />
-          <span className="text-[11px] leading-none">{t('nav_map')}</span>
+          ?
         </button>
-
-        <button
-          type="button"
-          onClick={() => setCurrentView('guia')}
-          className={`touch-target flex flex-col items-center justify-center gap-1 flex-1 py-1 transition-all ${
-            currentView === 'guia' ? 'text-[#1e3a8a] font-black' : 'text-[#64748b]'
-          }`}
-        >
-          <BookOpen size={22} />
-          <span className="text-[11px] leading-none">{t('btn_guidance')}</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setCurrentView('mas')}
-          className={`touch-target flex flex-col items-center justify-center gap-1 flex-1 py-1 transition-all ${
-            currentView === 'mas' ? 'text-[#1e3a8a] font-black' : 'text-[#64748b]'
-          }`}
-        >
-          <Menu size={22} />
-          <span className="text-[11px] leading-none">{t('nav_more')}</span>
-        </button>
-      </nav>
-
-      {/* Botón flotante permanente de Ayuda Comunitaria (?) en esquina inferior DERECHA con margen seguro */}
-      <button
-        type="button"
-        onClick={() => setIsHelpModalOpen(true)}
-        style={{
-          bottom: 'calc(4.75rem + env(safe-area-inset-bottom, 0px))',
-          right: 'calc(1rem + env(safe-area-inset-right, 0px))',
-        }}
-        className="fixed z-40 w-12 h-12 rounded-full bg-[#1e3a8a] hover:bg-[#172554] text-white shadow-xl flex items-center justify-center font-black text-2xl border-2 border-white ring-2 ring-[#1e3a8a]/20 transition-transform active:scale-95 focus:outline-hidden focus:ring-4 focus:ring-blue-400 select-none lg:bottom-6 lg:right-6"
-        aria-label={t('help_floating_aria')}
-        title={t('help_floating_aria')}
-      >
-        ?
-      </button>
+      )}
 
       {/* Modales Globales */}
       <ReportModal
@@ -579,13 +760,13 @@ export default function App() {
 
       <OnboardingModal
         isOpen={isOnboardingOpen}
-        onClose={() => setIsOnboardingOpen(false)}
-        onOpenHelp={() => setIsHelpModalOpen(true)}
+        onClose={handleOnboardingClose}
+        onOpenHelp={handleOnboardingHelp}
       />
 
       <CommunityHelpModal
         isOpen={isHelpModalOpen}
-        onClose={() => setIsHelpModalOpen(false)}
+        onClose={handleHelpClose}
       />
 
       <OfficialLetterModal
