@@ -246,5 +246,14 @@
   "exp_tech_title": "Vista técnica",
   "exp_tech_desc": "Explora diagnósticos ambientales, indicadores científicos y herramientas para analizar los factores que influyen en el riesgo.",
   "exp_tech_btn": "Ingresar a la vista técnica",
-  "exp_btn_back": "Volver a la bienvenida"
+  "exp_btn_back": "Volver a la bienvenida",
+  "exp_comm_feature_map": "Mapa y nivel de riesgo",
+  "exp_comm_feature_water": "Estado del agua y fecha de medición",
+  "exp_comm_feature_alerts": "Recomendaciones y alertas",
+  "exp_comm_feature_reports": "Reportes de la comunidad",
+  "exp_tech_feature_risk": "Indicadores y evolución del riesgo",
+  "exp_tech_feature_basin": "Diagnóstico de cuencas",
+  "exp_tech_feature_science": "Información científica y del modelo",
+  "exp_tech_feature_simulator": "Simulador de escenarios",
+  "exp_disclaimer": "Las estimaciones de riesgo son orientativas y no sustituyen un análisis de laboratorio."
 }

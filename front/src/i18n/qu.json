@@ -941,7 +941,7 @@
     "_revisar": true
   },
   "exp_question_desc": {
-    "text": "Munashqaykiman hina akllay: comunidadpaq consejukunata rikay o cientifico willakuykunata qaway.",
+    "text": "Munashqaykiman hina akllay: ayllupaq yuyaykunata rikay o yachayniyuqkunapa willakuyninkunata qaway.",
     "_revisar": true
   },
   "exp_comm_badge": {
@@ -949,35 +949,44 @@
     "_revisar": true
   },
   "exp_comm_title": {
-    "text": "Comunidadpaq rikuna",
+    "text": "Ayllupaq rikay",
     "_revisar": true
   },
   "exp_comm_desc": {
-    "text": "Mayukunapa imano kaykashqanta rikay hinaspa yakuta alli cuidapaq consejukunata chaskiy.",
+    "text": "Mayukunapa imano kaykashqanta rikay hinaspa yakuta alli waqaychanapaq yuyaykunata chaskiy.",
     "_revisar": true
   },
   "exp_comm_btn": {
-    "text": "Comunidadpaq yaykuy",
+    "text": "Ayllupaq yaykuy",
     "_revisar": true
   },
   "exp_tech_badge": {
-    "text": "Científico llamkay",
+    "text": "Yachaypi llamkaq",
     "_revisar": true
   },
   "exp_tech_title": {
-    "text": "Técnica rikuna",
+    "text": "Yachayniyuq rikay",
     "_revisar": true
   },
   "exp_tech_desc": {
-    "text": "Cientifico diagnosticokunata, modelopa numeronkunata hinaspa simuladorta rikay.",
+    "text": "Yachayniyuqkunapa qawariyninkunata, modelokunapa yupayninkunata hinaspa simuladortapas rikay.",
     "_revisar": true
   },
   "exp_tech_btn": {
-    "text": "Técnicaman yaykuy",
+    "text": "Yachayniyuq yaykuy",
     "_revisar": true
   },
   "exp_btn_back": {
     "text": "Qallariyman kutiy",
     "_revisar": true
-  }
+  },
+  "exp_comm_feature_map": "Rikaypaq mapa",
+  "exp_comm_feature_water": "Yakupa rikapaynin",
+  "exp_comm_feature_alerts": "Ñawpaq willakuykuna",
+  "exp_comm_feature_reports": "Ayllupa willakuyninkuna",
+  "exp_tech_feature_risk": "Rikuy sasachakuykunata",
+  "exp_tech_feature_basin": "Wayqukunapa yachaynin",
+  "exp_tech_feature_science": "Yachaypa yupayninkuna",
+  "exp_tech_feature_simulator": "Imayna kananta rikachiq",
+  "exp_disclaimer": "Kay willakuyqa yachaypaqmi, manam yachayniyuqpa qawariyninta rantinchu."
 }
