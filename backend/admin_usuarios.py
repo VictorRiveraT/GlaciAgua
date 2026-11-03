@@ -1,5 +1,6 @@
 """Gestión de investigadores exclusiva del administrador."""
 import json
+import logging
 import sqlite3
 from contextlib import closing
 from typing import Literal
@@ -10,6 +11,8 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from auth import UsuarioPublico, exigir_admin, hash_password
 from services.db import get_connection
 from services.email_service import EmailService
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/admin/usuarios", tags=["Administración de usuarios"])
 
@@ -75,6 +78,14 @@ def auditar(conn, actor_id, accion, entidad_id, detalles):
     """, (actor_id, accion, str(entidad_id), json.dumps(detalles, ensure_ascii=False)))
 
 
+def _despachar_bienvenida_segura(**kwargs):
+    """Ejecuta el envío de bienvenida en segundo plano; un fallo de correo nunca impide crear la cuenta."""
+    try:
+        EmailService.enviar_bienvenida_investigador(**kwargs)
+    except Exception as e:
+        logger.error(f"[ADMIN] Fallo no capturado en envío de bienvenida a {kwargs.get('correo')}: {e}")
+
+
 @router.post("", response_model=UsuarioPublico, status_code=201)
 def crear_investigador(
     datos: InvestigadorCreate,
@@ -101,7 +112,7 @@ def crear_investigador(
 
     # Envío en segundo plano de credenciales y link de acceso al correo del nuevo investigador
     tareas.add_task(
-        EmailService.enviar_bienvenida_investigador,
+        _despachar_bienvenida_segura,
         nombre=datos.nombre,
         correo=datos.correo,
         password=datos.password,

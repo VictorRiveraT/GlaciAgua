@@ -57,13 +57,13 @@ class ReporteCreate(BaseModel):
     id: str = Field(..., description="UUID generado en el cliente para garantizar idempotencia offline")
     cuenca_id: str
     quebrada: str
-    lat: float
-    lng: float
+    lat: float = Field(..., ge=-90.0, le=90.0, description="Latitud en WGS84 (-90 a 90)")
+    lng: float = Field(..., ge=-180.0, le=180.0, description="Longitud en WGS84 (-180 a 180)")
     precision_m: Optional[float] = 10.0
     color_agua: str
     olor_sabor: Optional[str] = None
     usos_afectados: List[str] = Field(default_factory=list)
-    ph_medido: Optional[float] = None
+    ph_medido: Optional[float] = Field(default=None, ge=0.0, le=14.0, description="pH en escala 0-14")
     tiene_foto: bool = False
     foto_base64: Optional[str] = None
     comentarios: Optional[str] = ""
