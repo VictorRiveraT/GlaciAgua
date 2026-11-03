@@ -9,7 +9,7 @@ from html import escape
 
 from models.schemas import EmailAlertaRequest
 from services.db import get_connection
-from services.email_service import EmailService
+from services.email_service import EmailService, formatear_fecha_peru
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +68,7 @@ def enviar_aviso(aviso_id):
     contenido = (
         f"Se recibió el reporte ciudadano {reporte['id']}.\n"
         f"Cuenca: {reporte['cuenca_id']}\nSector: {reporte['quebrada']}\n"
-        f"Fecha de registro (UTC): {reporte['fecha_registro']}\n"
+        f"Fecha de registro: {formatear_fecha_peru(reporte['fecha_registro'])}\n"
         f"Reporte simulado: {'sí' if reporte['simulado'] else 'no'}\n\n"
         "Consulta el detalle en la bandeja de reportes para científicos. "
         "Es una observación ciudadana para contrastar predicciones, no un dato científico validado. "

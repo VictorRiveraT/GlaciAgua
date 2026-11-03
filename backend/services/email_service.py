@@ -17,12 +17,47 @@ from models.schemas import EmailAlertaRequest, EmailAlertaResponse
 
 logger = logging.getLogger(__name__)
 
-# Zona horaria oficial de Perú (UTC-5 / America/Lima)
-TZ_PERU = timezone(timedelta(hours=-5))
+from zoneinfo import ZoneInfo
+
+# Zona horaria oficial de Perú con zona nombrada (America/Lima)
+TZ_PERU = ZoneInfo("America/Lima")
 
 def obtener_ahora_peru() -> datetime:
-    """Retorna la fecha y hora actual en la zona horaria de Perú (UTC-5)."""
+    """Retorna la fecha y hora actual en la zona horaria de Perú (America/Lima)."""
     return datetime.now(TZ_PERU)
+
+def formatear_fecha_peru(fecha_val: str | datetime | None) -> str:
+    """
+    Convierte una fecha UTC (str o datetime) a la zona horaria America/Lima
+    y la formatea como 'DD/MM/YYYY HH:MM (hora de Perú)'.
+    Soporta formato SQLite 'YYYY-MM-DD HH:MM:SS', formato ISO y datetime con o sin tzinfo.
+    """
+    if not fecha_val:
+        return "Fecha no disponible (hora de Perú)"
+    if isinstance(fecha_val, datetime):
+        dt = fecha_val
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+    else:
+        s = str(fecha_val).strip()
+        if s.endswith("Z"):
+            s = s[:-1]
+        try:
+            if "T" in s:
+                dt = datetime.fromisoformat(s)
+            elif len(s) == 16:
+                dt = datetime.strptime(s, "%Y-%m-%d %H:%M")
+            else:
+                dt = datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
+        except Exception:
+            try:
+                dt = datetime.fromisoformat(s)
+            except Exception:
+                return f"{s} (hora de Perú)"
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+    dt_peru = dt.astimezone(TZ_PERU)
+    return f"{dt_peru.strftime('%d/%m/%Y %H:%M')} (hora de Perú)"
 
 # Configuración leída de variables de entorno
 SMTP_HOST = os.getenv("SMTP_HOST", "").strip()
@@ -154,7 +189,7 @@ class EmailService:
         <p><strong>Solicitante:</strong> {solicitud.remitente_nombre} ({solicitud.remitente_rol or 'Comunero'})</p>
         <p><strong>Microcuenca / Sector:</strong> {solicitud.cuenca_nombre}</p>
         <p><strong>Motivo Observado:</strong> {solicitud.motivo}</p>
-        <p><strong>Fecha y Hora:</strong> {obtener_ahora_peru().strftime('%d/%m/%Y %H:%M')} (Hora Perú)</p>
+        <p><strong>Fecha y Hora:</strong> {obtener_ahora_peru().strftime('%d/%m/%Y %H:%M')} (hora de Perú)</p>
       </div>
 
       <div class="letter-body">
@@ -508,7 +543,7 @@ class EmailService:
     <div class="footer">
       <p>Notificación oficial emitida por el equipo de ingeniería y monitoreo ambiental de <strong>GlaciAgua</strong>.</p>
       <p style="font-size: 11px; color: #94a3b8; margin-top: 6px;">
-        Huaraz, Cordillera Blanca, Áncash &bull; Emitido: {obtener_ahora_peru().strftime('%d/%m/%Y %H:%M')} (Hora Perú) &bull; alertas@glaciagua.lat
+        Huaraz, Cordillera Blanca, Áncash &bull; Emitido: {obtener_ahora_peru().strftime('%d/%m/%Y %H:%M')} (hora de Perú) &bull; alertas@glaciagua.lat
       </p>
     </div>
   </div>
@@ -601,7 +636,7 @@ class EmailService:
             simulated_id = f"sim-{uuid.uuid4().hex[:10]}"
             logger.info(
                 f"[BIENVENIDA SIMULADA] De: {EMAIL_FROM} | Para: {correo} | "
-                f"Password: {password} | ID: {simulated_id}"
+                f"Password: [ENMASCARADA] | ID: {simulated_id}"
             )
             return {
                 "enviado": True,
