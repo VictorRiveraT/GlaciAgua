@@ -375,4 +375,147 @@ export class GlaciAguaApi {
       }
     }
   }
+
+  /**
+   * Obtiene la lista de usuarios investigadores (Exclusivo Administrador)
+   */
+  static async getUsuarios(
+    token: string,
+    pagina: number = 1,
+    porPagina: number = 20,
+    estado?: string
+  ): Promise<{ total: number; usuarios: any[] }> {
+    try {
+      const q = new URLSearchParams({
+        pagina: String(pagina),
+        por_pagina: String(porPagina),
+      })
+      if (estado) q.set('estado', estado)
+
+      const res = await fetch(`${API_BASE_URL}/admin/usuarios?${q.toString()}`, {
+        headers: { Authorization: `Bearer ${token}` },
+        signal: AbortSignal.timeout(4000),
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        return {
+          total: data.total ?? data.usuarios?.length ?? 0,
+          usuarios: data.usuarios ?? [],
+        }
+      }
+    } catch {}
+
+    return { total: 0, usuarios: [] }
+  }
+
+  /**
+   * Crea un nuevo usuario con rol de investigador (Exclusivo Administrador)
+   */
+  static async crearInvestigador(
+    token: string,
+    datos: { nombre: string; correo: string; password: string; institucion?: string }
+  ): Promise<{ success: boolean; usuario?: any; error?: string }> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/usuarios`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(datos),
+        signal: AbortSignal.timeout(5000),
+      })
+
+      if (res.ok) {
+        const usuario = await res.json()
+        return { success: true, usuario }
+      }
+
+      const err = await res.json().catch(() => ({}))
+      return { success: false, error: err.detail || 'Error al crear investigador.' }
+    } catch {
+      return { success: false, error: 'Sin conexión con el servidor.' }
+    }
+  }
+
+  /**
+   * Cambia el estado (activo / suspendido) de un investigador (Exclusivo Administrador)
+   */
+  static async cambiarEstadoUsuario(
+    token: string,
+    usuarioId: number,
+    estado: 'activo' | 'suspendido'
+  ): Promise<{ success: boolean; usuario?: any; error?: string }> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/usuarios/${usuarioId}/estado`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ estado }),
+        signal: AbortSignal.timeout(4000),
+      })
+
+      if (res.ok) {
+        const usuario = await res.json()
+        return { success: true, usuario }
+      }
+
+      const err = await res.json().catch(() => ({}))
+      return { success: false, error: err.detail || 'Error al actualizar estado.' }
+    } catch {
+      return { success: false, error: 'Sin conexión con el servidor.' }
+    }
+  }
+
+  /**
+   * Obtiene la bandeja científica de reportes comunitarios para investigadores
+   */
+  static async getReportesCientificos(
+    token: string,
+    pagina: number = 1,
+    porPagina: number = 20,
+    cuencaId?: string
+  ): Promise<{ total: number; reportes: any[] }> {
+    try {
+      const q = new URLSearchParams({
+        pagina: String(pagina),
+        por_pagina: String(porPagina),
+      })
+      if (cuencaId) q.set('cuenca_id', cuencaId)
+
+      const res = await fetch(`${API_BASE_URL}/investigacion/reportes?${q.toString()}`, {
+        headers: { Authorization: `Bearer ${token}` },
+        signal: AbortSignal.timeout(4000),
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        return {
+          total: data.total ?? data.reportes?.length ?? 0,
+          reportes: data.reportes ?? [],
+        }
+      }
+    } catch {}
+
+    return { total: 0, reportes: [] }
+  }
+
+  /**
+   * Cierra formalmente la sesión en el servidor revocando el token en SQLite
+   */
+  static async logout(token: string): Promise<boolean> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/auth/logout`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        signal: AbortSignal.timeout(2000),
+      })
+      return res.ok
+    } catch {
+      return false
+    }
+  }
 }

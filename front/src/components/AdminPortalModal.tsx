@@ -143,6 +143,12 @@ import {
   Check,
   AlertCircle,
   Sparkles,
+  Users,
+  UserPlus,
+  UserCheck,
+  UserX,
+  Inbox,
+  Filter,
 } from 'lucide-react'
 
 interface AdminPortalModalProps {
@@ -173,7 +179,9 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
   const [loggingIn, setLoggingIn] = useState(false)
 
   // Pestaña activa
-  const [activeTab, setActiveTab] = useState<'metricas' | 'ingreso' | 'reentrenar' | 'correo'>('metricas')
+  const [activeTab, setActiveTab] = useState<
+    'metricas' | 'ingreso' | 'reentrenar' | 'correo' | 'usuarios' | 'reportes_cienc'
+  >('metricas')
 
   // Estado del modelo
   const [modelInfo, setModelInfo] = useState<any>(null)
@@ -182,6 +190,25 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
   // Mediciones de campo registradas
   const [mediciones, setMediciones] = useState<any[]>([])
   const [loadingMediciones, setLoadingMediciones] = useState(false)
+
+  // Estado de Gestión de Investigadores (Exclusivo Admin)
+  const [usuarios, setUsuarios] = useState<any[]>([])
+  const [loadingUsuarios, setLoadingUsuarios] = useState(false)
+  const [filtroEstadoUsuario, setFiltroEstadoUsuario] = useState<'todos' | 'activo' | 'suspendido'>('todos')
+  const [busquedaUsuario, setBusquedaUsuario] = useState('')
+  const [nuevoNombre, setNuevoNombre] = useState('')
+  const [nuevoCorreo, setNuevoCorreo] = useState('')
+  const [nuevoPassword, setNuevoPassword] = useState('')
+  const [nuevaInstitucion, setNuevaInstitucion] = useState('')
+  const [guardandoUsuario, setGuardandoUsuario] = useState(false)
+  const [usuarioFeedback, setUsuarioFeedback] = useState<{ tipo: 'ok' | 'error'; texto: string } | null>(null)
+  const [togglingUsuarioId, setTogglingUsuarioId] = useState<number | null>(null)
+
+  // Estado de Bandeja Científica de Reportes
+  const [reportesCientificos, setReportesCientificos] = useState<any[]>([])
+  const [loadingReportesCientificos, setLoadingReportesCientificos] = useState(false)
+  const [filtroCuencaReporte, setFiltroCuencaReporte] = useState('todas')
+  const [reporteModalDetalle, setReporteModalDetalle] = useState<any | null>(null)
 
   // Estado del servicio de correos
   const [emailStatus, setEmailStatus] = useState<any>(null)
@@ -208,8 +235,10 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
   const [pctCarbonatos, setPctCarbonatos] = useState<number>(8.0)
   const [pctBofedal, setPctBofedal] = useState<number>(24.0)
   const [responsable, setResponsable] = useState('Ing. Monitoreo Ambiental')
+  const [esPrueba, setEsPrueba] = useState(false)
   const [savingMedicion, setSavingMedicion] = useState(false)
   const [medicionSuccess, setMedicionSuccess] = useState<string | null>(null)
+  const [medicionError, setMedicionError] = useState<string | null>(null)
 
   // Estado de Reentrenamiento
   const [aumentarConFisica, setAumentarConFisica] = useState(true)
@@ -217,6 +246,29 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
   const [nArboles, setNArboles] = useState(250)
   const [reentrenando, setReentrenando] = useState(false)
   const [resultadoReentreno, setResultadoReentreno] = useState<any>(null)
+
+  const fetchUsuarios = async () => {
+    if (!authToken) return
+    setLoadingUsuarios(true)
+    try {
+      const data = await GlaciAguaApi.getUsuarios(authToken, 1, 100)
+      setUsuarios(data.usuarios || [])
+    } finally {
+      setLoadingUsuarios(false)
+    }
+  }
+
+  const fetchReportesCientificos = async (cuenca?: string) => {
+    if (!authToken) return
+    setLoadingReportesCientificos(true)
+    try {
+      const targetCuenca = cuenca ?? (filtroCuencaReporte === 'todas' ? undefined : filtroCuencaReporte)
+      const data = await GlaciAguaApi.getReportesCientificos(authToken, 1, 100, targetCuenca)
+      setReportesCientificos(data.reportes || [])
+    } finally {
+      setLoadingReportesCientificos(false)
+    }
+  }
 
   // Cargar info del modelo, mediciones y correo al autenticar
   const fetchDashboardData = async () => {
@@ -232,6 +284,14 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
       setModelInfo(mInfo || DEFAULT_MODEL_INFO)
       setMediciones(mList)
       setEmailStatus(eStat)
+      if (authToken) {
+        if (currentUser?.rol === 'admin') {
+          fetchUsuarios()
+        }
+        if (currentUser?.rol === 'investigador') {
+          fetchReportesCientificos()
+        }
+      }
     } finally {
       setLoadingModelInfo(false)
       setLoadingMediciones(false)
@@ -269,13 +329,70 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
     }
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    if (authToken) {
+      await GlaciAguaApi.logout(authToken)
+    }
     setIsAuthenticated(false)
     setAuthToken(null)
     setCurrentUser(null)
     localStorage.removeItem('glaciagua_admin_auth')
     localStorage.removeItem('glaciagua_token')
     localStorage.removeItem('glaciagua_user')
+  }
+
+  const handleCrearInvestigador = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setUsuarioFeedback(null)
+
+    if (nuevoPassword.length < 12) {
+      setUsuarioFeedback({
+        tipo: 'error',
+        texto: 'La contraseña debe tener al menos 12 caracteres (política de seguridad PBKDF2).',
+      })
+      return
+    }
+
+    setGuardandoUsuario(true)
+    const res = await GlaciAguaApi.crearInvestigador(authToken || '', {
+      nombre: nuevoNombre.trim(),
+      correo: nuevoCorreo.trim().toLowerCase(),
+      password: nuevoPassword,
+      institucion: nuevaInstitucion.trim() || undefined,
+    })
+    setGuardandoUsuario(false)
+
+    if (res.success) {
+      setUsuarioFeedback({
+        tipo: 'ok',
+        texto: `Investigador "${res.usuario?.nombre || nuevoNombre}" registrado exitosamente. Ya puede iniciar sesión.`,
+      })
+      setNuevoNombre('')
+      setNuevoCorreo('')
+      setNuevoPassword('')
+      setNuevaInstitucion('')
+      fetchUsuarios()
+    } else {
+      setUsuarioFeedback({
+        tipo: 'error',
+        texto: res.error || 'No se pudo crear el investigador.',
+      })
+    }
+  }
+
+  const handleToggleEstado = async (id: number, estadoActual: 'activo' | 'suspendido') => {
+    const nuevoEstado = estadoActual === 'activo' ? 'suspendido' : 'activo'
+    setTogglingUsuarioId(id)
+    const res = await GlaciAguaApi.cambiarEstadoUsuario(authToken || '', id, nuevoEstado)
+    setTogglingUsuarioId(null)
+
+    if (res.success) {
+      setUsuarios((prev) =>
+        prev.map((u) => (u.id === id ? { ...u, estado: nuevoEstado } : u))
+      )
+    } else {
+      alert(res.error || 'Error al cambiar estado.')
+    }
   }
 
   const handleSendTestEmail = async (e: React.FormEvent) => {
@@ -315,8 +432,15 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
 
   const handleGuardarMedicion = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (currentUser?.rol === 'admin') {
+      setMedicionError(
+        'El rol Administrador gestiona el sistema pero no puede registrar mediciones científicas. Por favor inicie sesión como Investigador para firmar las mediciones de campo.'
+      )
+      return
+    }
     setSavingMedicion(true)
     setMedicionSuccess(null)
+    setMedicionError(null)
 
     const payload = {
       cuenca_id: cuencaId,
@@ -324,7 +448,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
       periodo,
       temporada,
       fecha_medicion: new Date().toISOString().split('T')[0],
-      fuente: 'Portal Especialistas GlaciAgua',
+      fuente: currentUser?.institucion ? `Investigación ${currentUser.institucion}` : 'Portal Especialistas GlaciAgua',
       metodo: 'Monitoreo de campo hidroquímico',
       area_km2: cuencaId === 'quillcay' ? 249.5 : cuencaId === 'pachacoto' ? 202.8 : 150.0,
       roca_expuesta_km2: rocaExpuestaKm2,
@@ -336,16 +460,19 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
       ph_min: phMin,
       conductividad: phMin < 5 ? 580 : 120,
       metales_texto: phMin < 5 ? 'Hierro y Aluminio detectados por encima de ECA Agua' : 'Normal',
-      responsable: responsable || currentUser?.nombre || 'Ing. Monitoreo Ambiental',
+      responsable: responsable || currentUser?.nombre || 'Investigador Científico',
+      es_prueba: esPrueba,
     }
 
     const res = await guardarMedicionCampo(payload, authToken || undefined)
     setSavingMedicion(false)
 
     if (res.success) {
-      setMedicionSuccess('✓ Medición guardada exitosamente en la base de datos central.')
+      setMedicionSuccess('✓ Medición guardada exitosamente en la base de datos central bajo su autoría científica.')
       fetchDashboardData()
       setTimeout(() => setMedicionSuccess(null), 4000)
+    } else {
+      setMedicionError(res.error || 'Error al guardar la medición.')
     }
   }
 
@@ -393,13 +520,23 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
               <h2 className="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-2">
                 Portal de Ingeniería Ambiental
                 {isAuthenticated && (
-                  <span className="text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 px-2 py-0.5 rounded-full">
-                    Sesión Activa
+                  <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
+                    currentUser?.rol === 'admin'
+                      ? 'bg-purple-500/20 text-purple-300 border border-purple-400/40'
+                      : 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40'
+                  }`}>
+                    {currentUser?.rol === 'admin' ? 'Administrador' : 'Investigador'}
                   </span>
                 )}
               </h2>
               <p className="text-xs text-slate-400">
-                Carga de datos hidroquímicos, aumento sintético y re-entrenamiento del modelo
+                {isAuthenticated && currentUser ? (
+                  <span>
+                    Sesión: <strong className="text-slate-200">{currentUser.nombre}</strong> {currentUser.institucion ? `(${currentUser.institucion})` : ''}
+                  </span>
+                ) : (
+                  'Carga de datos hidroquímicos, aumento sintético y re-entrenamiento del modelo'
+                )}
               </p>
             </div>
           </div>
@@ -434,7 +571,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
             <div className="space-y-1">
               <h3 className="text-xl font-black text-slate-900">Acceso a Calibración Técnica</h3>
               <p className="text-xs text-slate-500">
-                Ingrese las credenciales del especialista hidroquímico para alimentar el modelo con nuevas mediciones.
+                Ingrese las credenciales del especialista hidroquímico o administrador de plataforma.
               </p>
             </div>
 
@@ -448,14 +585,14 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
             <form onSubmit={handleLogin} className="w-full space-y-4 text-left">
               <div>
                 <label className="block text-xs font-black uppercase text-slate-600 mb-1">
-                  Usuario Especialista
+                  Usuario / Correo Electrónico
                 </label>
                 <input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none"
-                  placeholder="admin"
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-hidden"
+                  placeholder="admin@glaciagua.lat"
                   required
                 />
               </div>
@@ -468,8 +605,8 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none"
-                  placeholder="••••••••"
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-hidden"
+                  placeholder="••••••••••••"
                   required
                 />
               </div>
@@ -484,45 +621,64 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
               </button>
             </form>
 
-            <button
-              type="button"
-              onClick={() => {
-                setUsername('admin')
-                setPassword('glaciagua2026')
-                setLoginError(null)
-              }}
-              className="text-xs text-blue-700 hover:underline font-bold"
-            >
-              Usar credenciales de evaluación (admin / glaciagua2026)
-            </button>
+            <div className="w-full pt-3 border-t border-slate-200 space-y-2">
+              <p className="text-[11px] font-black uppercase text-slate-400">Credenciales de Evaluación Rápida</p>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setUsername('admin@glaciagua.lat')
+                    setPassword('glaciagua2026!')
+                    setLoginError(null)
+                  }}
+                  className="p-2 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-200 text-left transition-colors cursor-pointer"
+                >
+                  <span className="text-[10px] font-black uppercase text-purple-900 block">Administrador</span>
+                  <span className="text-[11px] font-mono text-purple-700 truncate block">admin@glaciagua.lat</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setUsername('cientifico.demo@glaciagua.lat')
+                    setPassword('ClaveSegura2026!')
+                    setLoginError(null)
+                  }}
+                  className="p-2 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-left transition-colors cursor-pointer"
+                >
+                  <span className="text-[10px] font-black uppercase text-blue-900 block">Investigador</span>
+                  <span className="text-[11px] font-mono text-blue-700 truncate block">cientifico.demo@...</span>
+                </button>
+              </div>
+            </div>
           </div>
         ) : (
           /* CONTENIDO AUTENTICADO: PANEL DE INGENIERÍA */
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
             {/* Navegación por Pestañas */}
-            <div className="flex border-b border-slate-200 bg-slate-50 px-6 pt-2 gap-2 shrink-0">
+            <div className="flex border-b border-slate-200 bg-slate-50 px-6 pt-2 gap-2 shrink-0 overflow-x-auto">
               <button
                 onClick={() => setActiveTab('metricas')}
-                className={`px-4 py-2.5 text-xs font-black rounded-t-xl transition-all flex items-center gap-2 border-t border-x ${
+                className={`px-3.5 py-2 text-xs font-black rounded-t-xl transition-all flex items-center gap-2 border-t border-x whitespace-nowrap ${
                   activeTab === 'metricas'
                     ? 'bg-white text-blue-700 border-slate-200 shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900 border-transparent hover:bg-slate-100'
                 }`}
               >
                 <Cpu size={15} />
-                <span>1. Estado del Modelo ML</span>
+                <span>1. Modelo ML</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('ingreso')}
-                className={`px-4 py-2.5 text-xs font-black rounded-t-xl transition-all flex items-center gap-2 border-t border-x ${
+                className={`px-3.5 py-2 text-xs font-black rounded-t-xl transition-all flex items-center gap-2 border-t border-x whitespace-nowrap ${
                   activeTab === 'ingreso'
                     ? 'bg-white text-blue-700 border-slate-200 shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900 border-transparent hover:bg-slate-100'
                 }`}
               >
                 <Database size={15} />
-                <span>2. Ingresar Nueva Temporada</span>
+                <span>2. Mediciones Campo</span>
                 {mediciones.length > 0 && (
                   <span className="bg-blue-100 text-blue-800 px-1.5 py-0.2 rounded-full text-[10px]">
                     {mediciones.length}
@@ -532,28 +688,72 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
 
               <button
                 onClick={() => setActiveTab('reentrenar')}
-                className={`px-4 py-2.5 text-xs font-black rounded-t-xl transition-all flex items-center gap-2 border-t border-x ${
+                className={`px-3.5 py-2 text-xs font-black rounded-t-xl transition-all flex items-center gap-2 border-t border-x whitespace-nowrap ${
                   activeTab === 'reentrenar'
                     ? 'bg-white text-blue-700 border-slate-200 shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900 border-transparent hover:bg-slate-100'
                 }`}
               >
                 <RefreshCw size={15} />
-                <span>3. Re-entrenar con 1 Clic</span>
+                <span>3. Re-entrenar</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('correo')}
-                className={`px-4 py-2.5 text-xs font-black rounded-t-xl transition-all flex items-center gap-2 border-t border-x ${
+                className={`px-3.5 py-2 text-xs font-black rounded-t-xl transition-all flex items-center gap-2 border-t border-x whitespace-nowrap ${
                   activeTab === 'correo'
                     ? 'bg-white text-blue-700 border-slate-200 shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900 border-transparent hover:bg-slate-100'
                 }`}
               >
                 <Mail size={15} />
-                <span>4. Alertas por Correo</span>
+                <span>4. Alertas Correo</span>
                 {emailStatus?.configurado && (
                   <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                )}
+              </button>
+
+              <button
+                onClick={() => {
+                  setActiveTab('usuarios')
+                  fetchUsuarios()
+                }}
+                className={`px-3.5 py-2 text-xs font-black rounded-t-xl transition-all flex items-center gap-2 border-t border-x whitespace-nowrap ${
+                  activeTab === 'usuarios'
+                    ? 'bg-white text-purple-700 border-slate-200 shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900 border-transparent hover:bg-slate-100'
+                }`}
+              >
+                <Users size={15} />
+                <span>5. Gestión Investigadores</span>
+                {usuarios.length > 0 ? (
+                  <span className="bg-purple-100 text-purple-800 px-1.5 py-0.2 rounded-full text-[10px]">
+                    {usuarios.length}
+                  </span>
+                ) : (
+                  <span className="bg-purple-100 text-purple-800 text-[9px] uppercase px-1.5 py-0.2 rounded-full font-bold">
+                    Admin
+                  </span>
+                )}
+              </button>
+
+              <button
+                onClick={() => {
+                  setActiveTab('reportes_cienc')
+                  fetchReportesCientificos()
+                }}
+                className={`px-3.5 py-2 text-xs font-black rounded-t-xl transition-all flex items-center gap-2 border-t border-x whitespace-nowrap ${
+                  activeTab === 'reportes_cienc'
+                    ? 'bg-white text-teal-700 border-slate-200 shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900 border-transparent hover:bg-slate-100'
+                }`}
+              >
+                <Inbox size={15} />
+                <span>6. Bandeja Reportes</span>
+                {reportesCientificos.length > 0 && (
+                  <span className="bg-teal-100 text-teal-800 px-1.5 py-0.2 rounded-full text-[10px]">
+                    {reportesCientificos.length}
+                  </span>
                 )}
               </button>
             </div>
@@ -702,6 +902,35 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
               {/* PESTAÑA 2: INGRESO DE MEDICIONES DE CAMPO */}
               {activeTab === 'ingreso' && (
                 <div className="space-y-6">
+                  {currentUser?.rol === 'admin' && (
+                    <div className="p-4 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs font-bold flex items-start gap-3">
+                      <AlertTriangle size={20} className="shrink-0 text-amber-700 mt-0.5" />
+                      <div className="space-y-1">
+                        <p className="font-black text-amber-950">Aviso de Autoría Científica:</p>
+                        <p>
+                          El registro de nuevas mediciones hidroquímicas está reservado a cuentas con rol de <strong>Investigador Científico</strong> para preservar la trazabilidad institucional de los datos. Su sesión actual tiene rol <strong>Administrador</strong>.
+                        </p>
+                        <p className="text-[11px] text-amber-800">
+                          Para registrar mediciones oficiales, cree o active una cuenta en la pestaña <strong>5. Gestión Investigadores</strong> o inicie sesión como Investigador (ej: <code>cientifico.demo@glaciagua.lat</code>).
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {currentUser?.rol === 'investigador' && (
+                    <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs font-bold flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 size={16} className="text-emerald-700 shrink-0" />
+                        <span>
+                          Autor Científico Certificado: <strong>{currentUser.nombre}</strong> {currentUser.institucion ? `(${currentUser.institucion})` : ''}
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-black uppercase bg-emerald-200/60 text-emerald-950 px-2 py-0.5 rounded-full">
+                        Trazabilidad Activa
+                      </span>
+                    </div>
+                  )}
+
                   {/* Formulario de Registro Rápido */}
                   <form
                     onSubmit={handleGuardarMedicion}
@@ -724,6 +953,12 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                     {medicionSuccess && (
                       <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800 flex items-center gap-2">
                         <CheckCircle2 size={16} /> {medicionSuccess}
+                      </div>
+                    )}
+
+                    {medicionError && (
+                      <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs font-bold text-red-800 flex items-center gap-2">
+                        <AlertCircle size={16} className="shrink-0 text-red-700" /> {medicionError}
                       </div>
                     )}
 
@@ -856,6 +1091,18 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                       </div>
                     </div>
 
+                    <div className="pt-1">
+                      <label className="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={esPrueba}
+                          onChange={(e) => setEsPrueba(e.target.checked)}
+                          className="rounded text-blue-600 focus:ring-blue-500"
+                        />
+                        <span>Marcar como medición de prueba / simulación preliminar (es_prueba: 1)</span>
+                      </label>
+                    </div>
+
                     <button
                       type="submit"
                       disabled={savingMedicion}
@@ -889,7 +1136,8 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                               <th className="py-2 px-2">pH Real</th>
                               <th className="py-2 px-2">Lluvia</th>
                               <th className="py-2 px-2">Roca</th>
-                              <th className="py-2 px-2">Responsable</th>
+                              <th className="py-2 px-2">Autor / Científico</th>
+                              <th className="py-2 px-2">Estado</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100">
@@ -900,7 +1148,22 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                                 <td className="py-2 px-2 font-black text-blue-700">{m.ph_min}</td>
                                 <td className="py-2 px-2 text-slate-600">{m.lluvia_mm} mm</td>
                                 <td className="py-2 px-2 text-slate-600">{m.roca_expuesta_km2} km²</td>
-                                <td className="py-2 px-2 text-slate-500 text-[11px]">{m.responsable}</td>
+                                <td className="py-2 px-2 text-slate-700 text-[11px] font-medium">
+                                  {m.cientifico_nombre || m.responsable || 'Científico GlaciAgua'}
+                                  {m.cientifico_institucion ? ` (${m.cientifico_institucion})` : ''}
+                                </td>
+                                <td className="py-2 px-2">
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                      {m.estado || 'registrado'}
+                                    </span>
+                                    {m.es_prueba && (
+                                      <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
+                                        Prueba
+                                      </span>
+                                    )}
+                                  </div>
+                                </td>
                               </tr>
                             ))}
                           </tbody>
@@ -1187,6 +1450,486 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                       </div>
                     )}
                   </div>
+                </div>
+              )}
+
+              {/* PESTAÑA 5: GESTIÓN DE INVESTIGADORES (EXCLUSIVO ADMINISTRADOR) */}
+              {activeTab === 'usuarios' && (
+                <div className="space-y-6">
+                  {/* Banner Explicativo */}
+                  <div className="p-4 rounded-2xl bg-purple-50 border border-purple-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-purple-700 text-white flex items-center justify-center font-bold shrink-0">
+                        <Users size={20} />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-black uppercase text-purple-950">
+                            Administración de Investigadores Científicos
+                          </span>
+                          <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-purple-100 text-purple-900 border border-purple-300">
+                            Exclusivo Administrador
+                          </span>
+                        </div>
+                        <p className="text-xs text-purple-800 mt-0.5">
+                          Crea credenciales con hash PBKDF2 (mínimo 12 caracteres) y audita accesos para registrar mediciones hidroquímicas de campo.
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={fetchUsuarios}
+                      className="text-xs font-bold text-purple-800 hover:text-purple-950 bg-white px-3 py-1.5 rounded-xl border border-purple-200 transition-colors flex items-center gap-1 shadow-2xs shrink-0 cursor-pointer"
+                    >
+                      <RefreshCw size={13} className={loadingUsuarios ? 'animate-spin' : ''} />
+                      Actualizar Lista
+                    </button>
+                  </div>
+
+                  {currentUser?.rol !== 'admin' && (
+                    <div className="p-4 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs font-bold flex items-center gap-2">
+                      <AlertTriangle size={18} className="shrink-0 text-amber-700" />
+                      <span>
+                        Aviso: Su sesión actual es de Investigador. Solo los usuarios con rol de Administrador pueden crear investigadores o modificar su estado activo/suspendido.
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Formulario de Alta de Investigador */}
+                  {currentUser?.rol === 'admin' && (
+                    <form
+                      onSubmit={handleCrearInvestigador}
+                      className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-4"
+                    >
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xs font-black uppercase text-slate-800 flex items-center gap-1.5">
+                          <UserPlus size={15} className="text-purple-700" />
+                          Registrar Nuevo Investigador / Científico
+                        </h4>
+                        <span className="text-[11px] text-slate-400 font-semibold">
+                          Almacenamiento seguro en SQLite con trazabilidad
+                        </span>
+                      </div>
+
+                      {usuarioFeedback && (
+                        <div
+                          className={`p-3 rounded-xl text-xs font-bold flex items-center gap-2 border ${
+                            usuarioFeedback.tipo === 'ok'
+                              ? 'bg-emerald-50 text-emerald-900 border-emerald-300'
+                              : 'bg-red-50 text-red-900 border-red-300'
+                          }`}
+                        >
+                          {usuarioFeedback.tipo === 'ok' ? (
+                            <CheckCircle2 size={16} className="text-emerald-700 shrink-0" />
+                          ) : (
+                            <AlertCircle size={16} className="text-red-700 shrink-0" />
+                          )}
+                          <span>{usuarioFeedback.texto}</span>
+                        </div>
+                      )}
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[11px] font-black uppercase text-slate-600 mb-1">
+                            Nombre Completo *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={nuevoNombre}
+                            onChange={(e) => setNuevoNombre(e.target.value)}
+                            placeholder="ej: Dra. Elena Morales"
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:border-purple-600 focus:outline-hidden"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-black uppercase text-slate-600 mb-1">
+                            Correo Institucional *
+                          </label>
+                          <input
+                            type="email"
+                            required
+                            value={nuevoCorreo}
+                            onChange={(e) => setNuevoCorreo(e.target.value)}
+                            placeholder="ej: emorales@inaigem.gob.pe"
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:border-purple-600 focus:outline-hidden"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[11px] font-black uppercase text-slate-600 mb-1">
+                            Contraseña de Acceso * (Mínimo 12 caracteres)
+                          </label>
+                          <input
+                            type="password"
+                            required
+                            minLength={12}
+                            value={nuevoPassword}
+                            onChange={(e) => setNuevoPassword(e.target.value)}
+                            placeholder="••••••••••••"
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:border-purple-600 focus:outline-hidden"
+                          />
+                          <span className="text-[10px] text-slate-400 mt-0.5 block">
+                            Debe cumplir política de seguridad: al menos 12 caracteres.
+                          </span>
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-black uppercase text-slate-600 mb-1">
+                            Institución / Entidad Científica
+                          </label>
+                          <input
+                            type="text"
+                            value={nuevaInstitucion}
+                            onChange={(e) => setNuevaInstitucion(e.target.value)}
+                            placeholder="ej: INAIGEM / UPCH / ANA / UNASAM"
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:border-purple-600 focus:outline-hidden"
+                          />
+                        </div>
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={guardandoUsuario || !nuevoNombre || !nuevoCorreo || nuevoPassword.length < 12}
+                        className="w-full py-2.5 bg-purple-700 hover:bg-purple-800 disabled:opacity-50 text-white text-xs font-black rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        {guardandoUsuario ? <RefreshCw size={14} className="animate-spin" /> : <UserPlus size={14} />}
+                        <span>{guardandoUsuario ? 'Registrando en SQLite...' : 'Crear Cuenta de Investigador'}</span>
+                      </button>
+                    </form>
+                  )}
+
+                  {/* Tabla de Investigadores */}
+                  <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <h4 className="text-xs font-black uppercase text-slate-800 flex items-center gap-1.5">
+                        <Users size={15} className="text-purple-700" />
+                        Investigadores Registrados ({usuarios.length})
+                      </h4>
+
+                      {/* Filtros */}
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          placeholder="Buscar por nombre o correo..."
+                          value={busquedaUsuario}
+                          onChange={(e) => setBusquedaUsuario(e.target.value)}
+                          className="px-2.5 py-1 text-xs border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400"
+                        />
+                        <select
+                          value={filtroEstadoUsuario}
+                          onChange={(e) => setFiltroEstadoUsuario(e.target.value as any)}
+                          className="px-2 py-1 text-xs border border-slate-300 rounded-lg text-slate-700 font-bold bg-white"
+                        >
+                          <option value="todos">Todos los Estados</option>
+                          <option value="activo">Solo Activos</option>
+                          <option value="suspendido">Solo Suspendidos</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {loadingUsuarios ? (
+                      <div className="py-8 text-center text-xs text-slate-500 font-bold flex items-center justify-center gap-2">
+                        <RefreshCw size={16} className="animate-spin text-purple-700" />
+                        Cargando investigadores...
+                      </div>
+                    ) : usuarios.length === 0 ? (
+                      <p className="text-xs text-slate-500 py-6 text-center">
+                        No hay investigadores registrados aún. Utilice el formulario superior para incorporar al primer especialista.
+                      </p>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left text-xs border-collapse">
+                          <thead>
+                            <tr className="border-b border-slate-200 text-slate-500 uppercase text-[10px] font-black">
+                              <th className="py-2.5 px-3">ID</th>
+                              <th className="py-2.5 px-3">Investigador</th>
+                              <th className="py-2.5 px-3">Correo</th>
+                              <th className="py-2.5 px-3">Institución</th>
+                              <th className="py-2.5 px-3">Rol</th>
+                              <th className="py-2.5 px-3">Estado</th>
+                              <th className="py-2.5 px-3 text-right">Acciones</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100">
+                            {usuarios
+                              .filter((u) => {
+                                if (filtroEstadoUsuario !== 'todos' && u.estado !== filtroEstadoUsuario) return false
+                                if (busquedaUsuario) {
+                                  const q = busquedaUsuario.toLowerCase()
+                                  return (
+                                    u.nombre.toLowerCase().includes(q) ||
+                                    u.correo.toLowerCase().includes(q) ||
+                                    (u.institucion && u.institucion.toLowerCase().includes(q))
+                                  )
+                                }
+                                return true
+                              })
+                              .map((u) => (
+                                <tr key={u.id} className="hover:bg-slate-50">
+                                  <td className="py-2.5 px-3 font-mono text-slate-400 text-[11px]">#{u.id}</td>
+                                  <td className="py-2.5 px-3 font-bold text-slate-900">{u.nombre}</td>
+                                  <td className="py-2.5 px-3 font-mono text-slate-600 text-[11px]">{u.correo}</td>
+                                  <td className="py-2.5 px-3 text-slate-600">{u.institucion || '—'}</td>
+                                  <td className="py-2.5 px-3">
+                                    <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
+                                      u.rol === 'admin'
+                                        ? 'bg-purple-100 text-purple-800 border border-purple-200'
+                                        : 'bg-blue-100 text-blue-800 border border-blue-200'
+                                    }`}>
+                                      {u.rol}
+                                    </span>
+                                  </td>
+                                  <td className="py-2.5 px-3">
+                                    <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full inline-flex items-center gap-1 ${
+                                      u.estado === 'activo'
+                                        ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                        : 'bg-red-100 text-red-800 border border-red-300'
+                                    }`}>
+                                      <span className={`w-1.5 h-1.5 rounded-full ${u.estado === 'activo' ? 'bg-emerald-600' : 'bg-red-600'}`} />
+                                      {u.estado}
+                                    </span>
+                                  </td>
+                                  <td className="py-2.5 px-3 text-right">
+                                    {currentUser?.rol === 'admin' && u.rol === 'investigador' ? (
+                                      <button
+                                        onClick={() => handleToggleEstado(u.id, u.estado)}
+                                        disabled={togglingUsuarioId === u.id}
+                                        className={`text-[11px] font-bold px-2.5 py-1 rounded-lg border transition-colors cursor-pointer ${
+                                          u.estado === 'activo'
+                                            ? 'border-red-200 text-red-700 hover:bg-red-50'
+                                            : 'border-emerald-200 text-emerald-700 hover:bg-emerald-50'
+                                        }`}
+                                      >
+                                        {togglingUsuarioId === u.id
+                                          ? 'Actualizando...'
+                                          : u.estado === 'activo'
+                                          ? 'Suspender'
+                                          : 'Reactivar'}
+                                      </button>
+                                    ) : (
+                                      <span className="text-[10px] text-slate-400 font-semibold italic">Protegido</span>
+                                    )}
+                                  </td>
+                                </tr>
+                              ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* PESTAÑA 6: BANDEJA CIENTÍFICA DE REPORTES CIUDADANOS */}
+              {activeTab === 'reportes_cienc' && (
+                <div className="space-y-6">
+                  {/* Banner Explicativo */}
+                  <div className="p-4 rounded-2xl bg-teal-50 border border-teal-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-teal-700 text-white flex items-center justify-center font-bold shrink-0">
+                        <Inbox size={20} />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-black uppercase text-teal-950">
+                            Bandeja Científica de Reportes Comunitarios
+                          </span>
+                          <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-teal-100 text-teal-900 border border-teal-300">
+                            Contraste de Predicciones
+                          </span>
+                        </div>
+                        <p className="text-xs text-teal-800 mt-0.5">
+                          Consulta los avisos de observaciones ciudadanas para calibrar y contrastar las estimaciones de riesgo y pH del modelo.
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => fetchReportesCientificos()}
+                      className="text-xs font-bold text-teal-800 hover:text-teal-950 bg-white px-3 py-1.5 rounded-xl border border-teal-200 transition-colors flex items-center gap-1 shadow-2xs shrink-0 cursor-pointer"
+                    >
+                      <RefreshCw size={13} className={loadingReportesCientificos ? 'animate-spin' : ''} />
+                      Actualizar Reportes
+                    </button>
+                  </div>
+
+                  {/* Filtro por Cuenca */}
+                  <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
+                      <Filter size={15} className="text-teal-700" />
+                      <span>Filtrar por Microcuenca:</span>
+                      <select
+                        value={filtroCuencaReporte}
+                        onChange={(e) => {
+                          const val = e.target.value
+                          setFiltroCuencaReporte(val)
+                          fetchReportesCientificos(val)
+                        }}
+                        className="px-3 py-1.5 text-xs font-bold bg-slate-50 border border-slate-300 rounded-xl text-slate-900"
+                      >
+                        <option value="todas">Todas las cuencas</option>
+                        <option value="quillcay">Quillcay (Huaraz)</option>
+                        <option value="pachacoto">Pachacoto (Pastoruri)</option>
+                        <option value="canray_chico">Canray Chico (Olleros)</option>
+                        <option value="rio_blanco">Río Blanco (Cátac)</option>
+                      </select>
+                    </div>
+
+                    <span className="text-xs text-slate-500 font-semibold">
+                      Total en bandeja: <strong>{reportesCientificos.length}</strong> avisos
+                    </span>
+                  </div>
+
+                  {/* Tabla / Lista de Reportes */}
+                  <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3">
+                    {loadingReportesCientificos ? (
+                      <div className="py-8 text-center text-xs text-slate-500 font-bold flex items-center justify-center gap-2">
+                        <RefreshCw size={16} className="animate-spin text-teal-700" />
+                        Consultando avisos de ciencia ciudadana...
+                      </div>
+                    ) : reportesCientificos.length === 0 ? (
+                      <div className="py-8 text-center text-xs text-slate-500 space-y-2">
+                        <Inbox size={28} className="mx-auto text-slate-300" />
+                        <p>No se encontraron reportes ciudadanos registrados para los filtros seleccionados.</p>
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left text-xs border-collapse">
+                          <thead>
+                            <tr className="border-b border-slate-200 text-slate-500 uppercase text-[10px] font-black">
+                              <th className="py-2.5 px-3">Fecha</th>
+                              <th className="py-2.5 px-3">Cuenca</th>
+                              <th className="py-2.5 px-3">Quebrada</th>
+                              <th className="py-2.5 px-3">Color de Agua</th>
+                              <th className="py-2.5 px-3">pH Medido</th>
+                              <th className="py-2.5 px-3">Olor / Sabor</th>
+                              <th className="py-2.5 px-3">Observaciones</th>
+                              <th className="py-2.5 px-3 text-right">Detalle</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100">
+                            {reportesCientificos.map((rep) => (
+                              <tr key={rep.id} className="hover:bg-slate-50">
+                                <td className="py-2.5 px-3 font-mono text-[11px] text-slate-500 whitespace-nowrap">
+                                  {rep.fecha_registro ? rep.fecha_registro.slice(0, 16).replace('T', ' ') : '—'}
+                                </td>
+                                <td className="py-2.5 px-3 font-black text-slate-900 uppercase">
+                                  {rep.cuenca_id}
+                                </td>
+                                <td className="py-2.5 px-3 font-semibold text-slate-800">
+                                  {rep.quebrada || 'No especificada'}
+                                </td>
+                                <td className="py-2.5 px-3">
+                                  <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
+                                    rep.color_agua === 'anaranjado' || rep.color_agua === 'herrumbroso'
+                                      ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                                      : rep.color_agua === 'lechoso' || rep.color_agua === 'blanquecino'
+                                      ? 'bg-slate-200 text-slate-800 border border-slate-300'
+                                      : rep.color_agua === 'turquesa'
+                                      ? 'bg-cyan-100 text-cyan-900 border border-cyan-300'
+                                      : 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                                  }`}>
+                                    {rep.color_agua || 'Normal'}
+                                  </span>
+                                </td>
+                                <td className="py-2.5 px-3 font-mono font-bold">
+                                  {rep.ph_medido ? (
+                                    <span className={rep.ph_medido < 6 ? 'text-red-700 font-black' : 'text-slate-800'}>
+                                      {rep.ph_medido}
+                                    </span>
+                                  ) : (
+                                    <span className="text-slate-400 font-normal italic">Sin pH</span>
+                                  )}
+                                </td>
+                                <td className="py-2.5 px-3 text-slate-600">
+                                  {rep.olor_sabor || 'Normal'}
+                                </td>
+                                <td className="py-2.5 px-3 text-slate-600 max-w-xs truncate" title={rep.comentarios}>
+                                  {rep.comentarios || '—'}
+                                </td>
+                                <td className="py-2.5 px-3 text-right">
+                                  <button
+                                    onClick={() => setReporteModalDetalle(rep)}
+                                    className="text-xs font-bold text-teal-700 hover:text-teal-900 bg-teal-50 hover:bg-teal-100 px-2.5 py-1 rounded-lg border border-teal-200 transition-colors cursor-pointer"
+                                  >
+                                    Ver Ficha
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Modal de Detalle de Reporte */}
+                  {reporteModalDetalle && (
+                    <div className="fixed inset-0 z-60 bg-black/50 flex items-center justify-center p-4">
+                      <div className="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                          <h5 className="font-black text-slate-900 text-sm flex items-center gap-2">
+                            <Inbox size={16} className="text-teal-700" />
+                            Ficha Técnica de Reporte Ciudadano
+                          </h5>
+                          <button
+                            onClick={() => setReporteModalDetalle(null)}
+                            className="text-slate-400 hover:text-slate-600 cursor-pointer"
+                          >
+                            <X size={18} />
+                          </button>
+                        </div>
+
+                        <div className="space-y-2 text-xs">
+                          <div className="grid grid-cols-2 gap-2 p-3 bg-slate-50 rounded-xl">
+                            <div><span className="text-slate-500 font-bold">ID:</span> <span className="font-mono text-[11px] block truncate">{reporteModalDetalle.id}</span></div>
+                            <div><span className="text-slate-500 font-bold">Cuenca:</span> <span className="uppercase font-black block">{reporteModalDetalle.cuenca_id}</span></div>
+                            <div><span className="text-slate-500 font-bold">Quebrada:</span> <span className="block">{reporteModalDetalle.quebrada || 'No especificada'}</span></div>
+                            <div><span className="text-slate-500 font-bold">Fecha:</span> <span className="block">{reporteModalDetalle.fecha_registro}</span></div>
+                            <div><span className="text-slate-500 font-bold">Coordenadas:</span> <span className="font-mono block">{reporteModalDetalle.lat}, {reporteModalDetalle.lng}</span></div>
+                            <div><span className="text-slate-500 font-bold">Precisión GPS:</span> <span className="block">±{reporteModalDetalle.precision_m || 10} m</span></div>
+                            <div><span className="text-slate-500 font-bold">Color observado:</span> <span className="font-bold block capitalize">{reporteModalDetalle.color_agua || 'Normal'}</span></div>
+                            <div><span className="text-slate-500 font-bold">pH Medido:</span> <span className="font-bold block">{reporteModalDetalle.ph_medido ?? 'No medido'}</span></div>
+                          </div>
+
+                          {reporteModalDetalle.usos_afectados && reporteModalDetalle.usos_afectados.length > 0 && (
+                            <div className="p-3 bg-slate-50 rounded-xl space-y-1">
+                              <span className="text-slate-500 font-bold block">Usos Hídricos Afectados:</span>
+                              <div className="flex flex-wrap gap-1">
+                                {reporteModalDetalle.usos_afectados.map((uso: string, idx: number) => (
+                                  <span key={idx} className="bg-slate-200 text-slate-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                    {uso}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {reporteModalDetalle.comentarios && (
+                            <div className="p-3 bg-slate-50 rounded-xl space-y-1">
+                              <span className="text-slate-500 font-bold block">Comentarios del Observador:</span>
+                              <p className="text-slate-700 italic">{reporteModalDetalle.comentarios}</p>
+                            </div>
+                          )}
+
+                          <div className="p-2.5 rounded-xl bg-teal-50 border border-teal-200 text-[11px] text-teal-900">
+                            <strong>Nota Metodológica:</strong> Este dato ciudadano complementa el contraste de predicciones de drenaje ácido de roca (DAR), sin alterar el modelo numérico sin validación analítica previa.
+                          </div>
+                        </div>
+
+                        <div className="pt-2 flex justify-end">
+                          <button
+                            onClick={() => setReporteModalDetalle(null)}
+                            className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-xl cursor-pointer"
+                          >
+                            Cerrar
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
