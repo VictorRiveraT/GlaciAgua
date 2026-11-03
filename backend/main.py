@@ -18,7 +18,7 @@ from services.risk_engine import RiskEngine
 from services.data_service import DataService
 from services.db import init_db, insertar_reporte, obtener_reportes
 from services.ml_client import MLClient
-from services.email_service import EmailService
+from services.email_service import EmailService, obtener_ahora_peru
 from auth import router as auth_router, init_auth_db as iniciar_autenticacion
 from admin_usuarios import router as admin_router, init_admin_db
 from mediciones_campo import router as mediciones_router, init_mediciones_db
@@ -200,7 +200,7 @@ def registrar_reporte(reporte: ReporteCreate, tareas: BackgroundTasks):
         quebrada=reporte.quebrada,
         lat=reporte.lat,
         lng=reporte.lng,
-        fecha=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M"),
+        fecha=obtener_ahora_peru().strftime("%Y-%m-%d %H:%M"),
         color_agua=reporte.color_agua,
         ph_medido=reporte.ph_medido,
         sincronizado=True,
