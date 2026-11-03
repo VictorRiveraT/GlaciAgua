@@ -12,6 +12,7 @@ services:
       - GLACIAGUA_CORS=*
     volumes:
       - ./api/modelo:/app/modelo
+      - ./data:/app/data:ro
       - ./data_simulada:/app/data_simulada:ro
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/salud')"]

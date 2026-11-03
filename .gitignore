@@ -84,3 +84,7 @@ data_simulada/
 api/modelo/*.joblib
 api/.pytest_cache/
 .pytest_cache/
+
+# Excepciones para data final
+!data/
+!data/**

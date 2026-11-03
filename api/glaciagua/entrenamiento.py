@@ -44,13 +44,18 @@ def safe_read_excel_or_csv(path):
         return pd.read_csv(p)
 
     # Si es Excel (.xlsx), usar copia temporal si el archivo estuviera bloqueado por Excel
+    import openpyxl
+    wb = openpyxl.load_workbook(p, read_only=True)
+    target_sheet = 'Microcuencas (modelo)' if 'Microcuencas (modelo)' in wb.sheetnames else wb.sheetnames[0]
+    wb.close()
+
     try:
-        return pd.read_excel(p, sheet_name='Microcuencas (modelo)')
+        return pd.read_excel(p, sheet_name=target_sheet)
     except PermissionError:
         tmp = Path(tempfile.gettempdir()) / f"glaciagua_tmp_{os.getpid()}.xlsx"
         shutil.copy2(p, tmp)
         try:
-            df = pd.read_excel(tmp, sheet_name='Microcuencas (modelo)')
+            df = pd.read_excel(tmp, sheet_name=target_sheet)
         finally:
             if tmp.exists():
                 os.remove(tmp)
@@ -58,9 +63,15 @@ def safe_read_excel_or_csv(path):
 
 
 def buscar_dataset_simulado():
-    """Busca automáticamente el dataset simulado en las rutas estándar del proyecto."""
+    """Busca automáticamente el dataset en las rutas estándar del proyecto (priorizando data/)."""
     raiz = cfg.RAIZ
     candidatos = [
+        raiz.parent / 'data' / 'microcuencas_modelo.csv',
+        raiz.parent / 'data' / 'Dataset.xlsx',
+        raiz / 'data' / 'microcuencas_modelo.csv',
+        raiz / 'data' / 'Dataset.xlsx',
+        Path('data') / 'microcuencas_modelo.csv',
+        Path('data') / 'Dataset.xlsx',
         raiz.parent / 'data_simulada' / 'Dataset_simulado_completo.xlsx',
         raiz.parent / 'data_simulada' / 'microcuencas_modelo.csv',
         raiz / 'data_simulada' / 'Dataset_simulado_completo.xlsx',
