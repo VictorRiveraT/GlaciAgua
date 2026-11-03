@@ -365,7 +365,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
     if (res.success) {
       setUsuarioFeedback({
         tipo: 'ok',
-        texto: `Investigador "${res.usuario?.nombre || nuevoNombre}" registrado exitosamente. Ya puede iniciar sesión.`,
+        texto: `Investigador "${res.usuario?.nombre || nuevoNombre}" registrado exitosamente. Se ha despachado un correo con sus credenciales de acceso y enlace directo al portal a ${res.usuario?.correo || nuevoCorreo}.`,
       })
       setNuevoNombre('')
       setNuevoCorreo('')
@@ -1506,7 +1506,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                           Registrar Nuevo Investigador / Científico
                         </h4>
                         <span className="text-[11px] text-slate-400 font-semibold">
-                          Almacenamiento seguro en SQLite con trazabilidad
+                          Almacenamiento en SQLite y notificación con credenciales por correo
                         </span>
                       </div>
 

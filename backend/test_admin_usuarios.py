@@ -118,6 +118,24 @@ class AdminUsuariosTest(unittest.TestCase):
         self.assertEqual(self.client.patch("/admin/usuarios/9999/estado", headers=self.headers,
                                          json={"estado": "activo"}).status_code, 404)
 
+    def test_envio_credenciales_por_correo(self):
+        from unittest.mock import patch
+        with patch("services.email_service.EmailService.enviar_bienvenida_investigador") as mock_envio:
+            mock_envio.return_value = {"enviado": True, "modo": "simulado"}
+            respuesta = self.client.post("/admin/usuarios", headers=self.headers, json={
+                "nombre": "Dra. Valenzuela",
+                "correo": "valenzuela@inaigem.gob.pe",
+                "password": "Password-Segura-2026!",
+                "institucion": "INAIGEM",
+            })
+            self.assertEqual(respuesta.status_code, 201)
+            mock_envio.assert_called_once()
+            kwargs = mock_envio.call_args.kwargs
+            self.assertEqual(kwargs["correo"], "valenzuela@inaigem.gob.pe")
+            self.assertEqual(kwargs["nombre"], "Dra. Valenzuela")
+            self.assertEqual(kwargs["password"], "Password-Segura-2026!")
+            self.assertEqual(kwargs["institucion"], "INAIGEM")
+
 
 if __name__ == "__main__":
     unittest.main()

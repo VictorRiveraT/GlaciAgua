@@ -4,11 +4,12 @@ import sqlite3
 from contextlib import closing
 from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from auth import UsuarioPublico, exigir_admin, hash_password
 from services.db import get_connection
+from services.email_service import EmailService
 
 router = APIRouter(prefix="/admin/usuarios", tags=["Administración de usuarios"])
 
@@ -75,8 +76,12 @@ def auditar(conn, actor_id, accion, entidad_id, detalles):
 
 
 @router.post("", response_model=UsuarioPublico, status_code=201)
-def crear_investigador(datos: InvestigadorCreate, admin=Depends(exigir_admin)):
-    """Crea exclusivamente investigadores. Invitaciones por correo: siguiente etapa."""
+def crear_investigador(
+    datos: InvestigadorCreate,
+    tareas: BackgroundTasks,
+    admin=Depends(exigir_admin),
+):
+    """Crea investigadores y envía notificación formal con credenciales al correo institucional."""
     password_hash = hash_password(datos.password)
     try:
         with closing(get_connection()) as conn, conn:
@@ -93,6 +98,17 @@ def crear_investigador(datos: InvestigadorCreate, admin=Depends(exigir_admin)):
         if getattr(error, "sqlite_errorname", "") == "SQLITE_CONSTRAINT_UNIQUE":
             raise HTTPException(409, "Ya existe una cuenta con ese correo.") from None
         raise
+
+    # Envío en segundo plano de credenciales y link de acceso al correo del nuevo investigador
+    tareas.add_task(
+        EmailService.enviar_bienvenida_investigador,
+        nombre=datos.nombre,
+        correo=datos.correo,
+        password=datos.password,
+        institucion=datos.institucion,
+        admin_nombre=admin.get("nombre", "Administrador GlaciAgua"),
+    )
+
     return UsuarioPublico(**dict(usuario))
 
 
