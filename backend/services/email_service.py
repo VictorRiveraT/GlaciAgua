@@ -9,13 +9,20 @@ import uuid
 import logging
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from typing import Dict, Any
 import httpx
 
 from models.schemas import EmailAlertaRequest, EmailAlertaResponse
 
 logger = logging.getLogger(__name__)
+
+# Zona horaria oficial de Perú (UTC-5 / America/Lima)
+TZ_PERU = timezone(timedelta(hours=-5))
+
+def obtener_ahora_peru() -> datetime:
+    """Retorna la fecha y hora actual en la zona horaria de Perú (UTC-5)."""
+    return datetime.now(TZ_PERU)
 
 # Configuración leída de variables de entorno
 SMTP_HOST = os.getenv("SMTP_HOST", "").strip()
@@ -147,7 +154,7 @@ class EmailService:
         <p><strong>Solicitante:</strong> {solicitud.remitente_nombre} ({solicitud.remitente_rol or 'Comunero'})</p>
         <p><strong>Microcuenca / Sector:</strong> {solicitud.cuenca_nombre}</p>
         <p><strong>Motivo Observado:</strong> {solicitud.motivo}</p>
-        <p><strong>Fecha:</strong> {datetime.now().strftime('%d/%m/%Y %H:%M')}</p>
+        <p><strong>Fecha y Hora:</strong> {obtener_ahora_peru().strftime('%d/%m/%Y %H:%M')} (Hora Perú)</p>
       </div>
 
       <div class="letter-body">
@@ -175,7 +182,7 @@ class EmailService:
         Si no hay credenciales, opera de forma simulada para desarrollo local.
         """
         asunto = req.asunto or f"[GlaciAgua] Solicitud Comunitaria de Inspección de Calidad de Agua - Microcuenca {req.cuenca_nombre}"
-        fecha_actual = datetime.now().isoformat()
+        fecha_actual = obtener_ahora_peru().isoformat()
         remitente_display = f"GlaciAgua Alertas <{EMAIL_FROM}>"
 
         # 1. Enviar vía Resend REST API (HTTPS puerto 443)
@@ -501,7 +508,7 @@ class EmailService:
     <div class="footer">
       <p>Notificación oficial emitida por el equipo de ingeniería y monitoreo ambiental de <strong>GlaciAgua</strong>.</p>
       <p style="font-size: 11px; color: #94a3b8; margin-top: 6px;">
-        Huaraz, Cordillera Blanca, Áncash &bull; alertas@glaciagua.lat
+        Huaraz, Cordillera Blanca, Áncash &bull; Emitido: {obtener_ahora_peru().strftime('%d/%m/%Y %H:%M')} (Hora Perú) &bull; alertas@glaciagua.lat
       </p>
     </div>
   </div>
@@ -524,7 +531,7 @@ class EmailService:
         """
         asunto = "[GlaciAgua] Credenciales de Acceso - Portal de Especialistas e Investigadores"
         remitente_display = f"GlaciAgua Credenciales <{EMAIL_FROM}>"
-        fecha_actual = datetime.now().isoformat()
+        fecha_actual = obtener_ahora_peru().isoformat()
         portal_url = "https://glaciagua.lat"
 
         texto_plano = (

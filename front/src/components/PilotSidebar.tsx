@@ -195,21 +195,21 @@ export const PilotSidebar: React.FC<PilotSidebarProps> = ({
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-base font-black text-[#0f172a]">{basin.nombre}</h3>
+                    <h3 className="text-lg font-black text-[#0f172a]">{basin.nombre}</h3>
                     <span
                       className="w-3 h-3 rounded-full inline-block shadow-2xs"
                       style={{ backgroundColor: styling.dotHex }}
                       title={styling.shapeNameEs}
                     />
                   </div>
-                  <p className="text-xs text-[#64748b] font-medium leading-snug line-clamp-1 mt-0.5">
+                  <p className="text-sm text-[#475569] font-semibold leading-snug line-clamp-1 mt-0.5">
                     {basin.distrito} · {basin.quebradasPrincipales[0]}
                   </p>
                 </div>
 
                 {/* Badge con ícono distintivo según forma de semáforo */}
                 <span
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-black border ${styling.bgSoft} ${styling.borderSoft} ${styling.textDark} shrink-0`}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-black border ${styling.bgSoft} ${styling.borderSoft} ${styling.textDark} shrink-0`}
                 >
                   {currentRisk === 'Alto' && <AlertOctagon size={14} />}
                   {currentRisk === 'Medio' && <AlertTriangle size={14} />}
@@ -223,7 +223,7 @@ export const PilotSidebar: React.FC<PilotSidebarProps> = ({
                 <div>
                   <div className="flex items-center gap-1.5">
                     <span
-                      className={`px-2 py-0.5 rounded-lg text-xs font-black ${
+                      className={`px-2.5 py-1 rounded-lg text-sm font-black ${
                         basin.ultimaMedicion.ph < 6.5
                           ? 'bg-red-50 text-[#991b1b] border border-red-200'
                           : 'bg-green-50 text-[#166534] border border-green-200'
@@ -231,11 +231,11 @@ export const PilotSidebar: React.FC<PilotSidebarProps> = ({
                     >
                       pH {basin.ultimaMedicion.ph.toFixed(1)}
                     </span>
-                    <span className="text-xs text-[#64748b] font-bold">
+                    <span className="text-sm text-[#475569] font-bold">
                       {basin.areaKm2} km²
                     </span>
                   </div>
-                  <span className="text-[11px] text-[#475569] font-medium block truncate max-w-[150px] mt-1">
+                  <span className="text-xs text-[#334155] font-semibold block truncate max-w-[160px] mt-1">
                     {basin.ultimaMedicion.metalDominante.split('(')[0]}
                   </span>
                 </div>
@@ -270,7 +270,7 @@ export const PilotSidebar: React.FC<PilotSidebarProps> = ({
               </div>
 
               {/* Estado de Precaución (Regla N° 4) */}
-              <div className="mt-2.5 pt-2 border-t border-dashed border-[#e2e8f0] flex items-center justify-between text-xs">
+              <div className="mt-2.5 pt-2 border-t border-dashed border-[#e2e8f0] flex items-center justify-between text-sm">
                 <span className={`font-black flex items-center gap-1 ${styling.textDark}`}>
                   {currentRisk === 'Alto'
                     ? 'Evita usar esta agua'
@@ -278,7 +278,7 @@ export const PilotSidebar: React.FC<PilotSidebarProps> = ({
                     ? 'Agua en observación'
                     : 'Menor riesgo de acidez'}
                 </span>
-                <span className="text-[11px] text-[#64748b] font-semibold">
+                <span className="text-xs text-[#475569] font-bold">
                   {currentRisk === 'Alto'
                     ? 'Tono óxido'
                     : currentRisk === 'Medio'

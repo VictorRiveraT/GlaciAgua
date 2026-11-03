@@ -105,7 +105,7 @@ export const SimpleWaterStatusCard: React.FC<SimpleWaterStatusCardProps> = ({
       >
         {/* Cabecera con audio accesible */}
         <div className="w-full flex items-center justify-between gap-2 mb-2">
-          <span className="text-xs font-black uppercase tracking-wider text-[#475569]">
+          <span className="text-sm font-black uppercase tracking-wider text-[#475569]">
             {isQuechua ? riskStyle.shapeNameQu : riskStyle.shapeNameEs}
           </span>
           <AudioPlayButton
@@ -175,7 +175,7 @@ export const SimpleWaterStatusCard: React.FC<SimpleWaterStatusCardProps> = ({
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-1">
-                <strong className="text-sm font-black text-[#0f172a] truncate">
+                <strong className="text-base font-black text-[#0f172a] truncate">
                   {t('usage_drink')}
                 </strong>
                 <span className={`text-xs font-black px-2 py-0.5 rounded-md border shrink-0 ${drinkSeal.badge}`}>
@@ -199,7 +199,7 @@ export const SimpleWaterStatusCard: React.FC<SimpleWaterStatusCardProps> = ({
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-1">
-                <strong className="text-sm font-black text-[#0f172a] truncate">
+                <strong className="text-base font-black text-[#0f172a] truncate">
                   {t('usage_crops')}
                 </strong>
                 <span className={`text-xs font-black px-2 py-0.5 rounded-md border shrink-0 ${cropsSeal.badge}`}>
@@ -223,7 +223,7 @@ export const SimpleWaterStatusCard: React.FC<SimpleWaterStatusCardProps> = ({
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-1">
-                <strong className="text-sm font-black text-[#0f172a] truncate">
+                <strong className="text-base font-black text-[#0f172a] truncate">
                   {t('usage_animals')}
                 </strong>
                 <span className={`text-xs font-black px-2 py-0.5 rounded-md border shrink-0 ${animalsSeal.badge}`}>

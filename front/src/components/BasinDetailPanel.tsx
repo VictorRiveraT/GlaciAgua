@@ -103,10 +103,10 @@ export const BasinDetailPanel: React.FC<BasinDetailPanelProps> = ({
           <span className="text-[10px] font-black uppercase text-blue-800 bg-blue-100 px-2.5 py-0.5 rounded-full inline-block">
             {t('basin_microbasin')}
           </span>
-          <h2 className="text-xl font-black text-slate-900 leading-tight">
+          <h2 className="text-2xl font-black text-slate-900 leading-tight">
             {basin.nombre}
           </h2>
-          <span className="text-xs text-slate-500 font-medium flex items-center gap-1 mt-0.5">
+          <span className="text-sm text-slate-600 font-semibold flex items-center gap-1 mt-0.5">
             <MapPin size={12} className="text-blue-700" />
             {basin.distrito}
           </span>
@@ -142,7 +142,7 @@ export const BasinDetailPanel: React.FC<BasinDetailPanelProps> = ({
                 {theme.iconName === 'octagon' ? '🛑' : theme.iconName === 'triangle' ? '⚠️' : '✓'}
               </span>
               <strong
-                className={`text-sm font-black uppercase ${
+                className={`text-base font-black uppercase ${
                   currentRisk === 'Alto'
                     ? 'text-red-900'
                     : currentRisk === 'Medio'
@@ -154,7 +154,7 @@ export const BasinDetailPanel: React.FC<BasinDetailPanelProps> = ({
               </strong>
             </div>
             {/* ONE sentence (max 10 words) */}
-            <p className="text-xs font-bold text-slate-800 leading-snug">
+            <p className="text-sm sm:text-base font-bold text-slate-900 leading-snug">
               "{getShortAdvice()}"
             </p>
           </div>
@@ -162,7 +162,7 @@ export const BasinDetailPanel: React.FC<BasinDetailPanelProps> = ({
 
         {/* 3 Compact Usages (Beber, Regar, Ganado) with ✔ / ⚠️ / ✖ */}
         <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-2">
-          <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 block">
+          <span className="text-xs font-black uppercase tracking-wider text-slate-600 block">
             Uso del agua hoy:
           </span>
           <div className="grid grid-cols-3 gap-2 text-center">
@@ -171,10 +171,10 @@ export const BasinDetailPanel: React.FC<BasinDetailPanelProps> = ({
               <div className="w-8 h-8 mx-auto mb-1">
                 <AccessibleIllustration name="persona_bebiendo" alt="Beber" />
               </div>
-              <strong className="text-xs font-black block leading-none">
+              <strong className="text-sm font-black block leading-none">
                 {badges.drink.status} {badges.drink.label}
               </strong>
-              <span className="text-[10px] font-semibold block leading-tight mt-0.5">
+              <span className="text-xs font-bold block leading-tight mt-1">
                 {badges.drink.desc}
               </span>
             </div>
@@ -184,10 +184,10 @@ export const BasinDetailPanel: React.FC<BasinDetailPanelProps> = ({
               <div className="w-8 h-8 mx-auto mb-1">
                 <AccessibleIllustration name="chacra_papas" alt="Regar" />
               </div>
-              <strong className="text-xs font-black block leading-none">
+              <strong className="text-sm font-black block leading-none">
                 {badges.crops.status} {badges.crops.label}
               </strong>
-              <span className="text-[10px] font-semibold block leading-tight mt-0.5">
+              <span className="text-xs font-bold block leading-tight mt-1">
                 {badges.crops.desc}
               </span>
             </div>
@@ -197,10 +197,10 @@ export const BasinDetailPanel: React.FC<BasinDetailPanelProps> = ({
               <div className="w-8 h-8 mx-auto mb-1">
                 <AccessibleIllustration name="vaca_oveja" alt="Ganado" />
               </div>
-              <strong className="text-xs font-black block leading-none">
+              <strong className="text-sm font-black block leading-none">
                 {badges.animals.status} {badges.animals.label}
               </strong>
-              <span className="text-[10px] font-semibold block leading-tight mt-0.5">
+              <span className="text-xs font-bold block leading-tight mt-1">
                 {badges.animals.desc}
               </span>
             </div>
@@ -210,7 +210,7 @@ export const BasinDetailPanel: React.FC<BasinDetailPanelProps> = ({
         {/* Primary Action Button */}
         <button
           onClick={onOpenReport}
-          className="touch-target w-full py-3.5 rounded-2xl bg-blue-700 hover:bg-blue-800 text-white text-sm font-black flex items-center justify-center gap-2 shadow-md transition-transform active:scale-98"
+          className="touch-target w-full py-3.5 rounded-2xl bg-blue-700 hover:bg-blue-800 text-white text-base font-black flex items-center justify-center gap-2 shadow-md transition-transform active:scale-98"
         >
           <PlusCircle size={18} />
           <span>{t('btn_report_here')}</span>
@@ -221,7 +221,7 @@ export const BasinDetailPanel: React.FC<BasinDetailPanelProps> = ({
           <button
             type="button"
             onClick={() => setShowMore(!showMore)}
-            className="touch-target w-full py-2.5 px-3 rounded-2xl bg-white hover:bg-slate-50 border border-slate-300 text-xs font-bold text-slate-700 flex items-center justify-between transition-colors"
+            className="touch-target w-full py-2.5 px-3 rounded-2xl bg-white hover:bg-slate-50 border border-slate-300 text-sm font-bold text-slate-700 flex items-center justify-between transition-colors"
             aria-expanded={showMore}
           >
             <span className="flex items-center gap-1.5 font-black text-blue-800">

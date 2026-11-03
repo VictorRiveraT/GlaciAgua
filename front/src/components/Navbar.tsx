@@ -14,6 +14,7 @@ import {
   Menu,
   Plus,
   Send,
+  ArrowLeft,
 } from 'lucide-react'
 
 interface NavbarProps {
@@ -45,22 +46,35 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="bg-white border-b border-[#cbd5e1] px-3 sm:px-5 py-2 flex items-center justify-between gap-2 shadow-xs sticky top-0 z-30 select-none">
-      {/* Brand */}
+      {/* Brand & Navigation */}
       <div className="flex items-center gap-2 sm:gap-3">
+        {onGoHome && (
+          <button
+            type="button"
+            onClick={onGoHome}
+            className="touch-target px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-900 border border-slate-300 flex items-center gap-1.5 text-xs font-black transition-colors shadow-2xs cursor-pointer"
+            title="Volver a la pantalla de inicio"
+            aria-label="Volver al inicio"
+          >
+            <ArrowLeft size={16} />
+            <span className="hidden sm:inline">Inicio</span>
+          </button>
+        )}
+
         <button
           type="button"
           onClick={onGoHome}
-          className="touch-target flex items-center gap-2 text-left group"
+          className="touch-target flex items-center gap-2 text-left group cursor-pointer"
           aria-label="GlaciAgua inicio"
         >
           <div className="w-10 h-10 rounded-2xl bg-[#1e3a8a] text-white flex items-center justify-center font-black shadow-xs">
             <Droplet size={22} />
           </div>
-          <div className="hidden xs:block">
+          <div className="flex flex-col">
             <span className="text-lg sm:text-xl font-black text-[#0f172a] tracking-tight block leading-tight">
               GlaciAgua
             </span>
-            <span className="text-[10px] text-[#64748b] font-bold block leading-none">
+            <span className="text-[10px] sm:text-[11px] text-[#64748b] font-bold block leading-none">
               Cordillera Blanca
             </span>
           </div>

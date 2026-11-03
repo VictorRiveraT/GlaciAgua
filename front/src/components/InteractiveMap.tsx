@@ -246,7 +246,9 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       const rawCoords = getBasinPolygonCoords(basin, geoJsonPolygons)
       if (!rawCoords || rawCoords.length === 0) return
 
-      const smoothedCoords = chaikinSmoothPolygon(rawCoords, 2)
+      // Si el polígono ya cuenta con topografía detallada (>=16 vértices de cresta), aplicamos 1 pasada
+      // para suavizado natural sin deformar la divisoria de aguas en formas circulares.
+      const smoothedCoords = rawCoords.length >= 16 ? chaikinSmoothPolygon(rawCoords, 1) : chaikinSmoothPolygon(rawCoords, 2)
       const risk = basin.nivelRiesgo[season]
       const color = getRiskColor(risk)
       const isSelected = selectedBasin?.id === basin.id

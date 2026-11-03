@@ -305,6 +305,12 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
     }
   }, [isAuthenticated, authToken])
 
+  useEffect(() => {
+    if (activeTab === 'usuarios' && currentUser?.rol !== 'admin') {
+      setActiveTab('metricas')
+    }
+  }, [activeTab, currentUser])
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoggingIn(true)
@@ -713,29 +719,31 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                 )}
               </button>
 
-              <button
-                onClick={() => {
-                  setActiveTab('usuarios')
-                  fetchUsuarios()
-                }}
-                className={`px-3.5 py-2 text-xs font-black rounded-t-xl transition-all flex items-center gap-2 border-t border-x whitespace-nowrap ${
-                  activeTab === 'usuarios'
-                    ? 'bg-white text-purple-700 border-slate-200 shadow-2xs'
-                    : 'text-slate-600 hover:text-slate-900 border-transparent hover:bg-slate-100'
-                }`}
-              >
-                <Users size={15} />
-                <span>5. Gestión Investigadores</span>
-                {usuarios.length > 0 ? (
-                  <span className="bg-purple-100 text-purple-800 px-1.5 py-0.2 rounded-full text-[10px]">
-                    {usuarios.length}
-                  </span>
-                ) : (
-                  <span className="bg-purple-100 text-purple-800 text-[9px] uppercase px-1.5 py-0.2 rounded-full font-bold">
-                    Admin
-                  </span>
-                )}
-              </button>
+              {currentUser?.rol === 'admin' && (
+                <button
+                  onClick={() => {
+                    setActiveTab('usuarios')
+                    fetchUsuarios()
+                  }}
+                  className={`px-3.5 py-2 text-xs font-black rounded-t-xl transition-all flex items-center gap-2 border-t border-x whitespace-nowrap ${
+                    activeTab === 'usuarios'
+                      ? 'bg-white text-purple-700 border-slate-200 shadow-2xs'
+                      : 'text-slate-600 hover:text-slate-900 border-transparent hover:bg-slate-100'
+                  }`}
+                >
+                  <Users size={15} />
+                  <span>5. Gestión Investigadores</span>
+                  {usuarios.length > 0 ? (
+                    <span className="bg-purple-100 text-purple-800 px-1.5 py-0.2 rounded-full text-[10px]">
+                      {usuarios.length}
+                    </span>
+                  ) : (
+                    <span className="bg-purple-100 text-purple-800 text-[9px] uppercase px-1.5 py-0.2 rounded-full font-bold">
+                      Admin
+                    </span>
+                  )}
+                </button>
+              )}
 
               <button
                 onClick={() => {
@@ -1454,7 +1462,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
               )}
 
               {/* PESTAÑA 5: GESTIÓN DE INVESTIGADORES (EXCLUSIVO ADMINISTRADOR) */}
-              {activeTab === 'usuarios' && (
+              {activeTab === 'usuarios' && currentUser?.rol === 'admin' && (
                 <div className="space-y-6">
                   {/* Banner Explicativo */}
                   <div className="p-4 rounded-2xl bg-purple-50 border border-purple-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
