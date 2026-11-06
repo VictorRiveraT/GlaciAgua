@@ -41,8 +41,13 @@ def preparar_avisos(reporte_id):
         conn.execute("PRAGMA foreign_keys = ON")
         conn.execute("""
             INSERT INTO avisos_reportes (reporte_id, investigador_id, destinatario)
-            SELECT r.id, u.id, u.correo FROM reportes r CROSS JOIN usuarios u
-            WHERE r.id=? AND u.rol='investigador' AND u.estado='activo'
+            SELECT r.id, u.id, u.correo FROM reportes r CROSS JOIN (
+                SELECT id, correo FROM usuarios
+                WHERE rol='investigador' AND estado='activo'
+                ORDER BY id ASC
+                LIMIT 5
+            ) u
+            WHERE r.id=?
             ON CONFLICT(reporte_id, investigador_id) DO NOTHING
         """, (reporte_id,))
         return [fila[0] for fila in conn.execute(

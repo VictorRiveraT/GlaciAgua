@@ -96,6 +96,8 @@ class MedicionCreate(BaseModel):
             raise ValueError("La roca expuesta no puede superar el área de la cuenca.")
         if self.fecha_medicion > date.today():
             raise ValueError("La fecha de medición no puede ser futura.")
+        if self.pct_sulfuros + self.pct_carbonatos > 100.0:
+            raise ValueError("La suma de porcentajes de sulfuros y carbonatos no puede exceder el 100% de la litología.")
         return self
 
 
@@ -175,7 +177,6 @@ def listar_mediciones(
             parametros.append(valor)
     where = " WHERE " + " AND ".join(condiciones) if condiciones else ""
     with closing(get_connection()) as conn:
-        conn.execute("BEGIN")
         total = conn.execute("SELECT COUNT(*) FROM mediciones_campo m" + where, parametros).fetchone()[0]
         filas = conn.execute(CONSULTA + where + " ORDER BY m.creado_en DESC, m.id DESC LIMIT ? OFFSET ?",
                              [*parametros, por_pagina, (pagina - 1) * por_pagina]).fetchall()

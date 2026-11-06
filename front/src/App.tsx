@@ -300,6 +300,24 @@ export default function App() {
     }
   }, [reports])
 
+  // Precarga proactiva en segundo plano para garantizar disponibilidad 100% offline
+  useEffect(() => {
+    const prefetchOfflineModules = () => {
+      import('./components/RiskSimulator').catch(() => {})
+      import('./components/GuidanceView').catch(() => {})
+      import('./components/ScientificDataView').catch(() => {})
+      import('./components/ConnectivityView').catch(() => {})
+    }
+
+    if (typeof window !== 'undefined') {
+      if ('requestIdleCallback' in window) {
+        ;(window as any).requestIdleCallback(prefetchOfflineModules)
+      } else {
+        setTimeout(prefetchOfflineModules, 1500)
+      }
+    }
+  }, [])
+
   // Guardar un nuevo reporte
   const handleSaveReport = async (newReport: CommunityReport) => {
     setReports((prev) => [newReport, ...prev])

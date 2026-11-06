@@ -56,9 +56,24 @@ export const ReportModal: React.FC<ReportModalProps> = ({
     setCapturingGps(true)
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        const lat = parseFloat(pos.coords.latitude.toFixed(5))
+        const lng = parseFloat(pos.coords.longitude.toFixed(5))
+
+        // Detección de meridiano 0 (falso positivo por sensor en frío)
+        if (lat === 0 && lng === 0) {
+          alert('El sensor GPS devolvió coordenadas en el meridiano 0 (0,0). Se utilizará la ubicación por defecto de la quebrada.')
+          setCapturingGps(false)
+          return
+        }
+
+        // Advertencia preventiva si la coordenada se ubica fuera de los Andes peruanos
+        if (lat > 0 || lat < -20 || lng > -65 || lng < -85) {
+          console.warn('GPS capturado fuera de rango estándar de Áncash:', lat, lng)
+        }
+
         setGpsCoords({
-          lat: parseFloat(pos.coords.latitude.toFixed(5)),
-          lng: parseFloat(pos.coords.longitude.toFixed(5)),
+          lat,
+          lng,
           precisionM: Math.round(pos.coords.accuracy || 8),
         })
         setCapturingGps(false)
@@ -74,13 +89,51 @@ export const ReportModal: React.FC<ReportModalProps> = ({
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setPhotoPreview(reader.result as string)
-      }
-      reader.readAsDataURL(file)
+    if (!file) return
+
+    // Validación estricta de tipo MIME (rechaza ejecutables .exe, .sh o renombrados)
+    if (!file.type.startsWith('image/')) {
+      alert('El archivo seleccionado no es una imagen válida. Solo se admiten formatos JPG, PNG o WebP.')
+      e.target.value = ''
+      return
     }
+
+    // Comprimir en canvas HTML a máximo 800px para garantizar resiliencia en almacenamiento local (límite 5MB de localStorage)
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result as string
+      const img = new Image()
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const maxDim = 800
+        let { width, height } = img
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width)
+            width = maxDim
+          } else {
+            width = Math.round((width * maxDim) / height)
+            height = maxDim
+          }
+        }
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height)
+          const compressed = canvas.toDataURL('image/jpeg', 0.72)
+          setPhotoPreview(compressed)
+        } else {
+          setPhotoPreview(dataUrl)
+        }
+      }
+      img.onerror = () => {
+        alert('El archivo seleccionado no pudo ser decodificado como imagen.')
+        e.target.value = ''
+      }
+      img.src = dataUrl
+    }
+    reader.readAsDataURL(file)
   }
 
   const getColorLabel = (k: ColorOption) => {
@@ -117,6 +170,9 @@ export const ReportModal: React.FC<ReportModalProps> = ({
       ? { lat: -8.980, lng: -77.700, precisionM: 12 }
       : { lat: -9.512, lng: -77.456, precisionM: 8 })
 
+    // Sanitización de comentarios (escape de etiquetas HTML/scripts y límite de tamaño)
+    const sanitizedComentarios = (comentarios || '').replace(/<[^>]*>?/gm, '').trim().slice(0, 2000)
+
     const newReport: CommunityReport = {
       id: `rep-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`,
       cuencaId,
@@ -129,7 +185,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
       phMedido: colorKey === 'rust' ? 4.2 : colorKey === 'milky' ? 5.2 : null,
       tieneFoto: !!photoPreview,
       fotoUrl: photoPreview || undefined,
-      comentarios,
+      comentarios: sanitizedComentarios,
       sincronizado: isOnline,
       simulado: false,
     }

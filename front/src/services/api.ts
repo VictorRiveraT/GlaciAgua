@@ -101,7 +101,7 @@ export class GlaciAguaApi {
           potencial_acido: params.potencialAcido,
           lluvia: params.lluvia,
           bofedal: params.bofedal,
-          alpha: params.alpha ?? 0.75,
+          alpha: params.alpha ?? 0.65,
           area_km2: params.areaKm2 ?? 249.5,
           pct_carbonatos: params.pctCarbonatos ?? 10.0,
           temporada: params.temporada ?? 'seca',
@@ -114,7 +114,7 @@ export class GlaciAguaApi {
     } catch {
       // Fallback a cálculo local
       const gen = (params.rocaExpuesta / 100) * (params.potencialAcido / 100)
-      const amort = Math.max(0, 1 - (params.alpha ?? 0.75) * (params.bofedal / 100))
+      const amort = Math.max(0, 1 - (params.alpha ?? 0.65) * (params.bofedal / 100))
       const raw = gen * (params.lluvia / 100) * amort
       const score = Math.min(100, Math.round(raw * 160))
       return {
@@ -496,6 +496,21 @@ export class GlaciAguaApi {
         return {
           total: data.total ?? data.reportes?.length ?? 0,
           reportes: data.reportes ?? [],
+        }
+      }
+
+      if (res.status === 403) {
+        // Fallback para administradores: consultar la lista general de reportes ciudadanos
+        const resPublic = await fetch(API_BASE_URL + '/reportes', {
+          signal: AbortSignal.timeout(3500),
+        })
+        if (resPublic.ok) {
+          const list = await resPublic.json()
+          let filtered = Array.isArray(list) ? list : []
+          if (cuencaId && cuencaId !== 'todas') {
+            filtered = filtered.filter((r: any) => r.cuenca_id === cuencaId)
+          }
+          return { total: filtered.length, reportes: filtered }
         }
       }
     } catch {}

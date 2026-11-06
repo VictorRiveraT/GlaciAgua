@@ -16,7 +16,7 @@ class RiskEngine:
         potencial_acido: float,
         lluvia: float,
         bofedal: float,
-        alpha: float = 0.75,
+        alpha: float = 0.65,
     ) -> SimulacionResponse:
         # Normalizar 0 a 1
         r_exp = max(0.0, min(100.0, roca_expuesta)) / 100.0
