@@ -75,17 +75,19 @@ export const GuidanceView: React.FC<GuidanceViewProps> = ({ onOpenOficio }) => {
   ]
 
   return (
-    <div className="max-w-4xl mx-auto p-3 sm:p-6 lg:p-8 space-y-5 text-[#0f172a] select-none pb-24 lg:pb-12">
+    <div className="w-full max-w-4xl mx-auto p-3 sm:p-6 lg:p-8 space-y-5 text-[#0f172a] select-none pb-28 lg:pb-12">
       {/* Cabecera Principal */}
       <div className="bg-white p-4 sm:p-6 rounded-3xl border border-[#cbd5e1] shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
+        <div className="min-w-0">
           <span className="text-[11px] font-black uppercase text-[#1e3a8a] bg-[#eff6ff] px-3 py-1 rounded-full border border-blue-200 inline-block mb-1">
             {t('guidance_badge')}
           </span>
-          <h1 className="text-2xl sm:text-3xl font-black text-[#0f172a] tracking-tight">
+
+          <h1 className="text-2xl sm:text-3xl font-black text-[#0f172a] tracking-tight leading-tight">
             {t('guidance_title')}
           </h1>
-          <p className="text-xs sm:text-sm text-[#475569] font-medium mt-0.5">
+
+          <p className="text-xs sm:text-sm text-[#475569] font-medium mt-1 leading-relaxed">
             {t('guidance_subtitle')}
           </p>
         </div>
@@ -98,34 +100,33 @@ export const GuidanceView: React.FC<GuidanceViewProps> = ({ onOpenOficio }) => {
         </div>
       </div>
 
-      {/* DOS COLUMNAS LADO A LADO: QUÉ HACER (VERDE) | QUÉ EVITAR (ROJO) */}
+      {/* QUÉ HACER Y QUÉ EVITAR */}
       <div className="grid grid-cols-2 gap-2.5 sm:gap-4 items-start">
-        {/* COLUMNA 1: QUÉ HACER */}
+        {/* QUÉ HACER */}
         <section
           aria-labelledby="col-hacer-title"
-          className="bg-[#f0fdf4] border-2 border-[#16a34a] rounded-3xl p-2.5 sm:p-4 flex flex-col gap-3 shadow-xs"
+          className="min-w-0 bg-[#f0fdf4] border-2 border-[#16a34a] rounded-3xl p-2 sm:p-4 flex flex-col gap-3 shadow-xs"
         >
-          {/* Encabezado de columna con color + icono + forma */}
-          <div className="flex items-center justify-center gap-2 py-1.5 px-2 bg-white rounded-2xl border border-[#bbf7d0] shadow-2xs">
+          <div className="flex items-center justify-center gap-1.5 sm:gap-2 py-1.5 px-1 sm:px-2 bg-white rounded-2xl border border-[#bbf7d0] shadow-2xs">
             <div className="w-6 h-6 rounded-full bg-[#16a34a] text-white flex items-center justify-center font-black text-xs shrink-0">
               <CheckCircle2 size={16} />
             </div>
+
             <h2
               id="col-hacer-title"
-              className="text-xs sm:text-base font-black text-[#14532d] uppercase tracking-wide truncate"
+              className="text-[10px] sm:text-base font-black text-[#14532d] uppercase tracking-wide text-center leading-tight"
             >
               {t('guidance_do_title')}
             </h2>
           </div>
 
-          {/* Tarjetas verticales de acciones a realizar */}
           <div className="flex flex-col gap-2.5 sm:gap-3">
             {doItems.map((item) => (
               <article
                 key={item.id}
-                className="bg-white rounded-2xl p-2.5 sm:p-3.5 border border-[#bbf7d0] shadow-xs flex flex-col items-center text-center gap-2 transition-transform hover:scale-[1.01]"
+                className="min-w-0 bg-white rounded-2xl p-2 sm:p-3.5 border border-[#bbf7d0] shadow-xs flex flex-col items-center text-center gap-2 transition-transform hover:scale-[1.01]"
               >
-                <div className="w-20 h-20 sm:w-28 sm:h-28 flex items-center justify-center">
+                <div className="w-16 h-16 sm:w-28 sm:h-28 flex items-center justify-center shrink-0">
                   <Illustration
                     name={item.illustration}
                     animation={item.anim}
@@ -133,7 +134,7 @@ export const GuidanceView: React.FC<GuidanceViewProps> = ({ onOpenOficio }) => {
                   />
                 </div>
 
-                <p className="text-xs sm:text-sm font-black text-[#14532d] leading-snug line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem] flex items-center justify-center">
+                <p className="w-full text-[11px] sm:text-sm font-black text-[#14532d] leading-snug min-h-[2.5rem] flex items-center justify-center break-words">
                   {item.phrase}
                 </p>
 
@@ -148,32 +149,31 @@ export const GuidanceView: React.FC<GuidanceViewProps> = ({ onOpenOficio }) => {
           </div>
         </section>
 
-        {/* COLUMNA 2: QUÉ EVITAR */}
+        {/* QUÉ EVITAR */}
         <section
           aria-labelledby="col-evitar-title"
-          className="bg-[#fef2f2] border-2 border-[#dc2626] rounded-3xl p-2.5 sm:p-4 flex flex-col gap-3 shadow-xs"
+          className="min-w-0 bg-[#fef2f2] border-2 border-[#dc2626] rounded-3xl p-2 sm:p-4 flex flex-col gap-3 shadow-xs"
         >
-          {/* Encabezado de columna con color + icono + forma */}
-          <div className="flex items-center justify-center gap-2 py-1.5 px-2 bg-white rounded-2xl border border-[#fecaca] shadow-2xs">
+          <div className="flex items-center justify-center gap-1.5 sm:gap-2 py-1.5 px-1 sm:px-2 bg-white rounded-2xl border border-[#fecaca] shadow-2xs">
             <div className="w-6 h-6 rounded-lg bg-[#dc2626] text-white flex items-center justify-center font-black text-xs shrink-0">
               <AlertOctagon size={16} />
             </div>
+
             <h2
               id="col-evitar-title"
-              className="text-xs sm:text-base font-black text-[#7f1d1d] uppercase tracking-wide truncate"
+              className="text-[10px] sm:text-base font-black text-[#7f1d1d] uppercase tracking-wide text-center leading-tight"
             >
               {t('guidance_avoid_title')}
             </h2>
           </div>
 
-          {/* Tarjetas verticales de acciones a evitar */}
           <div className="flex flex-col gap-2.5 sm:gap-3">
             {avoidItems.map((item) => (
               <article
                 key={item.id}
-                className="bg-white rounded-2xl p-2.5 sm:p-3.5 border border-[#fecaca] shadow-xs flex flex-col items-center text-center gap-2 transition-transform hover:scale-[1.01]"
+                className="min-w-0 bg-white rounded-2xl p-2 sm:p-3.5 border border-[#fecaca] shadow-xs flex flex-col items-center text-center gap-2 transition-transform hover:scale-[1.01]"
               >
-                <div className="w-20 h-20 sm:w-28 sm:h-28 flex items-center justify-center">
+                <div className="w-16 h-16 sm:w-28 sm:h-28 flex items-center justify-center shrink-0">
                   <Illustration
                     name={item.illustration}
                     animation={item.anim}
@@ -181,7 +181,7 @@ export const GuidanceView: React.FC<GuidanceViewProps> = ({ onOpenOficio }) => {
                   />
                 </div>
 
-                <p className="text-xs sm:text-sm font-black text-[#7f1d1d] leading-snug line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem] flex items-center justify-center">
+                <p className="w-full text-[11px] sm:text-sm font-black text-[#7f1d1d] leading-snug min-h-[2.5rem] flex items-center justify-center break-words">
                   {item.phrase}
                 </p>
 
@@ -197,38 +197,48 @@ export const GuidanceView: React.FC<GuidanceViewProps> = ({ onOpenOficio }) => {
         </section>
       </div>
 
-      {/* DESPLEGABLE "VER MÁS DETALLES" (Sin sobrecargar la vista principal) */}
+      {/* VER MÁS DETALLES */}
       <div className="bg-white rounded-3xl border border-[#cbd5e1] p-4 sm:p-6 shadow-xs">
         <button
           type="button"
           onClick={() => setShowDetails(!showDetails)}
-          className="touch-target w-full flex items-center justify-between text-left font-black text-sm sm:text-base text-[#1e3a8a] hover:text-[#172554] transition-colors"
+          className="touch-target w-full flex items-center justify-between gap-3 text-left font-black text-sm sm:text-base text-[#1e3a8a] hover:text-[#172554] transition-colors"
           aria-expanded={showDetails}
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 min-w-0">
             <Info size={20} className="shrink-0" />
-            <span>{showDetails ? t('btn_hide_more_details') : t('btn_see_more_details')}</span>
+
+            <span className="leading-snug">
+              {showDetails
+                ? t('btn_hide_more_details')
+                : t('btn_see_more_details')}
+            </span>
           </div>
-          {showDetails ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+
+          {showDetails ? (
+            <ChevronUp size={20} className="shrink-0" />
+          ) : (
+            <ChevronDown size={20} className="shrink-0" />
+          )}
         </button>
 
         {showDetails && (
           <div className="mt-4 pt-4 border-t border-[#e2e8f0] space-y-4 text-xs sm:text-sm text-[#334155] leading-relaxed animate-in fade-in">
-            {/* Por qué hervir no quita metales */}
             <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 space-y-1.5">
-              <strong className="font-black text-[#92400e] flex items-center gap-1.5 text-sm">
-                <AlertTriangle size={18} className="shrink-0" />
-                {t('boil_alert_title')}
+              <strong className="font-black text-[#92400e] flex items-start gap-1.5 text-sm">
+                <AlertTriangle size={18} className="shrink-0 mt-0.5" />
+                <span>{t('boil_alert_title')}</span>
               </strong>
+
               <p>{t('boil_alert_desc')}</p>
             </div>
 
-            {/* Detalles para cultivos y animales */}
             <div className="space-y-2">
               <strong className="font-bold text-[#0f172a] block">
-                Efectos del agua ácida en el campo:
+                {t('guidance_field_effects_title')}
               </strong>
-              <ul className="list-disc pl-5 space-y-1 font-medium text-[#475569]">
+
+              <ul className="list-disc pl-5 space-y-2 font-medium text-[#475569]">
                 <li>{t('tip_high_2')}</li>
                 <li>{t('tip_high_3')}</li>
                 <li>{t('tip_high_4')}</li>
@@ -238,19 +248,21 @@ export const GuidanceView: React.FC<GuidanceViewProps> = ({ onOpenOficio }) => {
         )}
       </div>
 
-      {/* BOTÓN PARA REDACTAR OFICIO A LA AUTORIDAD (Anticipo Etapa 3) */}
+      {/* OFICIO */}
       {onOpenOficio && (
-        <div className="bg-[#eff6ff] border border-[#bfdbfe] p-4 rounded-3xl flex items-center justify-between gap-3 shadow-xs">
-          <div className="flex items-center gap-3 min-w-0">
+        <div className="bg-[#eff6ff] border border-[#bfdbfe] p-4 rounded-3xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-xs">
+          <div className="flex items-start gap-3 min-w-0 flex-1">
             <div className="w-10 h-10 rounded-2xl bg-[#1e3a8a] text-white flex items-center justify-center shrink-0">
               <FileText size={20} />
             </div>
-            <div className="truncate">
-              <strong className="text-xs sm:text-sm font-black text-[#0f172a] block truncate">
+
+            <div className="min-w-0 flex-1">
+              <strong className="text-xs sm:text-sm font-black text-[#0f172a] block leading-snug">
                 {t('official_letter_btn')}
               </strong>
-              <span className="text-[11px] text-[#475569]">
-                Carta comunitaria lista para JASS y municipio
+
+              <span className="text-[11px] text-[#475569] block mt-1 leading-relaxed">
+                {t('official_letter_desc')}
               </span>
             </div>
           </div>
@@ -258,16 +270,17 @@ export const GuidanceView: React.FC<GuidanceViewProps> = ({ onOpenOficio }) => {
           <button
             type="button"
             onClick={onOpenOficio}
-            className="touch-target px-4 py-2.5 rounded-2xl bg-[#1e3a8a] hover:bg-[#172554] text-white font-black text-xs shrink-0 shadow-sm"
+            className="touch-target w-full sm:w-auto px-4 py-2.5 rounded-2xl bg-[#1e3a8a] hover:bg-[#172554] text-white font-black text-xs shrink-0 shadow-sm"
           >
-            Abrir Oficio
+            {t('official_letter_open')}
           </button>
         </div>
       )}
 
-      {/* Aviso Permanente de Precaución */}
-      <div className="p-3.5 bg-slate-100 rounded-2xl border border-slate-200 text-xs text-slate-600 flex items-center gap-2">
-        <Info size={16} className="text-slate-500 shrink-0" />
+      {/* AVISO PERMANENTE */}
+      <div className="p-3.5 bg-slate-100 rounded-2xl border border-slate-200 text-xs text-slate-600 flex items-start gap-2 leading-relaxed">
+        <Info size={16} className="text-slate-500 shrink-0 mt-0.5" />
+
         <span>{t('disclaimer')}</span>
       </div>
     </div>

@@ -1,19 +1,18 @@
+
 import React, { useState } from 'react'
 import { REAL_MEASUREMENTS, ECA_LIMITS } from '../data/measurementsData'
-import { RealMeasurement } from '../types'
 import {
-  FlaskConical,
   Filter,
   Search,
   CheckCircle2,
   AlertTriangle,
   Download,
-  Info,
-  ExternalLink,
-  Table,
 } from 'lucide-react'
+import { useI18n } from '../i18n/I18nContext'
 
 export const ScientificDataView: React.FC = () => {
+  const { t } = useI18n()
+
   const [selectedCuenca, setSelectedCuenca] = useState<string>('todos')
   const [onlyViolations, setOnlyViolations] = useState<boolean>(false)
   const [searchTerm, setSearchTerm] = useState<string>('')
@@ -21,6 +20,7 @@ export const ScientificDataView: React.FC = () => {
   const filteredMeasurements = REAL_MEASUREMENTS.filter((m) => {
     if (selectedCuenca !== 'todos' && m.cuencaId !== selectedCuenca) return false
     if (onlyViolations && m.cumpleECA) return false
+
     if (searchTerm) {
       const term = searchTerm.toLowerCase()
       return (
@@ -29,10 +29,11 @@ export const ScientificDataView: React.FC = () => {
         m.fuente.toLowerCase().includes(term)
       )
     }
+
     return true
   })
 
-  // Quick statistics
+  // Estadísticas rápidas
   const total = REAL_MEASUREMENTS.length
   const acidicPoints = REAL_MEASUREMENTS.filter((m) => m.ph < 6.5).length
   const metalExceeding = REAL_MEASUREMENTS.filter(
@@ -90,20 +91,20 @@ export const ScientificDataView: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
-      {/* Header */}
+      {/* Encabezado */}
       <div className="bg-white p-6 rounded-3xl border border-[#dfe7e5] shadow-xs">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <span className="text-[10px] font-black uppercase text-[#3346a8] bg-[#edf0ff] px-2.5 py-0.5 rounded-full inline-block mb-1">
-              Etiquetas de Contraste Científico
+              {t('scientific_panel_badge')}
             </span>
+
             <h1 className="text-2xl sm:text-3xl font-black text-[#172726]">
-              Mediciones Hidroquímicas en Terreno
+              {t('scientific_panel_title')}
             </h1>
+
             <p className="text-sm text-[#667573] mt-1 max-w-3xl">
-              Datos reales digitalizados de estudios publicados por INAIGEM (49 localidades) y UPCH
-              (19 quebradas del Santa). Sirven como verdad de terreno (ground truth) para contrastar
-              el índice de riesgo frente a los Estándares de Calidad Ambiental (D.S. 004-2017-MINAM).
+              {t('scientific_panel_description')}
             </p>
           </div>
 
@@ -111,48 +112,79 @@ export const ScientificDataView: React.FC = () => {
             onClick={exportCSV}
             className="px-4 py-2.5 rounded-xl bg-[#3346a8] hover:bg-[#25368f] text-white text-xs font-bold flex items-center gap-2 transition-colors self-start md:self-auto shrink-0 shadow-xs"
           >
-            <Download size={15} /> Exportar CSV
+            <Download size={15} />
+            {t('scientific_panel_export')}
           </button>
         </div>
       </div>
 
-      {/* Metric Cards Row */}
+      {/* Tarjetas de indicadores */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white p-4 rounded-2xl border border-[#dfe7e5] shadow-xs">
-          <span className="text-[11px] font-bold text-[#667573] uppercase">Puntos Monitoreados</span>
-          <h3 className="text-2xl font-black text-[#172726] mt-1">{total} estaciones</h3>
-          <span className="text-[11px] text-[#3346a8] font-semibold">INAIGEM · UPCH · ANA</span>
+          <span className="text-[11px] font-bold text-[#667573] uppercase">
+            {t('scientific_panel_monitored_points')}
+          </span>
+
+          <h3 className="text-2xl font-black text-[#172726] mt-1">
+            {total} {t('scientific_panel_stations')}
+          </h3>
+
+          <span className="text-[11px] text-[#3346a8] font-semibold">
+            INAIGEM · UPCH · ANA
+          </span>
         </div>
 
         <div className="bg-white p-4 rounded-2xl border border-[#dfe7e5] shadow-xs">
-          <span className="text-[11px] font-bold text-[#667573] uppercase">pH Fuera de Norma</span>
+          <span className="text-[11px] font-bold text-[#667573] uppercase">
+            {t('scientific_panel_ph_out_of_range')}
+          </span>
+
           <h3 className="text-2xl font-black text-[#bd3f3a] mt-1">
-            {acidicPoints} puntos ({pctAcidic}%)
+            {acidicPoints} {t('scientific_panel_points')} ({pctAcidic}%)
           </h3>
-          <span className="text-[11px] text-[#bd3f3a] font-semibold">pH &lt; 6.5 (Drenaje Ácido)</span>
+
+          <span className="text-[11px] text-[#bd3f3a] font-semibold">
+            pH &lt; 6.5 ({t('scientific_panel_acid_drainage')})
+          </span>
         </div>
 
         <div className="bg-white p-4 rounded-2xl border border-[#dfe7e5] shadow-xs">
-          <span className="text-[11px] font-bold text-[#667573] uppercase">Exceso de Fe / Al</span>
+          <span className="text-[11px] font-bold text-[#667573] uppercase">
+            {t('scientific_panel_fe_al_excess')}
+          </span>
+
           <h3 className="text-2xl font-black text-[#a86408] mt-1">
-            {metalExceeding} puntos
+            {metalExceeding} {t('scientific_panel_points')}
           </h3>
-          <span className="text-[11px] text-[#a86408] font-semibold">Superan el ECA Agua</span>
+
+          <span className="text-[11px] text-[#a86408] font-semibold">
+            {t('scientific_panel_exceed_water_eca')}
+          </span>
         </div>
 
         <div className="bg-white p-4 rounded-2xl border border-[#dfe7e5] shadow-xs">
-          <span className="text-[11px] font-bold text-[#667573] uppercase">ECA de Referencia</span>
-          <h3 className="text-xl font-black text-[#21835b] mt-1">D.S. 004-2017</h3>
-          <span className="text-[11px] text-[#667573] font-semibold">MINAM Cat. 1 y Cat. 3</span>
+          <span className="text-[11px] font-bold text-[#667573] uppercase">
+            {t('scientific_panel_reference_eca')}
+          </span>
+
+          <h3 className="text-xl font-black text-[#21835b] mt-1">
+            D.S. 004-2017
+          </h3>
+
+          <span className="text-[11px] text-[#667573] font-semibold">
+            MINAM {t('scientific_panel_category_1')} y {t('scientific_panel_category_3')}
+          </span>
         </div>
       </div>
 
-      {/* Filter and Search Bar */}
+      {/* Filtros y búsqueda */}
       <div className="bg-white p-4 rounded-2xl border border-[#dfe7e5] shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs font-bold text-[#667573] flex items-center gap-1">
-            <Filter size={14} /> Cuenca:
+            <Filter size={14} />
+            {t('scientific_panel_basin')}:
           </span>
+
           <button
             onClick={() => setSelectedCuenca('todos')}
             className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all ${
@@ -161,8 +193,9 @@ export const ScientificDataView: React.FC = () => {
                 : 'bg-gray-100 text-[#667573] hover:text-black'
             }`}
           >
-            Todas
+            {t('scientific_panel_all')}
           </button>
+
           <button
             onClick={() => setSelectedCuenca('quillcay')}
             className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all ${
@@ -173,6 +206,7 @@ export const ScientificDataView: React.FC = () => {
           >
             Quillcay (Huaraz)
           </button>
+
           <button
             onClick={() => setSelectedCuenca('pachacoto')}
             className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all ${
@@ -183,6 +217,7 @@ export const ScientificDataView: React.FC = () => {
           >
             Pachacoto (Pastoruri)
           </button>
+
           <button
             onClick={() => setSelectedCuenca('canray-chico')}
             className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all ${
@@ -193,6 +228,7 @@ export const ScientificDataView: React.FC = () => {
           >
             Canray Chico
           </button>
+
           <button
             onClick={() => setSelectedCuenca('rio-blanco')}
             className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all ${
@@ -213,14 +249,18 @@ export const ScientificDataView: React.FC = () => {
               onChange={(e) => setOnlyViolations(e.target.checked)}
               className="accent-[#bd3f3a]"
             />
-            Solo con exceso de metales / pH ácido
+            {t('scientific_panel_only_violations')}
           </label>
 
           <div className="relative">
-            <Search size={14} className="absolute left-3 top-2.5 text-[#667573]" />
+            <Search
+              size={14}
+              className="absolute left-3 top-2.5 text-[#667573]"
+            />
+
             <input
               type="text"
-              placeholder="Buscar estación o quebrada..."
+              placeholder={t('scientific_panel_search_placeholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-8 pr-3 py-1.5 rounded-xl border border-[#dfe7e5] text-xs text-[#172726] focus:outline-[#3346a8] w-48 sm:w-60"
@@ -229,23 +269,48 @@ export const ScientificDataView: React.FC = () => {
         </div>
       </div>
 
-      {/* Data Table */}
+      {/* Tabla de mediciones */}
       <div className="bg-white rounded-3xl border border-[#dfe7e5] shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-[#f8faf9] text-[#667573] uppercase font-black text-[10px] tracking-wider border-b border-[#dfe7e5]">
               <tr>
-                <th className="py-3 px-4">Estación / Punto</th>
-                <th className="py-3 px-4">Quebrada / Cuenca</th>
-                <th className="py-3 px-3">Fecha</th>
+                <th className="py-3 px-4">
+                  {t('scientific_panel_station')}
+                </th>
+
+                <th className="py-3 px-4">
+                  {t('scientific_panel_creek_basin')}
+                </th>
+
+                <th className="py-3 px-3">
+                  {t('scientific_panel_date')}
+                </th>
+
                 <th className="py-3 px-3">pH</th>
-                <th className="py-3 px-3">Cond. (µS/cm)</th>
-                <th className="py-3 px-3">Hierro Fe (mg/L)</th>
-                <th className="py-3 px-3">Aluminio Al (mg/L)</th>
-                <th className="py-3 px-3">ECA Agua</th>
-                <th className="py-3 px-4">Fuente Oficial</th>
+
+                <th className="py-3 px-3">
+                  {t('scientific_panel_conductivity')} (µS/cm)
+                </th>
+
+                <th className="py-3 px-3">
+                  {t('scientific_panel_iron')} Fe (mg/L)
+                </th>
+
+                <th className="py-3 px-3">
+                  {t('scientific_panel_aluminum')} Al (mg/L)
+                </th>
+
+                <th className="py-3 px-3">
+                  {t('scientific_panel_water_eca')}
+                </th>
+
+                <th className="py-3 px-4">
+                  {t('scientific_panel_official_source')}
+                </th>
               </tr>
             </thead>
+
             <tbody className="divide-y divide-[#dfe7e5]">
               {filteredMeasurements.map((m) => {
                 const isPhBad = m.ph < 6.5
@@ -253,15 +318,26 @@ export const ScientificDataView: React.FC = () => {
                 const isAlBad = m.aluminio > ECA_LIMITS.aluminio
 
                 return (
-                  <tr key={m.id} className="hover:bg-[#fbfcfc] transition-colors">
+                  <tr
+                    key={m.id}
+                    className="hover:bg-[#fbfcfc] transition-colors"
+                  >
                     <td className="py-3 px-4 font-black text-[#172726]">
                       {m.punto}
+
                       <span className="block text-[10px] font-normal text-[#667573]">
                         {m.lat.toFixed(3)}, {m.lng.toFixed(3)}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-[#172726] font-semibold">{m.quebrada}</td>
-                    <td className="py-3 px-3 text-[#667573]">{m.fecha}</td>
+
+                    <td className="py-3 px-4 text-[#172726] font-semibold">
+                      {m.quebrada}
+                    </td>
+
+                    <td className="py-3 px-3 text-[#667573]">
+                      {m.fecha}
+                    </td>
+
                     <td className="py-3 px-3">
                       <span
                         className={`font-black px-2 py-0.5 rounded-md ${
@@ -273,34 +349,74 @@ export const ScientificDataView: React.FC = () => {
                         {m.ph.toFixed(2)}
                       </span>
                     </td>
-                    <td className="py-3 px-3 text-[#172726]">{m.conductividad}</td>
+
+                    <td className="py-3 px-3 text-[#172726]">
+                      {m.conductividad}
+                    </td>
+
                     <td className="py-3 px-3">
-                      <span className={`font-bold ${isFeBad ? 'text-[#bd3f3a]' : 'text-[#172726]'}`}>
+                      <span
+                        className={`font-bold ${
+                          isFeBad ? 'text-[#bd3f3a]' : 'text-[#172726]'
+                        }`}
+                      >
                         {m.hierro.toFixed(2)}
                       </span>
-                      {isFeBad && <span className="text-[9px] text-red-600 block">(&gt; 1.0)</span>}
-                    </td>
-                    <td className="py-3 px-3">
-                      <span className={`font-bold ${isAlBad ? 'text-[#bd3f3a]' : 'text-[#172726]'}`}>
-                        {m.aluminio.toFixed(2)}
-                      </span>
-                      {isAlBad && <span className="text-[9px] text-red-600 block">(&gt; 0.9)</span>}
-                    </td>
-                    <td className="py-3 px-3">
-                      {m.cumpleECA ? (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#21835b] bg-green-50 px-2 py-0.5 rounded-md border border-green-200">
-                          <CheckCircle2 size={12} /> Cumple
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#bd3f3a] bg-red-50 px-2 py-0.5 rounded-md border border-red-200">
-                          <AlertTriangle size={12} /> Supera ECA
+
+                      {isFeBad && (
+                        <span className="text-[9px] text-red-600 block">
+                          (&gt; 1.0)
                         </span>
                       )}
                     </td>
-                    <td className="py-3 px-4 text-[#3346a8] font-bold">{m.fuente}</td>
+
+                    <td className="py-3 px-3">
+                      <span
+                        className={`font-bold ${
+                          isAlBad ? 'text-[#bd3f3a]' : 'text-[#172726]'
+                        }`}
+                      >
+                        {m.aluminio.toFixed(2)}
+                      </span>
+
+                      {isAlBad && (
+                        <span className="text-[9px] text-red-600 block">
+                          (&gt; 0.9)
+                        </span>
+                      )}
+                    </td>
+
+                    <td className="py-3 px-3">
+                      {m.cumpleECA ? (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#21835b] bg-green-50 px-2 py-0.5 rounded-md border border-green-200">
+                          <CheckCircle2 size={12} />
+                          {t('scientific_panel_compliant')}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#bd3f3a] bg-red-50 px-2 py-0.5 rounded-md border border-red-200">
+                          <AlertTriangle size={12} />
+                          {t('scientific_panel_exceeds_eca')}
+                        </span>
+                      )}
+                    </td>
+
+                    <td className="py-3 px-4 text-[#3346a8] font-bold">
+                      {m.fuente}
+                    </td>
                   </tr>
                 )
               })}
+
+              {filteredMeasurements.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={9}
+                    className="py-8 px-4 text-center text-sm text-[#667573]"
+                  >
+                    {t('scientific_panel_no_results')}
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

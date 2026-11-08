@@ -297,7 +297,7 @@
     "_revisar": true
   },
   "simulator_title": {
-    "text": "Riesgo simulador",
+    "text": "Yaku sasachakuynin imano kananta rikachikuq",
     "_revisar": true
   },
   "ml_model_title": {
@@ -453,11 +453,11 @@
     "_revisar": true
   },
   "btn_guidance_full": {
-    "text": "Consejo rikapaana",
+    "text": "Yaku waqaychanapaq yuyaykuna",
     "_revisar": true
   },
   "guidance_badge": {
-    "text": "Comunidadpaq Willakuy",
+    "text": "Llaqtapaq Willakuy",
     "_revisar": true
   },
   "guidance_title": {
@@ -529,7 +529,7 @@
     "_revisar": true
   },
   "more_options_title": {
-    "text": "Comunidadpaq mastaraq",
+    "text": "Ayllupaq mastaraq",
     "_revisar": true
   },
   "more_onboarding": {
@@ -537,11 +537,11 @@
     "_revisar": true
   },
   "more_connectivity": {
-    "text": "Internet wan Tambokuna",
+    "text": "Internetwan Tambokuna",
     "_revisar": true
   },
   "more_sync": {
-    "text": "Celularchaw willakuykuna",
+    "text": "Celularnikichaw willakuykuna",
     "_revisar": true
   },
   "more_contacts": {
@@ -549,11 +549,11 @@
     "_revisar": true
   },
   "more_scientific": {
-    "text": "Yachaqkunapaq datos",
+    "text": "Yachaqkunapaq willakuykuna",
     "_revisar": true
   },
   "more_simulator": {
-    "text": "Riesgo simulador",
+    "text": "Yaku sasachakuynin imano kananta rikachikuq",
     "_revisar": true
   },
   "sync_modal_title": {
@@ -797,11 +797,11 @@
     "_revisar": true
   },
   "btn_hide_more_details": {
-    "text": "Detallesta pakay",
+    "text": "Willakuykunata pakay",
     "_revisar": true
   },
   "oficio_modal_title": {
-    "text": "Autoridapaq ofisiota qellqay",
+    "text": "Autoridadkunapaq ofisiota qellqay",
     "_revisar": true
   },
   "oficio_step1_title": {
@@ -980,6 +980,70 @@
     "text": "Qallariyman kutiy",
     "_revisar": true
   },
+  "app_home_aria": {
+    "text": "GlaciAgua, qallariy",
+    "_revisar": true
+  },
+  "report_water_title": {
+    "text": "Puka o puquyashqa yakuta rikashpa willakuy",
+    "_revisar": true
+  },
+  "report_water_aria": {
+    "text": "Qanra yakupita willakuy",
+    "_revisar": true
+  },
+  "nav_engineering": {
+    "text": "Inhiniriya",
+    "_revisar": true
+  },
+  "admin_portal_title": {
+    "text": "Pachamama inhiniriya, datos hinaspa musuq yachachiy portal",
+    "_revisar": true
+  },
+  "btn_report_short": {
+    "text": "Willakuy",
+    "_revisar": true
+  },
+  "btn_send_reports": {
+    "text": "Apachiy ({count})",
+    "_revisar": true
+  },
+  "season_change_title": {
+    "text": "Mitata tikranaykipaq takiy",
+    "_revisar": true
+  },
+  "season_aria_label": {
+    "text": "Mita",
+    "_revisar": true
+  },
+  "pending_reports_title": {
+    "text": "{count} willakuykuna celularnikichaw waqaychasqa, apachinapaq suyaykan",
+    "_revisar": true
+  },
+  "pending_reports_aria": {
+    "text": "{count} willakuykuna apachinapaq suyaykan",
+    "_revisar": true
+  },
+  "offline_title": {
+    "text": "Internet mana kan. Willakuykikuna celularnikichaw waqaychashqa kanqa",
+    "_revisar": true
+  },
+  "offline_aria": {
+    "text": "Señal mana kan",
+    "_revisar": true
+  },
+  "status_no_signal": {
+    "text": "Señal illan",
+    "_revisar": true
+  },
+  "online_title": {
+    "text": "Internet llikawan tinkishqa",
+    "_revisar": true
+  },
+  "connection_online_aria": {
+    "text": "Internet llikawan tinkishqa",
+    "_revisar": true
+  },
   "exp_comm_feature_map": "Rikaypaq mapa",
   "exp_comm_feature_water": "Yakupa rikapaynin",
   "exp_comm_feature_alerts": "Ñawpaq willakuykuna",
@@ -988,5 +1052,2497 @@
   "exp_tech_feature_basin": "Wayqukunapa yachaynin",
   "exp_tech_feature_science": "Yachaypa yupayninkuna",
   "exp_tech_feature_simulator": "Imayna kananta rikachiq",
-  "exp_disclaimer": "Kay willakuyqa yachaypaqmi, manam yachayniyuqpa qawariyninta rantinchu."
+  "exp_disclaimer": "Kay willakuyqa yachaypaqmi, manam yachayniyuqpa qawariyninta rantinchu.",
+  "water_status_for": {
+    "text": "Yakupa kaykaynin:",
+    "_revisar": true
+  },
+  "seal_drink_high": {
+    "text": "Ama upyaytsu",
+    "_revisar": true
+  },
+  "seal_drink_medium": {
+    "text": "Kamachisqa captacionllapita",
+    "_revisar": true
+  },
+  "seal_drink_low": {
+    "text": "JASS nishqanno chuyanchay",
+    "_revisar": true
+  },
+  "seal_crops_high": {
+    "text": "Ama hortalizakunachaw kasutiytsu",
+    "_revisar": true
+  },
+  "seal_crops_medium": {
+    "text": "Cuidado qarpay",
+    "_revisar": true
+  },
+  "seal_crops_low": {
+    "text": "Yapay qarpay",
+    "_revisar": true
+  },
+  "seal_animals_high": {
+    "text": "Ama uywakunata upyatsiytsu",
+    "_revisar": true
+  },
+  "seal_animals_medium": {
+    "text": "Puquiopita upyatsiy",
+    "_revisar": true
+  },
+  "seal_animals_low": {
+    "text": "Uywakunapaq pisiy riesgo",
+    "_revisar": true
+  },
+  "boil_no_metals_badge": {
+    "text": "Manam qillayakunata hurquntsu",
+    "_revisar": true
+  },
+  "scientific_ph": {
+    "text": "Tupashqa pH",
+    "_revisar": true
+  },
+  "scientific_conductivity": {
+    "text": "Yakupa kachaynin",
+    "_revisar": true
+  },
+  "scientific_dominant_metal": {
+    "text": "Aswan rikashqa qillaykuna",
+    "_revisar": true
+  },
+  "scientific_full_panel": {
+    "text": "Llapan yachaykunata rikay",
+    "_revisar": true
+  },
+  "alt_sick_water_drop": {
+    "text": "Poqoq yakuwan qeshyaq gota",
+    "_revisar": true
+  },
+  "alt_worried_water_drop": {
+    "text": "Llakishqa yaku gota",
+    "_revisar": true
+  },
+  "alt_calm_water_drop": {
+    "text": "Kusisqa yaku gota",
+    "_revisar": true
+  },
+  "alt_drinking_water": {
+    "text": "Yaku upyaq runa",
+    "_revisar": true
+  },
+  "alt_watering_crops": {
+    "text": "Chakrata qarpa",
+    "_revisar": true
+  },
+  "alt_livestock": {
+    "text": "Uywakuna: waka y oveja",
+    "_revisar": true
+  },
+  "alt_boiling_warning": {
+    "text": "Willakuy: yakuta timpuchiptiki metalkunata manam hurquntsu",
+    "_revisar": true
+  },
+  "scientific_normal_parameters": {
+    "text": "ECA kamachisqan hina llapan yupaykuna",
+    "_revisar": true
+  },
+  "scientific_source_baseline": {
+    "text": "ANApa qallariy yachaykuna",
+    "_revisar": true
+  },
+  "scientific_source_inaigem": {
+    "text": "INAIGEMpa ritikuna rikay yachaynin",
+    "_revisar": true
+  },
+  "scientific_source_hydrochemical": {
+    "text": "INAIGEM / UPCH yakupa yachaynin",
+    "_revisar": true
+  },
+  "scientific_source_canray": {
+    "text": "Canray Chico yakupa yachaynin (INAIGEM)",
+    "_revisar": true
+  },
+  "scientific_iron_aluminum": {
+    "text": "Hierro y aluminio",
+    "_revisar": true
+  },
+  "scientific_iron_manganese": {
+    "text": "Hierro y manganeso",
+    "_revisar": true
+  },
+  "scientific_iron": {
+    "text": "Hierro",
+    "_revisar": true
+  },
+  "sidebar_basins_title": {
+    "text": "Wayqunakuna",
+    "_revisar": true
+  },
+  "sidebar_basins_count": {
+    "text": "{count} yakupa wayqun",
+    "_revisar": true
+  },
+  "sidebar_expand_title": {
+    "text": "Hatunyachiy wayqunakunapaq",
+    "_revisar": true
+  },
+  "sidebar_expand_aria": {
+    "text": "Lateral barrachata hatunyachiy",
+    "_revisar": true
+  },
+  "sidebar_collapse_title": {
+    "text": "Pisiyachiy lateral barra",
+    "_revisar": true
+  },
+  "sidebar_collapse_aria": {
+    "text": "Lateral barrachata pisiyachiy",
+    "_revisar": true
+  },
+  "sidebar_seasons_count": {
+    "text": "{count} mitrakuna",
+    "_revisar": true
+  },
+  "sidebar_avoid_water": {
+    "text": "Kay yakuta ama ushaytsu",
+    "_revisar": true
+  },
+  "sidebar_water_observation": {
+    "text": "Yaku rikapaashqa kaykan",
+    "_revisar": true
+  },
+  "sidebar_lower_acidity_risk": {
+    "text": "Pisi poqoypa rikaynin",
+    "_revisar": true
+  },
+  "water_tone_rust": {
+    "text": "Puka allpa llimpi",
+    "_revisar": true
+  },
+  "water_tone_ochre": {
+    "text": "Qellu allpa llimpi",
+    "_revisar": true
+  },
+  "water_tone_clear": {
+    "text": "Chuya",
+    "_revisar": true
+  },
+  "sidebar_normal_parameters": {
+    "text": "ECA ukupi allin tupukuna",
+    "_revisar": true
+  },
+  "metal_iron": {
+    "text": "Hierro (Fe)",
+    "_revisar": true
+  },
+  "metal_aluminum": {
+    "text": "Aluminio (Al)",
+    "_revisar": true
+  },
+  "metal_manganese": {
+    "text": "Manganeso (Mn)",
+    "_revisar": true
+  },
+  "metal_lead": {
+    "text": "Plomo (Pb)",
+    "_revisar": true
+  },
+  "basin_panel_advice_high": {
+    "text": "Kay wayquqa puka yakuyuq kanman. Ama upyaytsu, willakuy.",
+    "_revisar": true
+  },
+  "basin_panel_advice_medium": {
+    "text": "Yaku rikapaashqa kaykan. JASS-nikita tapukuy manaraq upyashpa.",
+    "_revisar": true
+  },
+  "basin_panel_advice_low": {
+    "text": "Yakuqa allillam kaykan. JASS nishqanno altsay.",
+    "_revisar": true
+  },
+  "basin_usage_today": {
+    "text": "Kanan yakuta imapaqmi churanki:",
+    "_revisar": true
+  },
+  "basin_use_drink": {
+    "text": "Upyay",
+    "_revisar": true
+  },
+  "basin_use_water": {
+    "text": "Chakray",
+    "_revisar": true
+  },
+  "basin_use_livestock": {
+    "text": "Uywakuna",
+    "_revisar": true
+  },
+  "basin_use_drink_high": {
+    "text": "Ama upyaytsu",
+    "_revisar": true
+  },
+  "basin_use_drink_medium": {
+    "text": "Allin yakuta upyay",
+    "_revisar": true
+  },
+  "basin_use_drink_low": {
+    "text": "JASS-ninwan cloray",
+    "_revisar": true
+  },
+  "basin_use_water_high": {
+    "text": "Ama chakraytsu",
+    "_revisar": true
+  },
+  "basin_use_water_medium": {
+    "text": "Yaku purinanpa qaway",
+    "_revisar": true
+  },
+  "basin_use_water_low": {
+    "text": "Kikin riegoy",
+    "_revisar": true
+  },
+  "basin_use_livestock_high": {
+    "text": "Ama uywakunaman qoytsu",
+    "_revisar": true
+  },
+  "basin_use_livestock_medium": {
+    "text": "Puquy yakuta akray",
+    "_revisar": true
+  },
+  "basin_use_livestock_low": {
+    "text": "Uywakunapa upyananpaq allin",
+    "_revisar": true
+  },
+  "basin_field_data_title": {
+    "text": "Kay wayquchaw tupushqa willakuykuna:",
+    "_revisar": true
+  },
+  "basin_data_source": {
+    "text": "Maypitaq willakuy:",
+    "_revisar": true
+  },
+  "basin_connectivity_points": {
+    "text": "Señal kaq puntukunata rikay",
+    "_revisar": true
+  },
+  "basin_jury_data": {
+    "text": "Jurado / Inhinirukunapa willakuynin",
+    "_revisar": true
+  },
+  "basin_hide_jury_data": {
+    "text": "Jurado willakuykunata pakay",
+    "_revisar": true
+  },
+  "basin_random_forest": {
+    "text": "Random Forest modelu:",
+    "_revisar": true
+  },
+  "basin_accuracy": {
+    "text": "allin yachay",
+    "_revisar": true
+  },
+  "layers_basins_title": {
+    "text": "Yaku wayqukuna semáforowan",
+    "_revisar": true
+  },
+  "layers_basins_desc": {
+    "text": "Wayqupa linderonkuna, sasachakuynin rikachikuq llimpinkunawan",
+    "_revisar": true
+  },
+  "layers_river_title": {
+    "text": "Río Santa",
+    "_revisar": true
+  },
+  "layers_river_desc": {
+    "text": "Callejón de Huaylas chawpichaw puriq hatun yaku",
+    "_revisar": true
+  },
+  "layers_subbasins_title": {
+    "text": "Uchuy wayqukuna (quebradakuna)",
+    "_revisar": true
+  },
+  "layers_subbasins_desc": {
+    "text": "Uchuy yakukuna purinan, poqoyninkuna pH-ninkunawan",
+    "_revisar": true
+  },
+  "layers_scientific_optional": {
+    "text": "Yachaypaq akllashqa qatakuna",
+    "_revisar": true
+  },
+  "layers_dar_title": {
+    "text": "Poqoypa qallariyninkuna (DAR)",
+    "_revisar": true
+  },
+  "layers_dar_desc": {
+    "text": "Sulfurowan kaq rumi-morrenakuna",
+    "_revisar": true
+  },
+  "layers_wetlands_title": {
+    "text": "Bofedalkuna y humedalkuna",
+    "_revisar": true
+  },
+  "layers_wetlands_desc": {
+    "text": "Metal-kunata hapiq pachamama filtro-nkuna",
+    "_revisar": true
+  },
+  "layers_monitoring_title": {
+    "text": "Rikapaypa puntunkuna",
+    "_revisar": true
+  },
+  "layers_monitoring_desc": {
+    "text": "INAIGEM y UPCH tupuykuna",
+    "_revisar": true
+  },
+  "layers_connectivity_title": {
+    "text": "Tambokuna y llaqta internet",
+    "_revisar": true
+  },
+  "layers_connectivity_desc": {
+    "text": "Señalniyuq puntukuna willakuykunata apachinapaq",
+    "_revisar": true
+  },
+  "legend_rio_santa": {
+    "text": "Río Santa (Hatun yaku)",
+    "_revisar": true
+  },
+  "legend_subbasin_lines": {
+    "text": "Uchuy wayqukuna / Wayqukuna",
+    "_revisar": true
+  },
+  "nav_water_mobile": {
+    "text": "¿Yakuta upyashaq?",
+    "_revisar": true
+  },
+  "guidance_field_effects_title": {
+    "text": "Pukayayaku chakra ruraykunapi imano kananta",
+    "_revisar": true
+  },
+  "official_letter_desc": {
+    "text": "JASS-paq llaqtapaq ofisiota qellqay",
+    "_revisar": true
+  },
+  "official_letter_open": {
+    "text": "Ofisiota kichay",
+    "_revisar": true
+  },
+  "more_officio_desc": {
+    "text": "JASS-paq municipio-paq ofisio, qellqaypaq o imprimiypaq allichasqa",
+    "_revisar": true
+  },
+  "more_connectivity_desc": {
+    "text": "Huaraz y Recuaychaw satélite señalniyuq puntukuna, WiFi internet",
+    "_revisar": true
+  },
+  "more_sync_pending": {
+    "text": "{count} willakuykuna celularnikichaw waqaychasqa",
+    "_revisar": true
+  },
+  "more_sync_complete": {
+    "text": "Llapan willakuykikuna allichasqañam",
+    "_revisar": true
+  },
+  "contact_unconfirmed": {
+    "text": "Telefonopa yupayninkuna manaraq chiqaqchasqa",
+    "_revisar": true
+  },
+  "contact_jass_role": {
+    "text": "Aylluchaw yaku kamachiy, yakupa yaykunan puntuta rikay",
+    "_revisar": true
+  },
+  "contact_diresa_role": {
+    "text": "Pachamamapa qhali kaynin, qeshyaqkunapaq utqay yanapay",
+    "_revisar": true
+  },
+  "contact_municipio_role": {
+    "text": "Sasachakuykunapita waqaychay, cisternawan yanapay",
+    "_revisar": true
+  },
+  "btn_call": {
+    "text": "Willapay",
+    "_revisar": true
+  },
+  "btn_copy": {
+    "text": "Copiay",
+    "_revisar": true
+  },
+  "btn_copied": {
+    "text": "Kanchisqañam",
+    "_revisar": true
+  },
+  "more_scientific_desc": {
+    "text": "Yachay modelokunata y yakupa químico tupuykunata rikay",
+    "_revisar": true
+  },
+  "more_admin_title": {
+    "text": "Inhiniriya portal, willakuykuna churay (Admin)",
+    "_revisar": true
+  },
+  "more_admin_desc": {
+    "text": "Tupuykunata churay, willakuykuna yapay y modelota musuqmanta yachachiy",
+    "_revisar": true
+  },
+  "more_simulator_desc": {
+    "text": "Pachapa rumikunapa tupuykuna",
+    "_revisar": true
+  },
+  "more_scientific_data": {
+    "text": "Yachaykunapa willakuykuna",
+    "_revisar": true
+  },
+  "more_scientific_validation": {
+    "text": "Laboratoriochaw chiqaqchay",
+    "_revisar": true
+  },
+  "report_step_location_short": {
+    "text": "Maychaw",
+    "_revisar": true
+  },
+  "report_step_color_short": {
+    "text": "Llimpi",
+    "_revisar": true
+  },
+  "report_step_photo_short": {
+    "text": "Foto",
+    "_revisar": true
+  },
+  "report_step_send_short": {
+    "text": "Apachiy",
+    "_revisar": true
+  },
+  "report_location_hint": {
+    "text": "Maychaw yakuta rikashqaykita akray:",
+    "_revisar": true
+  },
+  "report_select_basin": {
+    "text": "Mayu utaq wayqu akray",
+    "_revisar": true
+  },
+  "report_gps_unavailable": {
+    "text": "Kay navegadorchaw GPS-niki mana kichashkantsu.",
+    "_revisar": true
+  },
+  "report_gps_error": {
+    "text": "Kanan GPS-ta mana tariyta atishqatsu. Wayqupa llaqtanta churashun.",
+    "_revisar": true
+  },
+  "report_gps_searching": {
+    "text": "GPS satélite-ta maskaykan...",
+    "_revisar": true
+  },
+  "report_color_hint": {
+    "text": "Yakuman aswan rikchakuq tarjeta-ta llutay:",
+    "_revisar": true
+  },
+  "report_color_rust_desc": {
+    "text": "Rumi naranja óxido niraqta tukushqa",
+    "_revisar": true
+  },
+  "report_color_milky_desc": {
+    "text": "Yuraq polvuyoq puqshaq yaku",
+    "_revisar": true
+  },
+  "report_color_clear_desc": {
+    "text": "Chuya yaku, chuya rumikunawan",
+    "_revisar": true
+  },
+  "report_color_muddy_desc": {
+    "text": "Allpa, mituyuq utaq wiñashqa yaku",
+    "_revisar": true
+  },
+  "report_diagnostic_rust_title": {
+    "text": "Rumipita ácido yaku paqarimunman (DAR)",
+    "_revisar": true
+  },
+  "report_diagnostic_milky_title": {
+    "text": "Aluminio utaq sulfato kanman",
+    "_revisar": true
+  },
+  "report_diagnostic_muddy_title": {
+    "text": "Allpa mitu yakuman chapushqa",
+    "_revisar": true
+  },
+  "report_diagnostic_clear_title": {
+    "text": "Yaku rikaynin allillam",
+    "_revisar": true
+  },
+  "report_diagnostic_rust_desc": {
+    "text": "Naranja utaq óxido niraq yaku, pirita oxidakushqanwan hierro yakuman yaykushqanwanmi tinkun. pH ácido kanman (< 5.0). Ama upyaytsu.",
+    "_revisar": true
+  },
+  "report_diagnostic_milky_desc": {
+    "text": "Yuraq lechiyoq niraq yaku, aluminio coloidal utaq yeso yakuchaw kashqanwanmi tinkunman. Cuidado.",
+    "_revisar": true
+  },
+  "report_diagnostic_muddy_desc": {
+    "text": "Tamya tamyaptin allpa mitu yakuman chapukushqanmi.",
+    "_revisar": true
+  },
+  "report_diagnostic_clear_desc": {
+    "text": "Chuya yaku, rumikunachaw mana costra kaptin, aslla mineral kanman.",
+    "_revisar": true
+  },
+  "report_thanks": {
+    "text": "Willakushqaykipaq añay.",
+    "_revisar": true
+  },
+  "report_summary_basin": {
+    "text": "Wayqu:",
+    "_revisar": true
+  },
+  "report_summary_appearance": {
+    "text": "Rikaynin:",
+    "_revisar": true
+  },
+  "report_summary_photo": {
+    "text": "Foto:",
+    "_revisar": true
+  },
+  "report_photo_included": {
+    "text": "Yapaykushqa ✓",
+    "_revisar": true
+  },
+  "report_community_thanks": {
+    "text": "Willakuykiki llapan ayllupa yakunta cuidananpaq yanapan.",
+    "_revisar": true
+  },
+  "report_photo_change": {
+    "text": "Akllashqa fotota hukman tikray",
+    "_revisar": true
+  },
+  "report_photo_open": {
+    "text": "Cámara utaq galería kichananpaq llutay",
+    "_revisar": true
+  },
+  "report_photo_loaded": {
+    "text": "Foto allim churashqa ✓",
+    "_revisar": true
+  },
+  "report_photo_remove": {
+    "text": "Fotota hurquy",
+    "_revisar": true
+  },
+  "report_photo_alt": {
+    "text": "Yakupa foto",
+    "_revisar": true
+  },
+  "report_comment_label": {
+    "text": "¿Imataraq yapayta munanki? (Munashqallayki)",
+    "_revisar": true
+  },
+  "report_comment_placeholder": {
+    "text": "Ejemplo: puka costrayoq rumikuna, uywakuna mana upyayta munanchu, hukkunapas.",
+    "_revisar": true
+  },
+  "report_review_hint": {
+    "text": "Waqaychashpa ñawpaq kay willakuykunata rikay:",
+    "_revisar": true
+  },
+  "report_photo_attached": {
+    "text": "Foto yapashqa ✓",
+    "_revisar": true
+  },
+  "report_no_photo": {
+    "text": "Mana foto kanchu",
+    "_revisar": true
+  },
+  "report_connection": {
+    "text": "Tinkisqa:",
+    "_revisar": true
+  },
+  "report_online_now": {
+    "text": "Internet kan. Kananmi apakan.",
+    "_revisar": true
+  },
+  "report_offline_saved": {
+    "text": "Señal mana kanchu. Celularnikichawmi waqaychakun.",
+    "_revisar": true
+  },
+  "report_warning_label": {
+    "text": "Willakuy:",
+    "_revisar": true
+  },
+  "report_success_alt": {
+    "text": "Willakuy allim churashqa",
+    "_revisar": true
+  },
+  "report_ready_alt": {
+    "text": "Willakuy apachinapaq wakichishqa",
+    "_revisar": true
+  },
+  "report_rust_rocks_alt": {
+    "text": "Óxido llimpiyuq rumikuna",
+    "_revisar": true
+  },
+  "report_clear_creek_alt": {
+    "text": "Chuya yaku puriq wayqu",
+    "_revisar": true
+  },
+  "report_gps_precision": {
+    "text": "±{precision} m",
+    "_revisar": true
+  },
+  "report_audio_location": {
+    "text": "Ñawpaq: Mayu utaq wayqu maychaw yakuta rikashqaykita akray, utaq GPS-ta churay.",
+    "_revisar": true
+  },
+  "report_audio_color": {
+    "text": "Ishkay: ¿Imaniraqtaq yaku? ¿Naranja óxido niraqchu, yuraq lechiyoqchu, utaq chuya yaku?",
+    "_revisar": true
+  },
+  "report_audio_photo": {
+    "text": "Kimsa: Allim kaptinqa fotota ruray. Ama wayqupa kuchunman aywaytsu.",
+    "_revisar": true
+  },
+  "report_audio_send": {
+    "text": "Chusku: Wayqupa shutinta, yakupa llimpinta rikay. Chaypita willakuyta apachiy.",
+    "_revisar": true
+  },
+  "scientific_panel_badge": {
+    "text": "Yachaypaq tupachiy shimikuna",
+    "_revisar": true
+  },
+  "scientific_panel_title": {
+    "text": "Allpachaw yakuq química tupuykuna",
+    "_revisar": true
+  },
+  "scientific_panel_description": {
+    "text": "INAIGEM (49 kitikunachaw) UPCH (Santa mayuq 19 wayqukunachaw) willakashqa yachaykunamanta qillqashqa chiqap willakuykuna. Kaykunawanmi yaku sasachakuy rikuriyta, Pachamama Allin Kay Estándarkunawan (D.S. 004-2017-MINAM) tupachinchik.",
+    "_revisar": true
+  },
+  "scientific_panel_export": {
+    "text": "CSV-ta hurquy",
+    "_revisar": true
+  },
+  "scientific_panel_monitored_points": {
+    "text": "Qawashqa kitikuna",
+    "_revisar": true
+  },
+  "scientific_panel_stations": {
+    "text": "tupuy kitikuna",
+    "_revisar": true
+  },
+  "scientific_panel_ph_out_of_range": {
+    "text": "pH kamachikuymanta hawachaw",
+    "_revisar": true
+  },
+  "scientific_panel_points": {
+    "text": "kitikuna",
+    "_revisar": true
+  },
+  "scientific_panel_acid_drainage": {
+    "text": "Puchqu yaku ayway",
+    "_revisar": true
+  },
+  "scientific_panel_fe_al_excess": {
+    "text": "Fe / Al aswan achka",
+    "_revisar": true
+  },
+  "scientific_panel_exceed_water_eca": {
+    "text": "ECA Yaku kamachikuyninta yallin",
+    "_revisar": true
+  },
+  "scientific_panel_reference_eca": {
+    "text": "ECA tupuy kamachikuy",
+    "_revisar": true
+  },
+  "scientific_panel_category_1": {
+    "text": "1 kaq katiguriya",
+    "_revisar": true
+  },
+  "scientific_panel_category_3": {
+    "text": "3 kaq katiguriya",
+    "_revisar": true
+  },
+  "scientific_panel_basin": {
+    "text": "Mayu",
+    "_revisar": true
+  },
+  "scientific_panel_all": {
+    "text": "Llapan",
+    "_revisar": true
+  },
+  "scientific_panel_only_violations": {
+    "text": "Metal aswan achka kaptin / pH puchqu kaptinlla",
+    "_revisar": true
+  },
+  "scientific_panel_search_placeholder": {
+    "text": "Tupuy kitita utaq wayquta maskay...",
+    "_revisar": true
+  },
+  "scientific_panel_station": {
+    "text": "Tupuy kuti / Kiti",
+    "_revisar": true
+  },
+  "scientific_panel_creek_basin": {
+    "text": "Wayqu / Mayu",
+    "_revisar": true
+  },
+  "scientific_panel_date": {
+    "text": "Pacha",
+    "_revisar": true
+  },
+  "scientific_panel_conductivity": {
+    "text": "Yaku electricidad purichiy",
+    "_revisar": true
+  },
+  "scientific_panel_iron": {
+    "text": "Hierro",
+    "_revisar": true
+  },
+  "scientific_panel_aluminum": {
+    "text": "Aluminio",
+    "_revisar": true
+  },
+  "scientific_panel_water_eca": {
+    "text": "ECA Yaku",
+    "_revisar": true
+  },
+  "scientific_panel_official_source": {
+    "text": "Kamachikuypaq pukyu",
+    "_revisar": true
+  },
+  "scientific_panel_compliant": {
+    "text": "Allinmi",
+    "_revisar": true
+  },
+  "scientific_panel_exceeds_eca": {
+    "text": "ECA-ta yallin",
+    "_revisar": true
+  },
+  "scientific_panel_no_results": {
+    "text": "Akllashqa maskaykunawan tupaq tupuykuna mana tarishqachu.",
+    "_revisar": true
+  },
+  "connectivity_satellite_images": {
+    "text": "Hanaq pachamanta rikashqa siqikuna",
+    "_revisar": true
+  },
+  "connectivity_gps_unsupported": {
+    "text": "Kay navegadorniykichaw GPS-ta tariyta mana atikantsu.",
+    "_revisar": true
+  },
+  "connectivity_your_location": {
+    "text": "Maychaw kashqayki",
+    "_revisar": true
+  },
+  "connectivity_gps_error": {
+    "text": "GPS-ta tariyta manam atirqantsiktsu. Mapata puntukunata llamkaypa qawariy.",
+    "_revisar": true
+  },
+  "connectivity_route_title": {
+    "text": "Yakupa ñan y conexión",
+    "_revisar": true
+  },
+  "connectivity_show_panel": {
+    "text": "Panelta rikay",
+    "_revisar": true
+  },
+  "connectivity_hide": {
+    "text": "Pakay",
+    "_revisar": true
+  },
+  "connectivity_monitoring": {
+    "text": "Allpapa qawariynin",
+    "_revisar": true
+  },
+  "connectivity_map_title": {
+    "text": "Tinkichiy mapa",
+    "_revisar": true
+  },
+  "connectivity_water_route": {
+    "text": "Cordillerachaw yakupa ñannin",
+    "_revisar": true
+  },
+  "connectivity_glacier": {
+    "text": "Rit'i",
+    "_revisar": true
+  },
+  "connectivity_thaw": {
+    "text": "Rit'i yakuman tikray",
+    "_revisar": true
+  },
+  "connectivity_creek": {
+    "text": "Wayqu",
+    "_revisar": true
+  },
+  "connectivity_minerals": {
+    "text": "Mineralkuna",
+    "_revisar": true
+  },
+  "connectivity_community": {
+    "text": "Ayllu",
+    "_revisar": true
+  },
+  "connectivity_prevention": {
+    "text": "Amachay",
+    "_revisar": true
+  },
+  "connectivity_gps_searching": {
+    "text": "GPS-wan maskashkan",
+    "_revisar": true
+  },
+  "connectivity_my_location": {
+    "text": "Mapachaw maychaw kashqay",
+    "_revisar": true
+  },
+  "connectivity_hide_details": {
+    "text": "Willakuykunata pakay",
+    "_revisar": true
+  },
+  "connectivity_show_details": {
+    "text": "Aswan willakuykunata tambokunatawan rikay",
+    "_revisar": true
+  },
+  "connectivity_filter_by_type": {
+    "text": "Imayna kasqanman hina akllay:",
+    "_revisar": true
+  },
+  "connectivity_filter_all": {
+    "text": "Llapan",
+    "_revisar": true
+  },
+  "connectivity_filter_tambos": {
+    "text": "🏛️ Tambokuna",
+    "_revisar": true
+  },
+  "connectivity_filter_wifi": {
+    "text": "📶 WiFi mana qullqipaq",
+    "_revisar": true
+  },
+  "connectivity_filter_antennas": {
+    "text": "📡 Antenakuna",
+    "_revisar": true
+  },
+  "connectivity_filter_no_signal": {
+    "text": "⚠️ Señal mana kaptin",
+    "_revisar": true
+  },
+  "connectivity_point_badge": {
+    "text": "Tinkichiy kiti",
+    "_revisar": true
+  },
+  "connectivity_close_point": {
+    "text": "Kitipa willakuyninta wichqay",
+    "_revisar": true
+  },
+  "connectivity_schedule": {
+    "text": "Imay horachaw",
+    "_revisar": true
+  },
+  "connectivity_operator_network": {
+    "text": "Puriq / Red",
+    "_revisar": true
+  },
+  "connectivity_point_huaraz_description": {
+    "text": "Kay kitichawmi Red Dorsal nisqawan utqaylla internet kan. Plaza llapan lawpim internet chayan.",
+    "_revisar": true
+  },
+  "connectivity_point_unchus_description": {
+    "text": "Unchus ayllu wasipa ñawpanpim internet mana qullqipaq kan. Ayllu runakuna, yaku qarpakuqkunam achka llamkatsin.",
+    "_revisar": true
+  },
+  "connectivity_point_llupa_description": {
+    "text": "Pitecman, Churup quchaman wichaypa ñawpanpi WiFi kaq qipa llaqta kitim.",
+    "_revisar": true
+  },
+  "connectivity_point_pitec_description": {
+    "text": "Pampa wichqashqa mana kaptinmi celular señal wakin kuti chayan. SERNANP puestuchawmi emergencia radiowan willanakuy kan.",
+    "_revisar": true
+  },
+  "connectivity_point_catac_tambo_description": {
+    "text": "Kay Tambo oficialchawmi llapan punchaw internet satelital mana qullqipaq kan, ayllu runakunapa, puna michiqkunapaq.",
+    "_revisar": true
+  },
+  "connectivity_point_catac_plaza_description": {
+    "text": "Plazachawmi llapan operadorpa 4G señalnin alli kan, chaynallataq municipal WiFi kan.",
+    "_revisar": true
+  },
+  "connectivity_point_olleros_description": {
+    "text": "Olleros ayllukunapa, waqtan wayqukunapa tinkichiy kitim. Ayllu runakunapaq digital yanapay kan.",
+    "_revisar": true
+  },
+  "connectivity_point_canray_description": {
+    "text": "Kay kitichawmi telemedicinapaq satelital antena kan, yakupa allin kayninta qawarinapaq.",
+    "_revisar": true
+  },
+  "connectivity_point_pastoruri_description": {
+    "text": "Rumi urqukunawan wichqashqa kaptinmi celular señal mana chayan. Ni ima operadorpa internetninpis mana kan.",
+    "_revisar": true
+  },
+  "connectivity_point_shallap_description": {
+    "text": "Huantsán, San Juan rit'ikunapa chawpinchaw wichqashqa kiti. Kaychaw internet tinkichiy mana kan.",
+    "_revisar": true
+  },
+  "connectivity_point_caraz_description": {
+    "text": "Plazachawmi allin internet tinkichiy, WiFi mana qullqipaq kan.",
+    "_revisar": true
+  },
+  "connectivity_point_rataquenua_description": {
+    "text": "Kaymi celular telefonopa hatun antenan. Huarazman, Unchusman, wayqukunapa yaykuyninman señalta churan.",
+    "_revisar": true
+  },
+  "connectivity_zone_valley": {
+    "text": "Santa mayupa chawpi ñannin (4G señal llapan)",
+    "_revisar": true
+  },
+  "connectivity_zone_slopes": {
+    "text": "Pampa urqukunapa waqtankuna (3G/2G chawpi señal)",
+    "_revisar": true
+  },
+  "connectivity_zone_quillcay": {
+    "text": "Quillcay / Cojup / Shallap wayqukuna (rit'i urqupa señal mana chayan)",
+    "_revisar": true
+  },
+  "connectivity_zone_pastoruri": {
+    "text": "Pachacoto Hanay Wayqu / Pastoruri (rit'i urqupa señal mana chayan)",
+    "_revisar": true
+  },
+  "sim_lab_title": {
+    "text": "Pachamama kawayta yachachina laboratorio",
+    "_revisar": true
+  },
+  "sim_main_title": {
+    "text": "Pukushqa yakupa llakikuyninta rikachikuq",
+    "_revisar": true
+  },
+  "sim_main_description": {
+    "text": "Kay rurayqa chusku tikraqkunawanmi rumipita shamun yaku (DAR) imayna kanqanta rikachin, Machine Learning nisqanwan tinkuchin.",
+    "_revisar": true
+  },
+  "sim_load_basin": {
+    "text": "Mayu aylluta akllay:",
+    "_revisar": true
+  },
+  "sim_environmental_variables": {
+    "text": "Pachamama tikraqkuna",
+    "_revisar": true
+  },
+  "sim_reset": {
+    "text": "Qallariyninman tikray",
+    "_revisar": true
+  },
+  "sim_hydrological_season": {
+    "text": "Yaku pacha",
+    "_revisar": true
+  },
+  "sim_season_dry": {
+    "text": "Chaki pacha",
+    "_revisar": true
+  },
+  "sim_season_wet": {
+    "text": "Para pacha",
+    "_revisar": true
+  },
+  "sim_rock_label": {
+    "text": "1. Rumi musuq rikurishqa (Ritiy)",
+    "_revisar": true
+  },
+  "sim_rock_aria": {
+    "text": "Musuq rikurishqa rumi",
+    "_revisar": true
+  },
+  "sim_rock_description": {
+    "text": "Qallariq: Ritiy qispiykaptin musuq rikurishqa rumi pampa.",
+    "_revisar": true
+  },
+  "sim_geology_label": {
+    "text": "2. Tikraq rumi (Sulfuros nisqan)",
+    "_revisar": true
+  },
+  "sim_geology_aria": {
+    "text": "Tikraq rumi",
+    "_revisar": true
+  },
+  "sim_geology_description": {
+    "text": "Químico tikraq: Pirita nisqan rumi mushuqyayta atin; Chicama, Chimú rumi patakuna.",
+    "_revisar": true
+  },
+  "sim_rain_label": {
+    "text": "3. Tinkishqa para (Yaku puriy)",
+    "_revisar": true
+  },
+  "sim_rain_aria": {
+    "text": "Tinkishqa para",
+    "_revisar": true
+  },
+  "sim_rain_description": {
+    "text": "Yaku purichiq: Para yaku rumita wayrawan tinkuchin, sulfato ionkunata, metal nisqankunatapis apamun.",
+    "_revisar": true
+  },
+  "sim_wetland_label": {
+    "text": "4. Bofedal pampa (Pachamama chuyachiq)",
+    "_revisar": true
+  },
+  "sim_wetland_aria": {
+    "text": "Bofedal pampapa hatun kaynin",
+    "_revisar": true
+  },
+  "sim_wetland_description": {
+    "text": "Harkaq: Bofedal pampa metal nisqankunata hapin, pukushqa yakupa pH nisqantapis pisiyachin manaraq yaku hurquna kaqman chayananpaq.",
+    "_revisar": true
+  },
+  "sim_alpha_label": {
+    "text": "Bofedal pampapa allichay kallpan (α)",
+    "_revisar": true
+  },
+  "sim_alpha_aria": {
+    "text": "Bofedal pampapa allichay kallpan",
+    "_revisar": true
+  },
+  "sim_alpha_description": {
+    "text": "Kay yupayta bofedal pampapa yaku huntashqa kayninman, yaku puriyninman hina allichana.",
+    "_revisar": true
+  },
+  "sim_physical_result": {
+    "text": "Rumi yupaypa tukupaynin",
+    "_revisar": true
+  },
+  "sim_score": {
+    "text": "Yupay",
+    "_revisar": true
+  },
+  "sim_risk_level": {
+    "text": "Manchakuypa nivelnin",
+    "_revisar": true
+  },
+  "sim_risk_high": {
+    "text": "Hatun",
+    "_revisar": true
+  },
+  "sim_risk_medium": {
+    "text": "Chawpi",
+    "_revisar": true
+  },
+  "sim_risk_low": {
+    "text": "Pisi",
+    "_revisar": true
+  },
+  "sim_risk_high_description": {
+    "text": "Pukushqa yaku kananpaq hatun probabilidad kan. Metal nisqankuna ECA Agua nisqan tupuyta yallin.",
+    "_revisar": true
+  },
+  "sim_risk_medium_description": {
+    "text": "Chawpi manchakuy. Pukushqa kayta rikachikuqkunam kan, ichaqa bofedal pampakuna utaq pisi para pisiyachin.",
+    "_revisar": true
+  },
+  "sim_risk_low_description": {
+    "text": "Alli kay. Sulfuros nisqan pisi kaptin utaq bofedal pampa allita chuyachiptin, pukushqa kaypa manchakuyqa pisim. JASS nisqanpa kamachikuyninta qatipay.",
+    "_revisar": true
+  },
+  "sim_ml_title": {
+    "text": "Machine Learning ñawpaq willakuy (Random Forest)",
+    "_revisar": true
+  },
+  "sim_estimated_ph": {
+    "text": "Yupashqa pH",
+    "_revisar": true
+  },
+  "sim_ai_risk": {
+    "text": "IA manchakuy",
+    "_revisar": true
+  },
+  "sim_tree_agreement": {
+    "text": "Sachakunapa tinkuynin",
+    "_revisar": true
+  },
+  "sim_ml_loading": {
+    "text": "ML microserviciota tapuykan...",
+    "_revisar": true
+  },
+  "sim_ml_unavailable": {
+    "text": "ML servicioqa llamk'aykan utaq yupashqa chaninkunata kutichimun.",
+    "_revisar": true
+  },
+  "sim_formula_title": {
+    "text": "Rumi yupaypa fórmula nisqan",
+    "_revisar": true
+  },
+  "sim_formula_generation": {
+    "text": "Miray",
+    "_revisar": true
+  },
+  "sim_formula_rock": {
+    "text": "Rumi",
+    "_revisar": true
+  },
+  "sim_formula_sulfides": {
+    "text": "Sulfuros",
+    "_revisar": true
+  },
+  "sim_formula_acidity": {
+    "text": "Pukushqa kaypa kallpan",
+    "_revisar": true
+  },
+  "sim_formula_damping": {
+    "text": "Pisiyachiy",
+    "_revisar": true
+  },
+  "sim_formula_risk": {
+    "text": "Manchakuy",
+    "_revisar": true
+  },
+  "sim_formula_rain": {
+    "text": "Para",
+    "_revisar": true
+  },
+  "sim_scientific_validation": {
+    "text": "Yachaywan chiqapchay:",
+    "_revisar": true
+  },
+  "sim_scientific_validation_description": {
+    "text": "Rumi yupaypa manchakuy ordenninwan Random Forest nisqanpa pH yupayninwan ñawpa pachakunapi campo nisqanchaw huñushqa datokunata tinkuchinchik.",
+    "_revisar": true
+  },
+  "oficio_step": {
+    "text": "T'aqa",
+    "_revisar": true
+  },
+  "oficio_step_short": {
+    "text": "T'aqa",
+    "_revisar": true
+  },
+  "oficio_of": {
+    "text": "3-pita",
+    "_revisar": true
+  },
+  "oficio_close": {
+    "text": "Ofisiota wichqay",
+    "_revisar": true
+  },
+  "oficio_reason_color": {
+    "text": "Yaku puka-naranja niraq utaq turbio kaptin",
+    "_revisar": true
+  },
+  "oficio_reason_metallic": {
+    "text": "Mayupa yakunchaw metalkuna niraq mishki utaq asnay kaptin",
+    "_revisar": true
+  },
+  "oficio_reason_preventive": {
+    "text": "Ñawpaqta qaway, ayllunchikwan yakuta qawapay",
+    "_revisar": true
+  },
+  "oficio_reason_minerals": {
+    "text": "Mineralkuna kanman nishpa rikashqa, uywakunatapis amachay",
+    "_revisar": true
+  },
+  "oficio_authority_jass": {
+    "text": "Junta Administradora de Servicios de Saneamiento (JASS)",
+    "_revisar": true
+  },
+  "oficio_authority_irrigation": {
+    "text": "Yaku ushaqkuna / Regantekunapa huñunakuynin",
+    "_revisar": true
+  },
+  "oficio_authority_municipality": {
+    "text": "Llaqtapa hatun utaq uchuy municipalidadnin",
+    "_revisar": true
+  },
+  "oficio_authority_health": {
+    "text": "Hampina wasi / DIRESA Huaraz",
+    "_revisar": true
+  },
+  "oficio_name_placeholder": {
+    "text": "Ej. Juan Pérez / Junta Directiva",
+    "_revisar": true
+  },
+  "oficio_illustration_alt": {
+    "text": "Ayllupa mañakuyninpaq rurasqa ofisio",
+    "_revisar": true
+  },
+  "oficio_copied": {
+    "text": "Copiasqa",
+    "_revisar": true
+  },
+  "oficio_email_send": {
+    "text": "Apachiy",
+    "_revisar": true
+  },
+  "oficio_email_invalid": {
+    "text": "Alli correo electrónico-ta qillqay, ama qunqaytsu.",
+    "_revisar": true
+  },
+  "oficio_email_connection_error": {
+    "text": "Correo servidorwan tinkuyta mana atirqantsu.",
+    "_revisar": true
+  },
+  "oficio_back": {
+    "text": "Qipaman",
+    "_revisar": true
+  },
+  "oficio_next": {
+    "text": "Qatiy",
+    "_revisar": true
+  },
+  "oficio_done": {
+    "text": "Allim",
+    "_revisar": true
+  },
+  "oficio_applicant_role": {
+    "text": "Ayllu runa / Yaku ushaq",
+    "_revisar": true
+  },
+  "oficio_applicant_default": {
+    "text": "Ayllu runakuna, yakuta ushaqkuna",
+    "_revisar": true
+  },
+  "oficio_letter_heading": {
+    "text": "YAKUPA ALLI KAYNINTA QAWANAPAQ, QAWAPANAPAQ OFISIO MAÑAKUY",
+    "_revisar": true
+  },
+  "oficio_letter_to": {
+    "text": "Paq",
+    "_revisar": true
+  },
+  "oficio_letter_from": {
+    "text": "Pita",
+    "_revisar": true
+  },
+  "oficio_letter_sector": {
+    "text": "SECTOR / MICROCUENCA",
+    "_revisar": true
+  },
+  "oficio_letter_date": {
+    "text": "PUNCHAW",
+    "_revisar": true
+  },
+  "oficio_letter_subject": {
+    "text": "IMAPAQ",
+    "_revisar": true
+  },
+  "oficio_letter_subject_text": {
+    "text": "Yaku pukyukunata ñawpaqta técnico runakunawan qawanapaq ayllupa mañakuynin",
+    "_revisar": true
+  },
+  "oficio_letter_greeting": {
+    "text": "Yupaychasqa autoridadkuna:",
+    "_revisar": true
+  },
+  "oficio_letter_intro_before": {
+    "text": "Kay ofisiowanqa, kay sectorpi yaku ushaq runakunapa, ayllukunapa rantinpi, kay microcuencapa yaku pukyunkunata, yakuta hurquna lugarkunata, canalninkunatapis INSPECCIÓN TÉCNICA Y MONITOREO ruranaykipaq mañakuykiku",
+    "_revisar": true
+  },
+  "oficio_letter_intro_after": {
+    "text": " nisqanchaw.",
+    "_revisar": true
+  },
+  "oficio_letter_reason_heading": {
+    "text": "AYLLUCHAW RIKASHQA SASAKUY",
+    "_revisar": true
+  },
+  "oficio_letter_reference_heading": {
+    "text": "AYLLUPA WILLAYNIN",
+    "_revisar": true
+  },
+  "oficio_letter_reference_text": {
+    "text": "GlaciAgua ayllupa plataforma-ninqa kay sector-ta ñawpaqta qawanapaq lugar nishpa qawachin, roca-manta ácido drenaje utaq mineral-kuna kaptin. Kay willakuyqa ayllupa runankunata, uywankunata, murunkunatapis amachanapaq ñawpaq willakuymi; yakuta upyanapaq alli kashqanta manam certificanchu.",
+    "_revisar": true
+  },
+  "oficio_letter_request_heading": {
+    "text": "MAÑAKUYKUNA",
+    "_revisar": true
+  },
+  "oficio_letter_request_1": {
+    "text": "Yaku yaykuna lugar-kunata, canal-kunatapis rikar qaway.",
+    "_revisar": true
+  },
+  "oficio_letter_request_2": {
+    "text": "Ayllu runakunaman huk yaku pukyukunamanta, allin tratamiento ruranamanta normativa nisqanman hina yachachiy.",
+    "_revisar": true
+  },
+  "oficio_letter_request_3": {
+    "text": "Hampina wasiwan, Autoridad Local del Agua-wan kuska llamkay.",
+    "_revisar": true
+  },
+  "oficio_letter_thanks": {
+    "text": "Ayllunchikpa saludninta amachanapaq utqaylla yanapashqaykimanta añaychakuykiku.",
+    "_revisar": true
+  },
+  "oficio_letter_farewell": {
+    "text": "Yupaychaywan,",
+    "_revisar": true
+  },
+  "oficio_letter_signature": {
+    "text": "Ayllupa autoridadnin / mañakuqpa firmaynin",
+    "_revisar": true
+  },
+  "oficio_letter_id_phone": {
+    "text": "DNI / Teléfono",
+    "_revisar": true
+  },
+  "oficio_email_subject": {
+    "text": "Ayllupa qawapay mañakuynin",
+    "_revisar": true
+  },
+  "oficio_preventive_attention": {
+    "text": "Ñawpaq qaway",
+    "_revisar": true
+  },
+  "sync_internet_available": {
+    "text": "Internet kan",
+    "_revisar": true
+  },
+  "sync_local_storage": {
+    "text": "Celularchaw waqaychasqa",
+    "_revisar": true
+  },
+  "sync_field_test": {
+    "text": "Chakranchaw pruebata ruray:",
+    "_revisar": true
+  },
+  "sync_simulate_offline": {
+    "text": "Señal mana kaptin hina ruray",
+    "_revisar": true
+  },
+  "sync_restore_online": {
+    "text": "Internetwan yapay tinkuchiy",
+    "_revisar": true
+  },
+  "sync_pending_reports": {
+    "text": "Shuyakaq willakuykuna",
+    "_revisar": true
+  },
+  "sync_clear": {
+    "text": "Pichay",
+    "_revisar": true
+  },
+  "sync_all_backed_up": {
+    "text": "Llapan apachishqayki willakuykuna waqaychasqañam kayan.",
+    "_revisar": true
+  },
+  "sync_waiting": {
+    "text": "Shuyakaq",
+    "_revisar": true
+  },
+  "sync_appearance": {
+    "text": "Imaniraq",
+    "_revisar": true
+  },
+  "sync_date": {
+    "text": "Punchaw",
+    "_revisar": true
+  },
+  "sync_sending": {
+    "text": "Apachikaykan...",
+    "_revisar": true
+  },
+  "sync_success": {
+    "text": "Llapan willakuykuna allillam apachishqaña!",
+    "_revisar": true
+  },
+  "sync_find_connectivity": {
+    "text": "¿Maychawtaq internet kan? Tambokunata WiFita rikay",
+    "_revisar": true
+  },
+  "admin_select_section": {
+    "text": "Portalpa rakina akllay",
+    "_revisar": true
+  },
+  "admin_tab_model": {
+    "text": "1. ML model",
+    "_revisar": true
+  },
+  "admin_tab_measurements": {
+    "text": "2. Pampa tupuykuna",
+    "_revisar": true
+  },
+  "admin_tab_retrain": {
+    "text": "3. Modelota musuqmanta yachachiy",
+    "_revisar": true
+  },
+  "admin_tab_email": {
+    "text": "4. Chaski willaykuna",
+    "_revisar": true
+  },
+  "admin_tab_researchers": {
+    "text": "5. Yachaqkunata kamachiy",
+    "_revisar": true
+  },
+  "admin_tab_reports": {
+    "text": "6. Willakuykunapa qillqana",
+    "_revisar": true
+  },
+  "admin_model_loading": {
+    "text": "Modelota kunan qawachkan...",
+    "_revisar": true
+  },
+  "admin_model_version": {
+    "text": "Musuq kay:",
+    "_revisar": true
+  },
+  "admin_model_data": {
+    "text": "Willakuykuna:",
+    "_revisar": true
+  },
+  "admin_model_trained_with": {
+    "text": "Yachachisqa",
+    "_revisar": true
+  },
+  "admin_model_rows_and": {
+    "text": "qillqaykuna hinaspa",
+    "_revisar": true
+  },
+  "admin_microbasins": {
+    "text": "uchuy mayu pampakuna",
+    "_revisar": true
+  },
+  "admin_refresh_status": {
+    "text": "Kayninta musuqyachiy",
+    "_revisar": true
+  },
+  "admin_metric_r2": {
+    "text": "R² yupay tupuna",
+    "_revisar": true
+  },
+  "admin_metric_mae": {
+    "text": "MAE pantay",
+    "_revisar": true
+  },
+  "admin_metric_rmse": {
+    "text": "RMSE pantay",
+    "_revisar": true
+  },
+  "admin_metric_accuracy": {
+    "text": "Riesgo rikuchiq allin kay",
+    "_revisar": true
+  },
+  "admin_metric_variance": {
+    "text": "Variansia tupachiy",
+    "_revisar": true
+  },
+  "admin_metric_ph_units": {
+    "text": "pH tupuykunap yupaynin",
+    "_revisar": true
+  },
+  "admin_metric_squared_penalty": {
+    "text": "Iskay kuti yupaywan muchuy",
+    "_revisar": true
+  },
+  "admin_metric_risk_levels": {
+    "text": "Hatun / chawpi / pisi sasa kay",
+    "_revisar": true
+  },
+  "admin_feature_importance_title": {
+    "text": "Aswan chaninniyuq ácido lluqsimuyta rikuchiqkuna",
+    "_revisar": true
+  },
+  "admin_feature_sulfide": {
+    "text": "Sulfuropa mineralninkuna (Pirita / ácido kanan atipay)",
+    "_revisar": true
+  },
+  "admin_feature_exposed_rock": {
+    "text": "Qasapa chullusqan rumi rikurimuqpa tupuynin",
+    "_revisar": true
+  },
+  "admin_feature_neutralization": {
+    "text": "Chinkachiy tupu (Carbonatos / Sulfuros)",
+    "_revisar": true
+  },
+  "admin_feature_wetland": {
+    "text": "Bofedalpa pH-ta alliyachiy atipaynin",
+    "_revisar": true
+  },
+  "admin_feature_geochemical_balance": {
+    "text": "Geoquímica neto tinkuchiy (ABA)",
+    "_revisar": true
+  },
+  "admin_model_load_error": {
+    "text": "Modelopa willakuyninta microserviciomanta (:8001) mana apamuyta atirqanchikchu.",
+    "_revisar": true
+  },
+  "admin_measurement_author_notice": {
+    "text": "Yachay autoria willay:",
+    "_revisar": true
+  },
+  "admin_measurement_title": {
+    "text": "Mitapa tupuyta qillqay",
+    "_revisar": true
+  },
+  "admin_download_csv": {
+    "text": "CSV rikchayninta uraykachiy",
+    "_revisar": true
+  },
+  "admin_field_microbasin": {
+    "text": "Uchuy mayu pampa",
+    "_revisar": true
+  },
+  "admin_field_period_year": {
+    "text": "Pacha / wata",
+    "_revisar": true
+  },
+  "admin_field_season": {
+    "text": "Mita",
+    "_revisar": true
+  },
+  "admin_field_min_ph": {
+    "text": "Tupusqa pH pisi kay *",
+    "_revisar": true
+  },
+  "admin_field_rain_mm": {
+    "text": "Para (mm)",
+    "_revisar": true
+  },
+  "admin_field_exposed_rock": {
+    "text": "Rikurimuq rumi (km²)",
+    "_revisar": true
+  },
+  "admin_field_sulfides": {
+    "text": "% Sulfuros",
+    "_revisar": true
+  },
+  "admin_field_stream_station": {
+    "text": "Wayqu / tupuy kancha",
+    "_revisar": true
+  },
+  "admin_field_responsible_lab": {
+    "text": "Rurayta qawaq / laboratorio",
+    "_revisar": true
+  },
+  "admin_measurement_test": {
+    "text": "Yupayta prueba hina / ñawpaq rikchay hina akllay (es_prueba: 1)",
+    "_revisar": true
+  },
+  "admin_measurement_save": {
+    "text": "Tupuyta chawpi willay waqaychaypi waqaychay",
+    "_revisar": true
+  },
+  "admin_measurement_history": {
+    "text": "Waqaychasqa tupuykunapa ñawpaqnin",
+    "_revisar": true
+  },
+  "admin_table_basin": {
+    "text": "Mayu pampa",
+    "_revisar": true
+  },
+  "admin_table_period": {
+    "text": "Pacha",
+    "_revisar": true
+  },
+  "admin_table_real_ph": {
+    "text": "Chiqap pH",
+    "_revisar": true
+  },
+  "admin_table_rain": {
+    "text": "Para",
+    "_revisar": true
+  },
+  "admin_table_rock": {
+    "text": "Rumi",
+    "_revisar": true
+  },
+  "admin_table_author": {
+    "text": "Qillqaq / Yachaq",
+    "_revisar": true
+  },
+  "admin_table_status": {
+    "text": "Kaynin",
+    "_revisar": true
+  },
+  "admin_measurement_empty": {
+    "text": "SQLite-pi manaraq tupuykuna qillqasqachu. Hanaq formulario-ta llamk'achispa ñawpaqta yapay.",
+    "_revisar": true
+  },
+  "admin_test_badge": {
+    "text": "Prueba",
+    "_revisar": true
+  },
+  "admin_synthetic_count": {
+    "text": "Rurashqa uchuy mayu pampakunapa yupaynin:",
+    "_revisar": true
+  },
+  "admin_synthetic_toggle": {
+    "text": "Pachamamapa física nisqanman hina rurashqa willakuykunawan tinkuchiy (30 tupuykunamanta pisi kaptin allin)",
+    "_revisar": true
+  },
+  "admin_retrain_confirm_title": {
+    "text": "¿Modelota producción nisqapi musuqyachinaykipaq wakichisqachu?",
+    "_revisar": true
+  },
+  "admin_retrain_button": {
+    "text": "Modelota kunan musuqmanta yachachiy",
+    "_revisar": true
+  },
+  "admin_email_provider": {
+    "text": "Kallpachaq yanapakuq",
+    "_revisar": true
+  },
+  "admin_email_sender": {
+    "text": "Oficial chaskiq",
+    "_revisar": true
+  },
+  "admin_email_delivery_status": {
+    "text": "Chayachiy kaynin",
+    "_revisar": true
+  },
+  "admin_email_to": {
+    "text": "Chaskiqpa correo electrónico *",
+    "_revisar": true
+  },
+  "admin_email_recipient_name": {
+    "text": "Chaskiqpa sutin / institución",
+    "_revisar": true
+  },
+  "admin_email_affected_basin": {
+    "text": "Llakichisqa uchuy mayu pampa",
+    "_revisar": true
+  },
+  "admin_email_reason": {
+    "text": "Willaypa hatun imaynin",
+    "_revisar": true
+  },
+  "admin_email_body": {
+    "text": "Willaypa ukun / imayna kasqan",
+    "_revisar": true
+  },
+  "admin_email_send": {
+    "text": "Alerta qillqata apachiy",
+    "_revisar": true
+  },
+  "admin_research_admin_title": {
+    "text": "Yachay yachaqkunata kamachiy",
+    "_revisar": true
+  },
+  "admin_admin_only": {
+    "text": "Kamachiqllapaq",
+    "_revisar": true
+  },
+  "admin_researcher_create_title": {
+    "text": "Musuq yachaq / científico qillqay",
+    "_revisar": true
+  },
+  "admin_researcher_name": {
+    "text": "Hunt'asqa suti *",
+    "_revisar": true
+  },
+  "admin_researcher_email": {
+    "text": "Institución correo *",
+    "_revisar": true
+  },
+  "admin_researcher_password": {
+    "text": "Yaykunapa pakasqa rimay * (pisi 12 qillqay)",
+    "_revisar": true
+  },
+  "admin_researcher_institution": {
+    "text": "Institución / yachay entidad",
+    "_revisar": true
+  },
+  "admin_researcher_create_button": {
+    "text": "Yachaqpa yupayta kamay",
+    "_revisar": true
+  },
+  "admin_researcher_registered": {
+    "text": "Qillqasqa yachaqkuna",
+    "_revisar": true
+  },
+  "admin_researcher_search": {
+    "text": "Sutita utaq correota maskay...",
+    "_revisar": true
+  },
+  "admin_filter_all_states": {
+    "text": "Llapan kayninkuna",
+    "_revisar": true
+  },
+  "admin_filter_active": {
+    "text": "Kallpaqkunalla",
+    "_revisar": true
+  },
+  "admin_filter_suspended": {
+    "text": "Sayachisqakunalla",
+    "_revisar": true
+  },
+  "admin_researcher_loading": {
+    "text": "Yachaqkunata apamuchkan...",
+    "_revisar": true
+  },
+  "admin_researcher_empty": {
+    "text": "Manaraq yachaqkuna qillqasqachu. Hanaq formulariota llamk'achispa ñawpaq yachaqta yapay.",
+    "_revisar": true
+  },
+  "admin_table_researcher": {
+    "text": "Yachaq",
+    "_revisar": true
+  },
+  "admin_table_email": {
+    "text": "Correo",
+    "_revisar": true
+  },
+  "admin_table_institution": {
+    "text": "Institución",
+    "_revisar": true
+  },
+  "admin_table_role": {
+    "text": "Ruraynin",
+    "_revisar": true
+  },
+  "admin_table_actions": {
+    "text": "Ruraykuna",
+    "_revisar": true
+  },
+  "admin_protected": {
+    "text": "Amachasqa",
+    "_revisar": true
+  },
+  "admin_suspend": {
+    "text": "Sayachiy",
+    "_revisar": true
+  },
+  "admin_reactivate": {
+    "text": "Kallpachiy",
+    "_revisar": true
+  },
+  "admin_updating": {
+    "text": "Musuqyachkan...",
+    "_revisar": true
+  },
+  "admin_reports_title": {
+    "text": "Llaqta willakuykunapa yachay qillqana",
+    "_revisar": true
+  },
+  "admin_reports_contrast": {
+    "text": "Ñawpaq willakuykunawan tupachiy",
+    "_revisar": true
+  },
+  "admin_reports_refresh": {
+    "text": "Willakuykunata musuqyachiy",
+    "_revisar": true
+  },
+  "admin_reports_filter": {
+    "text": "Uchuy mayu pampaman hina akllay:",
+    "_revisar": true
+  },
+  "admin_reports_all_basins": {
+    "text": "Llapan mayu pampakuna",
+    "_revisar": true
+  },
+  "admin_reports_total": {
+    "text": "Qillqanapi llapan:",
+    "_revisar": true
+  },
+  "admin_reports_loading": {
+    "text": "Llaqta yachay willaykunata maskachkan...",
+    "_revisar": true
+  },
+  "admin_reports_empty": {
+    "text": "Akllasqa filtrokunapaq manam llaqta willakuykuna tarisqachu.",
+    "_revisar": true
+  },
+  "admin_table_date": {
+    "text": "P'unchaw",
+    "_revisar": true
+  },
+  "admin_table_stream": {
+    "text": "Wayqu",
+    "_revisar": true
+  },
+  "admin_table_water_color": {
+    "text": "Yakupa llimpin",
+    "_revisar": true
+  },
+  "admin_table_measured_ph": {
+    "text": "Tupusqa pH",
+    "_revisar": true
+  },
+  "admin_table_smell_taste": {
+    "text": "Asnay / malliy",
+    "_revisar": true
+  },
+  "admin_table_observations": {
+    "text": "Qawarisqakuna",
+    "_revisar": true
+  },
+  "admin_table_detail": {
+    "text": "Aswan sut'i",
+    "_revisar": true
+  },
+  "admin_report_view": {
+    "text": "Ficha-ta qaway",
+    "_revisar": true
+  },
+  "admin_report_detail_title": {
+    "text": "Llaqta willakuypa técnico ficha",
+    "_revisar": true
+  },
+  "admin_close": {
+    "text": "Wisq'ay",
+    "_revisar": true
+  },
+  "admin_placeholder_period": {
+    "text": "2026-humeda",
+    "_revisar": true
+  },
+  "admin_placeholder_recipient_email": {
+    "text": "ej: jass@gmail.com o autoridad@ala.gob.pe",
+    "_revisar": true
+  },
+  "admin_placeholder_recipient_name": {
+    "text": "ej: Presidente JASS Shallap",
+    "_revisar": true
+  },
+  "admin_placeholder_email_reason": {
+    "text": "ej: Descenso abrupto de pH / Alerta de DAR",
+    "_revisar": true
+  },
+  "admin_placeholder_researcher_name": {
+    "text": "ej: Dra. Elena Morales",
+    "_revisar": true
+  },
+  "admin_placeholder_researcher_email": {
+    "text": "ej: emorales@inaigem.gob.pe",
+    "_revisar": true
+  },
+  "admin_placeholder_institution": {
+    "text": "ej: INAIGEM / UPCH / ANA / UNASAM",
+    "_revisar": true
+  },
+  "admin_header_title": {
+    "text": "Pachamama Inhiniriya Portal",
+    "_revisar": true
+  },
+  "admin_role_administrator": {
+    "text": "Kamachiq",
+    "_revisar": true
+  },
+  "admin_role_researcher": {
+    "text": "Yachaq",
+    "_revisar": true
+  },
+  "admin_session_label": {
+    "text": "Sesión:",
+    "_revisar": true
+  },
+  "admin_header_description": {
+    "text": "Yakupa química tupuykunata churay, musuq willakuykunawan modelota musuqmanta yachachiy",
+    "_revisar": true
+  },
+  "admin_logout": {
+    "text": "Lluqshiy",
+    "_revisar": true
+  },
+  "admin_logout_title": {
+    "text": "Sesiónta tukuchiy",
+    "_revisar": true
+  },
+  "admin_login_title": {
+    "text": "Yachay portalman yaykuy",
+    "_revisar": true
+  },
+  "admin_login_description": {
+    "text": "Yakuq química yachaq utaq portalpa kamachiqnin yaykunanpaq willakuykunata churay.",
+    "_revisar": true
+  },
+  "admin_login_username": {
+    "text": "Usuario / Correo",
+    "_revisar": true
+  },
+  "admin_login_password": {
+    "text": "Pakashqa rimay",
+    "_revisar": true
+  },
+  "admin_login_verifying": {
+    "text": "Chiqaqchaykan...",
+    "_revisar": true
+  },
+  "admin_login_submit": {
+    "text": "Portalman yaykuy",
+    "_revisar": true
+  },
+  "admin_login_credentials_title": {
+    "text": "Utqaylla pruebanapaq yaykuykunakuna",
+    "_revisar": true
+  },
+  "admin_login_admin": {
+    "text": "Kamachiq",
+    "_revisar": true
+  },
+  "admin_login_researcher": {
+    "text": "Yachaq",
+    "_revisar": true
+  },
+  "admin_login_invalid": {
+    "text": "Yaykunapa willakuykuna manam allintsu.",
+    "_revisar": true
+  },
+  "admin_configured": {
+    "text": "Churasqa",
+    "_revisar": true
+  },
+  "admin_session_specialist": {
+    "text": "Pachamama yaku qaway yachaq (Modo Local)",
+    "_revisar": true
+  },
+  "admin_model_version_label": {
+    "text": "VERSIÓN:",
+    "_revisar": true
+  },
+  "admin_model_data_hybrid": {
+    "text": "WAKINCHASQA WILLAYKUNA",
+    "_revisar": true
+  },
+  "admin_model_trained_summary": {
+    "text": "{rows} yupaykunawan hinaspa {basins} uchuy yaku mayukunawan yachachishqa",
+    "_revisar": true
+  },
+  "admin_model_refresh": {
+    "text": "Kanan kaqta musuqyachiy",
+    "_revisar": true
+  },
+  "admin_metric_r2_label": {
+    "text": "R² yupay tupuna",
+    "_revisar": true
+  },
+  "admin_metric_r2_description": {
+    "text": "Variansia tupachiy",
+    "_revisar": true
+  },
+  "admin_metric_mae_label": {
+    "text": "MAE pantay",
+    "_revisar": true
+  },
+  "admin_metric_mae_description": {
+    "text": "pH tupuykunap yupaynin",
+    "_revisar": true
+  },
+  "admin_metric_rmse_label": {
+    "text": "RMSE pantay",
+    "_revisar": true
+  },
+  "admin_metric_rmse_description": {
+    "text": "Iskay kuti yupaywan muchuy",
+    "_revisar": true
+  },
+  "admin_metric_accuracy_label": {
+    "text": "Rikuchiq allin kay",
+    "_revisar": true
+  },
+  "admin_metric_accuracy_description": {
+    "text": "Hatun / chawpi / pisi rikuy",
+    "_revisar": true
+  },
+  "admin_model_features_title": {
+    "text": "Aswan chaninniyuq ácido lluqsimuyta rikuchiqkuna",
+    "_revisar": true
+  },
+  "admin_feature_wetland_buffer": {
+    "text": "Bofedalpa ácido pisiyachiy atiynin",
+    "_revisar": true
+  },
+  "admin_feature_effective_precipitation": {
+    "text": "Alli para",
+    "_revisar": true
+  },
+  "admin_measurement_author_notice_body": {
+    "text": "Musuq hidroquímica tupuykunata qillqayqa Investigador Científico ruwayniyuq cuentasllapaqmi, willaykunapa institucionpi qatipayta waqaychanapaq. Kunan sesiónniykiqa Administrador ruwayniyuqmi.",
+    "_revisar": true
+  },
+  "admin_measurement_author_notice_help": {
+    "text": "Oficial tupuykunata qillqanaykipaq, pestaña 5. Yachaqkunata kamachiy nisqapi cuenta-ta ruray utaq kichay, icha Investigador hina yaykuy (ej: cientifico.demo@glaciagua.lat).",
+    "_revisar": true
+  },
+  "admin_measurement_download_csv": {
+    "text": "CSV plantilla uraykachiy",
+    "_revisar": true
+  },
+  "admin_measurement_microbasin": {
+    "text": "Uchuy yaku mayu",
+    "_revisar": true
+  },
+  "admin_measurement_period_year": {
+    "text": "Pacha / Wata",
+    "_revisar": true
+  },
+  "admin_measurement_season": {
+    "text": "Mit'a",
+    "_revisar": true
+  },
+  "admin_measurement_min_ph": {
+    "text": "Tupushqa pH pisi kaq *",
+    "_revisar": true
+  },
+  "admin_measurement_rain_mm": {
+    "text": "Para (mm)",
+    "_revisar": true
+  },
+  "admin_measurement_exposed_rock": {
+    "text": "Qawariq rumi (km²)",
+    "_revisar": true
+  },
+  "admin_measurement_sulfides": {
+    "text": "% Sulfuros",
+    "_revisar": true
+  },
+  "admin_measurement_stream_station": {
+    "text": "Pukyu / Tupuy kancha",
+    "_revisar": true
+  },
+  "admin_measurement_responsible_lab": {
+    "text": "Responsable / Laboratorio",
+    "_revisar": true
+  },
+  "admin_measurement_history_col_basin": {
+    "text": "Yaku mayu",
+    "_revisar": true
+  },
+  "admin_measurement_history_col_period": {
+    "text": "Pacha",
+    "_revisar": true
+  },
+  "admin_measurement_history_col_ph": {
+    "text": "Cheqaq pH",
+    "_revisar": true
+  },
+  "admin_measurement_history_col_rain": {
+    "text": "Para",
+    "_revisar": true
+  },
+  "admin_measurement_history_col_rock": {
+    "text": "Rumi",
+    "_revisar": true
+  },
+  "admin_measurement_history_col_author": {
+    "text": "Qillqaq / Yachaq",
+    "_revisar": true
+  },
+  "admin_measurement_history_col_status": {
+    "text": "Imayna kashqan",
+    "_revisar": true
+  },
+  "admin_measurement_status_registered": {
+    "text": "Qillqashqa",
+    "_revisar": true
+  },
+  "admin_measurement_author_notice_title": {
+    "text": "Yachaypa qillqayninpaq willakuy:",
+    "_revisar": true
+  },
+  "admin_measurement_form_title": {
+    "text": "Mit'a tupuyta qillqay",
+    "_revisar": true
+  },
+  "admin_measurement_certified_author": {
+    "text": "Chiqaqchasqa yachay qillqaq:",
+    "_revisar": true
+  },
+  "admin_measurement_traceability_active": {
+    "text": "Qatipayqa kallpachkan",
+    "_revisar": true
+  },
+  "admin_measurement_saving": {
+    "text": "Qillqachkan...",
+    "_revisar": true
+  },
+  "admin_measurement_empty_history": {
+    "text": "SQLite-pi manaraq tupuykuna qillqashqachu. Ñawpaq tupuyta churaypaq wichaypi formulario-ta llamk'achiy.",
+    "_revisar": true
+  },
+  "admin_tab_retrain2": {
+    "text": "Musuqmanta yachachiy",
+    "_revisar": true
+  },
+  "admin_retrain_augmentation_title": {
+    "text": "Willaykunata yapay hinaspa pachamamapa kamachikuyninwan rikchachiy",
+    "_revisar": true
+  },
+  "admin_retrain_description": {
+    "text": "Pampa tupuykuna pisi kaptin, kay llamkayqa chiqaq tupuykunata ácido-base tinkuchiy rikchachiykunawan (Sobek Method / Monte Carlo) tinkuchin, modelo allin yachanampaq, mana yachayta yapaqllapaq.",
+    "_revisar": true
+  },
+  "admin_retrain_combine_synthetic": {
+    "text": "Pachamamapa kamachikuyninman hina rurashqa musuq willaykunawan tinkuchiy (30 tupuykunamanta pisi kaptin alli kaq)",
+    "_revisar": true
+  },
+  "admin_retrain_synthetic_count": {
+    "text": "Rikchachishqa uchuy yaku mayukunapa yupaynin:",
+    "_revisar": true
+  },
+  "admin_retrain_historical_observations": {
+    "text": "ñawpa qawashqa willaykuna",
+    "_revisar": true
+  },
+  "admin_retrain_ready_title": {
+    "text": "¿Modelo producción nisqapi musuqyachinapaq listuña kanki?",
+    "_revisar": true
+  },
+  "admin_retrain_ready_description": {
+    "text": "SQLite-pi {measurements} chiqaq tupuykunata hurqushun{synthetic} hinaspa {trees} sachayuq musuq Random Forest tantachiyta yachachishun.",
+    "_revisar": true
+  },
+  "admin_retrain_synthetic_summary": {
+    "text": " + {basins} rikchachishqa uchuy yaku mayukuna",
+    "_revisar": true
+  },
+  "admin_retrain_button_loading": {
+    "text": "Random Forest kunan yachachkan...",
+    "_revisar": true
+  },
+  "admin_retrain_synthetic_basins": {
+    "text": "musuq rurasqa microcuencakuna",
+    "_revisar": true
+  },
+  "admin_retrain_result_version": {
+    "text": "Musuq versión waqaychasqa:",
+    "_revisar": true
+  },
+  "admin_retrain_result_rows": {
+    "text": "Yachachisqa filas llapan:",
+    "_revisar": true
+  },
+  "admin_retrain_result_metrics": {
+    "text": "Chiqaqchay tupuykuna:",
+    "_revisar": true
+  },
+  "admin_retrain_result_accuracy": {
+    "text": "Allin tarisqa:",
+    "_revisar": true
+  },
+  "admin_email_tab": {
+    "text": "Willaykunapaq correo",
+    "_revisar": true
+  },
+  "admin_email_configured": {
+    "text": "Churasqa",
+    "_revisar": true
+  },
+  "admin_email_provider_active": {
+    "text": "Kaq proveedor",
+    "_revisar": true
+  },
+  "admin_email_offline": {
+    "text": "Mana tinkisqa",
+    "_revisar": true
+  },
+  "admin_email_port_status": {
+    "text": "Puerto 443 HTTPS / Firewall harkayniyuq mana kanchu",
+    "_revisar": true
+  },
+  "admin_email_official_sender": {
+    "text": "Oficial remitente",
+    "_revisar": true
+  },
+  "admin_email_dns_verified": {
+    "text": "DKIM y SPF Namecheap-pi chiqaqchasqa",
+    "_revisar": true
+  },
+  "admin_email_operational": {
+    "text": "100% llamk'achkan",
+    "_revisar": true
+  },
+  "admin_email_connecting": {
+    "text": "Tinkichkan...",
+    "_revisar": true
+  },
+  "admin_email_verify_connection": {
+    "text": "Tinkisqa kayninta qaway",
+    "_revisar": true
+  },
+  "admin_email_dispatch_title": {
+    "text": "Oficial willayta / técnico qillqata apachiy",
+    "_revisar": true
+  },
+  "admin_email_dispatch_description_start": {
+    "text": "Institucional formato nisqawan oficial willayta apachiy kaymanta",
+    "_revisar": true
+  },
+  "admin_email_dispatch_description_end": {
+    "text": "ima autoridadmanpas utaq yachaqmanpas.",
+    "_revisar": true
+  },
+  "admin_email_recipient_email": {
+    "text": "Chaskiqpa correo electrónico nisqan *",
+    "_revisar": true
+  },
+  "admin_email_recipient_placeholder": {
+    "text": "Ej.: jass@gmail.com utaq autoridad@ala.gob.pe",
+    "_revisar": true
+  },
+  "admin_email_recipient_name_placeholder": {
+    "text": "Ej.: Shallap JASSpa umalliqnin",
+    "_revisar": true
+  },
+  "admin_email_affected_microbasin": {
+    "text": "Imayna microcuenca",
+    "_revisar": true
+  },
+  "admin_email_notification_reason": {
+    "text": "Willaypa hatun imaynin",
+    "_revisar": true
+  },
+  "admin_email_reason_placeholder": {
+    "text": "Ej.: pH uraykuy / DAR willay",
+    "_revisar": true
+  },
+  "admin_email_message_body": {
+    "text": "Willaypa cuerpon / imayna kasqan",
+    "_revisar": true
+  },
+  "admin_email_automatic_footer": {
+    "text": "Willayqa kikillanmanta oficial membrete, ECA Agua yuyaychaykunata, GlaciAgua firma digital nisqantapas churamun.",
+    "_revisar": true
+  },
+  "admin_email_sending": {
+    "text": "Resend API nisqawan apachichkan...",
+    "_revisar": true
+  },
+  "admin_email_send_alert": {
+    "text": "Willay qillqata apachiy",
+    "_revisar": true
+  },
+  "admin_email_reason_default": {
+    "text": "Yaku turbayninwan pH pisi kaynin, rit'i chulluywan",
+    "_revisar": true
+  },
+  "admin_email_body_default": {
+    "text": "GlaciAgua-manta ñawpaq willakuy: Shallap yaku hapinapi pH uraykashqanta hinaspa ácido yaku rikurimunanta tarishqa. Utqaylla técnico qawayta mañakun.",
+    "_revisar": true
+  },
+  "admin_users_tab": {
+    "text": "Yachaqkunata kamachiy",
+    "_revisar": true
+  },
+  "admin_users_banner_title": {
+    "text": "Yachaykunapaq yachaqkunata kamachiy",
+    "_revisar": true
+  },
+  "admin_users_admin_only": {
+    "text": "Kamachiqllapaq",
+    "_revisar": true
+  },
+  "admin_users_banner_description": {
+    "text": "PBKDF2 hash nisqawan yaykunapaq willaykunata ruray (pisi kaq 12 caracteres) hinaspa yaykuykunata qatipay, hidroquímica tupuykunata pampapi qillqanapaq.",
+    "_revisar": true
+  },
+  "admin_users_refresh": {
+    "text": "Lista musuqyachiy",
+    "_revisar": true
+  },
+  "admin_users_register_title": {
+    "text": "Musuq Yachaq / Científico-ta qillqay",
+    "_revisar": true
+  },
+  "admin_users_storage_info": {
+    "text": "SQLite-pi waqaychay hinaspa correo nisqawan yaykunapaq willaykunata apachiy",
+    "_revisar": true
+  },
+  "admin_users_full_name": {
+    "text": "Hunt'asqa suti *",
+    "_revisar": true
+  },
+  "admin_users_full_name_placeholder": {
+    "text": "Ej.: Dra. Elena Morales",
+    "_revisar": true
+  },
+  "admin_users_email": {
+    "text": "Institucional correo *",
+    "_revisar": true
+  },
+  "admin_users_email_placeholder": {
+    "text": "Ej.: emorales@inaigem.gob.pe",
+    "_revisar": true
+  },
+  "admin_users_password": {
+    "text": "Yaykunapa pakashqa rimaynin * (Pisi kaq 12 caracteres)",
+    "_revisar": true
+  },
+  "admin_users_institution": {
+    "text": "Institución / Yachay wasi",
+    "_revisar": true
+  },
+  "admin_users_institution_placeholder": {
+    "text": "Ej.: INAIGEM / UPCH / ANA / UNASAM",
+    "_revisar": true
+  },
+  "admin_users_password_policy": {
+    "text": "Allin waqaychay kamachikuyninta hunt'achinan: pisi kaq 12 caracteres.",
+    "_revisar": true
+  },
+  "admin_users_create": {
+    "text": "Yachaqpa cuentanta ruray",
+    "_revisar": true
+  },
+  "admin_users_creating": {
+    "text": "SQLite-pi qillqachkan...",
+    "_revisar": true
+  },
+  "admin_users_registered_title": {
+    "text": "Qillqashqa yachaqkuna",
+    "_revisar": true
+  },
+  "admin_users_search_placeholder": {
+    "text": "Sutita utaq correota maskay",
+    "_revisar": true
+  },
+  "admin_users_all_statuses": {
+    "text": "Llapan imaynakuna",
+    "_revisar": true
+  },
+  "admin_users_empty": {
+    "text": "Manaraq yachaqkuna qillqashqachu. Ñawpaq especialista-ta yapaypaq wichaypi formulario-ta llamk'achiy.",
+    "_revisar": true
+  },
+  "admin_users_only_active": {
+    "text": "Kallpachkaqllakuna",
+    "_revisar": true
+  },
+  "admin_users_only_suspended": {
+    "text": "Sayachishqallakuna",
+    "_revisar": true
+  },
+  "admin_users_loading": {
+    "text": "Yachaqkunata apamuchkan...",
+    "_revisar": true
+  },
+  "admin_users_col_researcher": {
+    "text": "Yachaq",
+    "_revisar": true
+  },
+  "admin_users_col_email": {
+    "text": "Correo",
+    "_revisar": true
+  },
+  "admin_users_col_institution": {
+    "text": "Institución",
+    "_revisar": true
+  },
+  "admin_users_col_role": {
+    "text": "Ruway",
+    "_revisar": true
+  },
+  "admin_users_col_status": {
+    "text": "Imayna kaynin",
+    "_revisar": true
+  },
+  "admin_users_col_actions": {
+    "text": "Ruraykuna",
+    "_revisar": true
+  },
+  "admin_users_updating": {
+    "text": "Musuqyachichkan...",
+    "_revisar": true
+  },
+  "admin_users_suspend": {
+    "text": "Sayachiy",
+    "_revisar": true
+  },
+  "admin_users_reactivate": {
+    "text": "Kallpachiy",
+    "_revisar": true
+  },
+  "admin_users_protected": {
+    "text": "Waqaychasqa",
+    "_revisar": true
+  },
+  "admin_users_role_admin": {
+    "text": "Kamachiq",
+    "_revisar": true
+  },
+  "admin_users_role_researcher": {
+    "text": "Yachaq",
+    "_revisar": true
+  },
+  "admin_users_status_active": {
+    "text": "Kallpachkaq",
+    "_revisar": true
+  },
+  "admin_users_status_suspended": {
+    "text": "Sayachishqa",
+    "_revisar": true
+  },
+  "admin_reports_tab": {
+    "text": "6. Willakuykuna chaskina",
+    "_revisar": true
+  },
+  "admin_reports_banner_title": {
+    "text": "Llaqta runakunapa willakuykuna yachaypa chaskina",
+    "_revisar": true
+  },
+  "admin_reports_badge": {
+    "text": "Ñawpaq yuyaykunawan tupachiy",
+    "_revisar": true
+  },
+  "admin_reports_description": {
+    "text": "Llaqta runakunapa qawashqan willakuykunata qaway, modelopa riesgopaq y pH-paq yupaykunata allinchaypaq, tupachiypaqwan.",
+    "_revisar": true
+  },
+  "admin_reports_filter_label": {
+    "text": "Uchuy yaku mayukunawan akllay:",
+    "_revisar": true
+  },
+  "admin_reports_filter_all": {
+    "text": "Llapan yaku mayukuna",
+    "_revisar": true
+  },
+  "admin_reports_total_alerts": {
+    "text": "willakuykuna",
+    "_revisar": true
+  },
+  "admin_reports_unspecified": {
+    "text": "Mana sutichasqa",
+    "_revisar": true
+  },
+  "admin_reports_normal": {
+    "text": "Allin",
+    "_revisar": true
+  },
+  "admin_reports_no_ph": {
+    "text": "Mana pH tupusqa",
+    "_revisar": true
+  },
+  "admin_reports_detail_title": {
+    "text": "Llaqta runapa willakuyninpa técnica ficha",
+    "_revisar": true
+  },
+  "admin_reports_field_id": {
+    "text": "ID",
+    "_revisar": true
+  },
+  "admin_reports_field_basin": {
+    "text": "Yaku mayu",
+    "_revisar": true
+  },
+  "admin_reports_field_stream": {
+    "text": "Pukyu",
+    "_revisar": true
+  },
+  "admin_reports_field_date": {
+    "text": "Pacha",
+    "_revisar": true
+  },
+  "admin_reports_field_coordinates": {
+    "text": "Coordenadakuna",
+    "_revisar": true
+  },
+  "admin_reports_field_gps_accuracy": {
+    "text": "GPS chiqap tupuy",
+    "_revisar": true
+  },
+  "admin_reports_field_water_color": {
+    "text": "Yaku llimpin",
+    "_revisar": true
+  },
+  "admin_reports_field_measured_ph": {
+    "text": "Tupusqa pH",
+    "_revisar": true
+  },
+  "admin_reports_field_affected_uses": {
+    "text": "Yaku llamkayninkuna sasachakusqa",
+    "_revisar": true
+  },
+  "admin_reports_field_comments": {
+    "text": "Qawashqapa rimayninkuna",
+    "_revisar": true
+  },
+  "admin_reports_method_note_title": {
+    "text": "Yachaypa willakuynin",
+    "_revisar": true
+  },
+  "admin_reports_method_note": {
+    "text": "Kay llaqta runapa willakuynin yanapan qaqa ácido drenaje (DAR) ñawpaq yuyaykunata tupachiyta, ichaqa mana ñawpaq analítica chiqaqchayta ruraspa yupay modelota tikratsu.",
+    "_revisar": true
+  },
+  "admin_reports_contrast_badge": {
+    "text": "Ñawpaq willakuykunata tinkuchiy",
+    "_revisar": true
+  },
+  "admin_reports_banner_description": {
+    "text": "Llaqtayuq runakuna qawarishpa willakuykunata qaway, modelopa riesgo nisqanta hinaspa pH yupayninta allinchaypaq, tinkuchinapaq ima.",
+    "_revisar": true
+  },
+  "admin_reports_filter_basin": {
+    "text": "Uchuy yaku mayukunawan akllay:",
+    "_revisar": true
+  }
 }

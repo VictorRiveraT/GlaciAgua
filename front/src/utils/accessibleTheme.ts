@@ -1,16 +1,4 @@
-import React from 'react'
 import { RiskLevel } from '../types'
-import {
-  AlertOctagon,
-  AlertTriangle,
-  CheckCircle2,
-  Shield,
-  Droplet,
-  Ban,
-  Flame,
-  Sprout,
-  Users,
-} from 'lucide-react'
 
 export interface AccessibleRiskStyle {
   level: RiskLevel
@@ -29,17 +17,11 @@ export interface AccessibleRiskStyle {
   iconName: 'octagon' | 'triangle' | 'circle'
 }
 
-/**
- * Paleta de contraste reforzado WCAG AAA/AA y formas diferenciadas para daltónicos:
- * - Alto: Octágono / Mano de alto 🛑
- * - Medio: Triángulo de advertencia ⚠️
- * - Bajo: Círculo con checkmark ✓
- */
 export const ACCESSIBLE_RISK_STYLES: Record<RiskLevel, AccessibleRiskStyle> = {
   Alto: {
     level: 'Alto',
     labelEs: 'Riesgo Alto',
-    labelQu: 'Hukllay Rikuy (Alto)',
+    labelQu: 'Hukllay Rikuy',
     shapeNameEs: 'Octágono rojo de alerta',
     shapeNameQu: 'Puka pukllana',
     shortAdviceEs: 'Esta quebrada puede tener acidez. Evita usarla y avisa a tu junta o municipio.',
@@ -55,7 +37,7 @@ export const ACCESSIBLE_RISK_STYLES: Record<RiskLevel, AccessibleRiskStyle> = {
   Medio: {
     level: 'Medio',
     labelEs: 'Riesgo Medio',
-    labelQu: 'Chawpi Rikuy (Medio)',
+    labelQu: 'Chawpi Rikuy',
     shapeNameEs: 'Triángulo amarillo de cuidado',
     shapeNameQu: 'Qellu pukllana',
     shortAdviceEs: 'Agua en observación. Consulta con tu junta de agua antes de usarla.',
@@ -71,7 +53,7 @@ export const ACCESSIBLE_RISK_STYLES: Record<RiskLevel, AccessibleRiskStyle> = {
   Bajo: {
     level: 'Bajo',
     labelEs: 'Riesgo Bajo',
-    labelQu: 'Uray Rikuy (Bajo)',
+    labelQu: 'Uray Rikuy',
     shapeNameEs: 'Círculo verde de menor riesgo',
     shapeNameQu: 'Qomer pukllana',
     shortAdviceEs: 'Menor riesgo de acidez. Trata el agua según las indicaciones de tu JASS.',
@@ -86,9 +68,6 @@ export const ACCESSIBLE_RISK_STYLES: Record<RiskLevel, AccessibleRiskStyle> = {
   },
 }
 
-/**
- * Aviso legal y sanitario permanente (Regla innegociable N° 4)
- */
 export const DISCLAIMER_NOTE_ES =
   'Priorización y alerta temprana comunitaria. No certifica potabilidad. Consulta siempre a tu junta de agua o municipio.'
 
@@ -98,4 +77,3 @@ export const DISCLAIMER_NOTE_QU =
 export function getRiskTheme(level: RiskLevel): AccessibleRiskStyle {
   return ACCESSIBLE_RISK_STYLES[level] || ACCESSIBLE_RISK_STYLES.Medio
 }
-
