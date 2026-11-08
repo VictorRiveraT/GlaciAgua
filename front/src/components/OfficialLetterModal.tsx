@@ -36,7 +36,7 @@ const COMMON_REASONS = [
 ] as const
 
 const AUTHORITIES = [
-  'oficio_authority_jass',
+  'oficio_authority_comite',
   'oficio_authority_irrigation',
   'oficio_authority_municipality',
   'oficio_authority_health',

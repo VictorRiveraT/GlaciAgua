@@ -49,9 +49,9 @@ export const MoreOptionsView: React.FC<MoreOptionsViewProps> = ({
   }
 
   const contactTranslationKeys: Record<string, { name: string; role: string }> = {
-    'contact-jass': {
-      name: 'contact_jass',
-      role: 'contact_jass_role',
+    'contact-comite': {
+      name: 'contact_comite',
+      role: 'contact_comite_role',
     },
     'contact-diresa': {
       name: 'contact_diresa',

@@ -53,7 +53,7 @@ const INITIAL_FIELD_MEDICIONES = [
     ph_min: 5.4,
     lluvia_mm: 32.0,
     roca_expuesta_km2: 44.2,
-    responsable: 'JASS Cátac / UPCH',
+    responsable: 'Comité de Agua Cátac / UPCH',
   },
   {
     id: 'med-init-3',
@@ -127,7 +127,7 @@ const getPlantillaCSV = async (): Promise<{ contenido_csv: string; nombre_archiv
     contenido_csv:
       'cuenca_id,quebrada,periodo,temporada,area_km2,roca_expuesta_km2,pct_sulfuros,pct_carbonatos,lluvia_mm,pct_bofedal,ph_min,responsable\n' +
       'quillcay,Quebrada Shallap (Toma Principal),2026-humeda,humeda,249.5,36.0,55.0,8.0,185.0,24.0,4.1,Ing. Monitoreo Ambiental\n' +
-      'pachacoto,Quebrada Pastoruri,2026-seca,seca,202.8,42.0,60.0,6.0,35.0,18.0,5.4,JASS Cátac\n',
+      'pachacoto,Quebrada Pastoruri,2026-seca,seca,202.8,42.0,60.0,6.0,35.0,18.0,5.4,Comité Cátac\n',
   }
 }
 import {
@@ -223,7 +223,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
   const [emailStatus, setEmailStatus] = useState<any>(null)
   const [loadingEmailStatus, setLoadingEmailStatus] = useState(false)
   const [testEmailTo, setTestEmailTo] = useState('victor.rivera@upch.pe')
-  const [testEmailName, setTestEmailName] = useState('Autoridad Local del Agua / JASS')
+  const [testEmailName, setTestEmailName] = useState('Autoridad Local del Agua / Comité Comunal')
   const [testEmailBasin, setTestEmailBasin] = useState('Quillcay')
   const [testEmailReason, setTestEmailReason] = useState(() =>
     t('admin_email_reason_default', 'Alerta de turbidez y acidez por deshielo')
@@ -1324,7 +1324,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                             required
                             value={testEmailTo}
                             onChange={(e) => setTestEmailTo(e.target.value)}
-                            placeholder={t('admin_email_recipient_placeholder', 'Ej.: jass@gmail.com o autoridad@ala.gob.pe')}
+                            placeholder={t('admin_email_recipient_placeholder', 'Ej.: comite.agua@gmail.com o autoridad@ala.gob.pe')}
                             className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-semibold text-slate-900 focus:outline-hidden focus:border-blue-700"
                           />
                         </div>
@@ -1337,7 +1337,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                             type="text"
                             value={testEmailName}
                             onChange={(e) => setTestEmailName(e.target.value)}
-                            placeholder={t('admin_email_recipient_name_placeholder', 'Ej.: presidente de la JASS de Shallap')}
+                            placeholder={t('admin_email_recipient_name_placeholder', 'Ej.: presidente del Comité de Agua de Shallap')}
                             className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-semibold text-slate-900 focus:outline-hidden focus:border-blue-700"
                           />
                         </div>

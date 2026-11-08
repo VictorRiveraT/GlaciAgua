@@ -13,11 +13,11 @@
     "_revisar": true
   },
   "disclaimer": {
-    "text": "Willakuy yaku rikaypaq. Manam yakupa llumpaychu nintsu. JASS-nikita tapukuy.",
+    "text": "Willakuy yaku rikaypaq. Manam yakupa llumpaychu nintsu. Kamachiqkunata tapukuy.",
     "_revisar": true
   },
   "disclaimer_short": {
-    "text": "Yaku rikapana willakuy. JASS-ta tapukuy.",
+    "text": "Yaku rikapana willakuy. Kamachiqkunata tapukuy.",
     "_revisar": true
   },
   "listen": {
@@ -93,15 +93,15 @@
     "_revisar": true
   },
   "advice_alto": {
-    "text": "Kay yakuqa poqoq kaykanman. Ama upyeytsu, jass-nikita willay.",
+    "text": "Kay yakuqa poqoq kaykanman. Ama upyeytsu, kamachiqkunata willay.",
     "_revisar": true
   },
   "advice_medio": {
-    "text": "Yaku rikapaashqa kaykan. JASS-nikita tapukuy manaraq upyashpa.",
+    "text": "Yaku rikapaashqa kaykan. Kamachiqkunata tapukuy manaraq upyashpa.",
     "_revisar": true
   },
   "advice_bajo": {
-    "text": "Yakuqa allillam kaykan. JASS nishqanno altsay.",
+    "text": "Yakuqa allillam kaykan. Kamachiqkuna nishqanno altsay.",
     "_revisar": true
   },
   "usage_title": {
@@ -117,11 +117,11 @@
     "_revisar": true
   },
   "usage_drink_medio": {
-    "text": "Ama asekyapita upyeytsu. JASS-nikita tapukuy.",
+    "text": "Ama asekyapita upyeytsu. Kamachiqkunata tapukuy.",
     "_revisar": true
   },
   "usage_drink_bajo": {
-    "text": "JASS nishqanno yakuta chuyanchay.",
+    "text": "Kamachiqkuna nishqanno yakuta chuyanchay.",
     "_revisar": true
   },
   "usage_boil": {
@@ -261,7 +261,7 @@
     "_revisar": true
   },
   "onboarding_step2_desc": {
-    "text": "Puka: ama upyeytsu. Qellu: cuidado kay. Qomer: uray rikuy, JASS-nikita tapukuy.",
+    "text": "Puka: ama upyeytsu. Qellu: cuidado kay. Qomer: uray rikuy, Kamachiqkunata tapukuy.",
     "_revisar": true
   },
   "onboarding_step3_title": {
@@ -280,8 +280,8 @@
     "text": "Yanapanapaq telefonokuna",
     "_revisar": true
   },
-  "contact_jass": {
-    "text": "Ayllupa JASS kamachiqkuna",
+  "contact_comite": {
+    "text": "Ayllupa yaku kamachiqkuna",
     "_revisar": true
   },
   "contact_diresa": {
@@ -345,15 +345,15 @@
     "_revisar": true
   },
   "basin_human_med_desc": {
-    "text": "Ama asekyapita upyeytsu. JASS-ta tapukuy.",
+    "text": "Ama asekyapita upyeytsu. Kamachiqkunata tapukuy.",
     "_revisar": true
   },
   "basin_human_low": {
-    "text": "JASS-wan yaku chuyanchay",
+    "text": "Kamachiqkunawan yaku chuyanchay",
     "_revisar": true
   },
   "basin_human_low_desc": {
-    "text": "Yakuqa allillam kaykan. JASS nishqanno altsay.",
+    "text": "Yakuqa allillam kaykan. Kamachiqkuna nishqanno altsay.",
     "_revisar": true
   },
   "basin_crops_high": {
@@ -493,11 +493,11 @@
     "_revisar": true
   },
   "tip_high_4": {
-    "text": "Yaku pukayaptin JASS-man willakuy.",
+    "text": "Yaku pukayaptin kamachiqkunaman willakuy.",
     "_revisar": true
   },
   "tip_med_1": {
-    "text": "Ama asekyapita upyeytsu; JASS-man tapukuy.",
+    "text": "Ama asekyapita upyeytsu; kamachiqkunata tapukuy.",
     "_revisar": true
   },
   "tip_med_2": {
@@ -509,7 +509,7 @@
     "_revisar": true
   },
   "tip_low_1": {
-    "text": "JASS nishqanno yakuta chuyanchay.",
+    "text": "Kamachiqkuna nishqanno yakuta chuyanchay.",
     "_revisar": true
   },
   "tip_low_2": {
@@ -521,7 +521,7 @@
     "_revisar": true
   },
   "official_letter_btn": {
-    "text": "JASS-paq ofisiota qellqay",
+    "text": "Kamachiqkunapaq ofisiota qellqay",
     "_revisar": true
   },
   "official_letter_copied": {
@@ -701,7 +701,7 @@
     "_revisar": true
   },
   "help_step2_rule2": {
-    "text": "JASS nisqanta yakuta upyay",
+    "text": "Kamachiqkuna nisqanta yakuta upyay",
     "_revisar": true
   },
   "help_step2_rule3": {
@@ -768,12 +768,12 @@
     "text": "Imata ama ruranapaq",
     "_revisar": true
   },
-  "action_avisar_jass": {
-    "text": "JASS-ta willay",
+  "action_avisar_comite": {
+    "text": "Kamachiqkunata willay",
     "_revisar": true
   },
   "action_fuente_segura": {
-    "text": "JASS nisqanta yakuta apamuy",
+    "text": "Kamachiqkuna nisqanta yakuta apamuy",
     "_revisar": true
   },
   "action_guardar_tapa": {
@@ -857,7 +857,7 @@
     "_revisar": true
   },
   "oficio_email_placeholder": {
-    "text": "Autoridadpa chaski correon (ej: jass@gmail.com)",
+    "text": "Autoridadpa chaski correon (ej: comite.agua@gmail.com)",
     "_revisar": true
   },
   "oficio_email_sent": {
@@ -1066,7 +1066,7 @@
     "_revisar": true
   },
   "seal_drink_low": {
-    "text": "JASS nishqanno chuyanchay",
+    "text": "Kamachiqkuna nishqanno chuyanchay",
     "_revisar": true
   },
   "seal_crops_high": {
@@ -1250,11 +1250,11 @@
     "_revisar": true
   },
   "basin_panel_advice_medium": {
-    "text": "Yaku rikapaashqa kaykan. JASS-nikita tapukuy manaraq upyashpa.",
+    "text": "Yaku rikapaashqa kaykan. Kamachiqkunata tapukuy manaraq upyashpa.",
     "_revisar": true
   },
   "basin_panel_advice_low": {
-    "text": "Yakuqa allillam kaykan. JASS nishqanno altsay.",
+    "text": "Yakuqa allillam kaykan. Kamachiqkuna nishqanno altsay.",
     "_revisar": true
   },
   "basin_usage_today": {
@@ -1282,7 +1282,7 @@
     "_revisar": true
   },
   "basin_use_drink_low": {
-    "text": "JASS-ninwan cloray",
+    "text": "Kamachiqkunawan cloray",
     "_revisar": true
   },
   "basin_use_water_high": {
@@ -1414,7 +1414,7 @@
     "_revisar": true
   },
   "official_letter_desc": {
-    "text": "JASS-paq llaqtapaq ofisiota qellqay",
+    "text": "Kamachiqkunapaq llaqtapaq ofisiota qellqay",
     "_revisar": true
   },
   "official_letter_open": {
@@ -1422,7 +1422,7 @@
     "_revisar": true
   },
   "more_officio_desc": {
-    "text": "JASS-paq municipio-paq ofisio, qellqaypaq o imprimiypaq allichasqa",
+    "text": "Kamachiqkunapaq municipio-paq ofisio, qellqaypaq o imprimiypaq allichasqa",
     "_revisar": true
   },
   "more_connectivity_desc": {
@@ -1441,7 +1441,7 @@
     "text": "Telefonopa yupayninkuna manaraq chiqaqchasqa",
     "_revisar": true
   },
-  "contact_jass_role": {
+  "contact_comite_role": {
     "text": "Aylluchaw yaku kamachiy, yakupa yaykunan puntuta rikay",
     "_revisar": true
   },
@@ -2122,7 +2122,7 @@
     "_revisar": true
   },
   "sim_risk_low_description": {
-    "text": "Alli kay. Sulfuros nisqan pisi kaptin utaq bofedal pampa allita chuyachiptin, pukushqa kaypa manchakuyqa pisim. JASS nisqanpa kamachikuyninta qatipay.",
+    "text": "Alli kay. Sulfuros nisqan pisi kaptin utaq bofedal pampa allita chuyachiptin, pukushqa kaypa manchakuyqa pisim. Kamachiqkuna nisqanpa kamachikuyninta qatipay.",
     "_revisar": true
   },
   "sim_ml_title": {
@@ -2221,8 +2221,8 @@
     "text": "Mineralkuna kanman nishpa rikashqa, uywakunatapis amachay",
     "_revisar": true
   },
-  "oficio_authority_jass": {
-    "text": "Junta Administradora de Servicios de Saneamiento (JASS)",
+  "oficio_authority_comite": {
+    "text": "Ayllupa yaku kamachiqninkuna (Comité de Agua)",
     "_revisar": true
   },
   "oficio_authority_irrigation": {
@@ -2866,11 +2866,11 @@
     "_revisar": true
   },
   "admin_placeholder_recipient_email": {
-    "text": "ej: jass@gmail.com o autoridad@ala.gob.pe",
+    "text": "ej: comite.agua@gmail.com o autoridad@ala.gob.pe",
     "_revisar": true
   },
   "admin_placeholder_recipient_name": {
-    "text": "ej: Presidente JASS Shallap",
+    "text": "ej: Shallap yaku kamachiqnin",
     "_revisar": true
   },
   "admin_placeholder_email_reason": {
@@ -3246,11 +3246,11 @@
     "_revisar": true
   },
   "admin_email_recipient_placeholder": {
-    "text": "Ej.: jass@gmail.com utaq autoridad@ala.gob.pe",
+    "text": "Ej.: comite.agua@gmail.com utaq autoridad@ala.gob.pe",
     "_revisar": true
   },
   "admin_email_recipient_name_placeholder": {
-    "text": "Ej.: Shallap JASSpa umalliqnin",
+    "text": "Ej.: Shallap yaku kamachiqnin",
     "_revisar": true
   },
   "admin_email_affected_microbasin": {

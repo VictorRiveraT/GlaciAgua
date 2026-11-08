@@ -221,7 +221,7 @@ def estado_servicio_email():
 @app.post("/alertas/enviar-email", response_model=EmailAlertaResponse, tags=["Alertas y Notificaciones"])
 def enviar_oficio_email(solicitud: EmailAlertaRequest):
     """
-    Envía una notificación u oficio formal por correo a la JASS, Junta de Regantes, Autoridad Local o ciudadano.
+    Envía una notificación u oficio formal por correo al Comité de Agua, Junta de Regantes, Autoridad Local o ciudadano.
     Si el entorno no tiene credenciales SMTP configuradas, el servicio opera de manera transparente
     en modo simulado para desarrollo local y pruebas sin error.
     """

@@ -163,7 +163,7 @@ export class GlaciAguaApi {
   }
 
   /**
-   * Envía un oficio formal o alerta por correo a la JASS, ALA o autoridad
+   * Envía un oficio formal o alerta por correo al Comité Comunal, ALA o autoridad
    */
   static async enviarEmailAlerta(payload: {
     destinatario: string

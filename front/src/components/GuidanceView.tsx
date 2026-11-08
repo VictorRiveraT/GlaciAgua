@@ -24,9 +24,9 @@ export const GuidanceView: React.FC<GuidanceViewProps> = ({ onOpenOficio }) => {
     {
       id: 'avisar',
       illustration: 'hacer_avisar' as const,
-      phrase: t('action_avisar_jass'),
+      phrase: t('action_avisar_comite'),
       audioKey: 'guia_hacer_avisar',
-      audioText: `${t('action_avisar_jass')}. Avisa de inmediato a tu junta de agua o directivo comunal.`,
+      audioText: `${t('action_avisar_comite')}. Avisa de inmediato a tu junta de agua o directivo comunal.`,
       anim: 'pulse' as const,
     },
     {
@@ -95,7 +95,7 @@ export const GuidanceView: React.FC<GuidanceViewProps> = ({ onOpenOficio }) => {
         <div className="shrink-0 flex items-center gap-2">
           <AudioPlayButton
             audioKey="aviso_hervir"
-            textToSpeak={`${t('guidance_title')}. ${t('guidance_do_title')}: ${t('action_avisar_jass')}, ${t('action_fuente_segura')}, ${t('action_guardar_tapa')}. ${t('guidance_avoid_title')}: ${t('avoid_beber_quebrada')}, ${t('avoid_hervir_metales')}, ${t('avoid_animales_riego')}.`}
+            textToSpeak={`${t('guidance_title')}. ${t('guidance_do_title')}: ${t('action_avisar_comite')}, ${t('action_fuente_segura')}, ${t('action_guardar_tapa')}. ${t('guidance_avoid_title')}: ${t('avoid_beber_quebrada')}, ${t('avoid_hervir_metales')}, ${t('avoid_animales_riego')}.`}
           />
         </div>
       </div>

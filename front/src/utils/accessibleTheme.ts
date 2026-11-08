@@ -25,7 +25,7 @@ export const ACCESSIBLE_RISK_STYLES: Record<RiskLevel, AccessibleRiskStyle> = {
     shapeNameEs: 'Octágono rojo de alerta',
     shapeNameQu: 'Puka pukllana',
     shortAdviceEs: 'Esta quebrada puede tener acidez. Evita usarla y avisa a tu junta o municipio.',
-    shortAdviceQu: 'Kay yakuqa poqoq kaykanman. Ama upyeytsu, jass-nikita willay.',
+    shortAdviceQu: 'Kay yakuqa poqoq kaykanman. Ama upyeytsu, kamachiqkunata willay.',
     bgSolid: 'bg-[#991b1b]',
     textOnSolid: 'text-white',
     bgSoft: 'bg-[#fef2f2]',
@@ -41,7 +41,7 @@ export const ACCESSIBLE_RISK_STYLES: Record<RiskLevel, AccessibleRiskStyle> = {
     shapeNameEs: 'Triángulo amarillo de cuidado',
     shapeNameQu: 'Qellu pukllana',
     shortAdviceEs: 'Agua en observación. Consulta con tu junta de agua antes de usarla.',
-    shortAdviceQu: 'Yaku rikapaashqa kaykan. JASS-nikita tapukuy manaraq upyashpa.',
+    shortAdviceQu: 'Yaku rikapaashqa kaykan. Kamachiqkunata tapukuy manaraq upyashpa.',
     bgSolid: 'bg-[#92400e]',
     textOnSolid: 'text-white',
     bgSoft: 'bg-[#fefce8]',
@@ -56,8 +56,8 @@ export const ACCESSIBLE_RISK_STYLES: Record<RiskLevel, AccessibleRiskStyle> = {
     labelQu: 'Uray Rikuy',
     shapeNameEs: 'Círculo verde de menor riesgo',
     shapeNameQu: 'Qomer pukllana',
-    shortAdviceEs: 'Menor riesgo de acidez. Trata el agua según las indicaciones de tu JASS.',
-    shortAdviceQu: 'Yakuqa allillam kaykan. JASS nishqanno altsay.',
+    shortAdviceEs: 'Menor riesgo de acidez. Trata el agua según las indicaciones de tu comité de agua.',
+    shortAdviceQu: 'Yakuqa allillam kaykan. Kamachiqkuna nishqanno altsay.',
     bgSolid: 'bg-[#166534]',
     textOnSolid: 'text-white',
     bgSoft: 'bg-[#f0fdf4]',
@@ -72,7 +72,7 @@ export const DISCLAIMER_NOTE_ES =
   'Priorización y alerta temprana comunitaria. No certifica potabilidad. Consulta siempre a tu junta de agua o municipio.'
 
 export const DISCLAIMER_NOTE_QU =
-  'Willakuy yaku rikaypaq. Manam yakupa llumpaychu nintsu. JASS-nikita tapukuy.'
+  'Willakuy yaku rikaypaq. Manam yakupa llumpaychu nintsu. Kamachiqkunata tapukuy.'
 
 export function getRiskTheme(level: RiskLevel): AccessibleRiskStyle {
   return ACCESSIBLE_RISK_STYLES[level] || ACCESSIBLE_RISK_STYLES.Medio

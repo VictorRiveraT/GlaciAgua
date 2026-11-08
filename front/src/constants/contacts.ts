@@ -14,8 +14,8 @@ export interface CommunityContact {
  */
 export const EMERGENCY_CONTACTS: CommunityContact[] = [
   {
-    id: 'contact-jass',
-    name: 'JASS / Junta de Regantes',
+    id: 'contact-comite',
+    name: 'Comité Comunal de Agua / Junta de Regantes',
     role: 'Atención local y control de bocatomas',
     displayPhone: '(043) 42-1234',
     rawPhone: '043421234',

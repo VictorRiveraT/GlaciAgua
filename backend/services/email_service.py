@@ -200,7 +200,7 @@ class EmailService:
     <div class="footer">
       <p>Este oficio fue generado y tramitado formalmente a través de la plataforma <strong>GlaciAgua</strong> ({EMAIL_FROM}).</p>
       <p class="disclaimer">
-        Aviso importante: Los datos e índices generados por la plataforma comunitaria GlaciAgua tienen carácter preventivo y referencial para alertar a las JASS, regantes y autoridades de salud. No reemplazan análisis oficiales de laboratorio acreditado por INACAL.
+        Aviso importante: Los datos e índices generados por la plataforma comunitaria GlaciAgua tienen carácter preventivo y referencial para alertar a los comités comunales de agua, regantes y autoridades de salud. No reemplazan análisis oficiales de laboratorio acreditado por INACAL.
       </p>
     </div>
   </div>

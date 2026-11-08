@@ -136,7 +136,7 @@ class GeoJSONFeatureCollection(BaseModel):
 
 
 class EmailAlertaRequest(BaseModel):
-    destinatario: str = Field(..., min_length=3, max_length=254, pattern=r"^[^\s@]+@[^\s@]+\.[^\s@]+$", description="Correo electronico del destinatario (JASS, ALA, autoridad o usuario)")
+    destinatario: str = Field(..., min_length=3, max_length=254, pattern=r"^[^\s@]+@[^\s@]+\.[^\s@]+$", description="Correo electronico del destinatario (Comité de Agua, ALA, autoridad o usuario)")
     destinatario_nombre: Optional[str] = Field(None, description="Nombre de la institucion o persona receptora")
     remitente_nombre: str = Field(..., description="Nombre del solicitante o representante comunitario")
     remitente_rol: Optional[str] = Field("Comunero / Usuario de agua", description="Rol del solicitante")
