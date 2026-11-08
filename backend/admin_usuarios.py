@@ -138,7 +138,6 @@ def listar_usuarios(
             parametros.append(valor)
     where = " WHERE " + " AND ".join(condiciones) if condiciones else ""
     with closing(get_connection()) as conn:
-        conn.execute("BEGIN")
         total = conn.execute("SELECT COUNT(*) FROM usuarios" + where, parametros).fetchone()[0]
         filas = conn.execute("SELECT * FROM usuarios" + where + " ORDER BY id DESC LIMIT ? OFFSET ?",
                              [*parametros, por_pagina, (pagina - 1) * por_pagina]).fetchall()

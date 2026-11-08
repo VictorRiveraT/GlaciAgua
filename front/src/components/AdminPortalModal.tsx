@@ -316,9 +316,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
         if (currentUser?.rol === 'admin') {
           fetchUsuarios()
         }
-        if (currentUser?.rol === 'investigador') {
-          fetchReportesCientificos()
-        }
+        fetchReportesCientificos()
       }
     } finally {
       setLoadingModelInfo(false)

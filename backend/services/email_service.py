@@ -238,6 +238,23 @@ class EmailService:
                             "html": html_contenido,
                         }
                     )
+                    if resp.status_code == 429:
+                        import time
+                        logger.warning("[RESEND API 429] Cuota temporal alcanzada. Pausa de 1s para reintento...")
+                        time.sleep(1.0)
+                        resp = client.post(
+                            "https://api.resend.com/emails",
+                            headers={
+                                "Authorization": f"Bearer {RESEND_API_KEY}",
+                                "Content-Type": "application/json"
+                            },
+                            json={
+                                "from": remitente_display,
+                                "to": [req.destinatario],
+                                "subject": asunto,
+                                "html": html_contenido,
+                            }
+                        )
                     if resp.status_code in (200, 201):
                         data = resp.json()
                         envio_id = data.get("id", f"resend-{uuid.uuid4().hex[:10]}")
@@ -615,6 +632,24 @@ class EmailService:
                             "text": texto_plano,
                         },
                     )
+                    if resp.status_code == 429:
+                        import time
+                        logger.warning("[BIENVENIDA RESEND 429] Cuota temporal alcanzada. Pausa de 1s para reintento...")
+                        time.sleep(1.0)
+                        resp = client.post(
+                            "https://api.resend.com/emails",
+                            headers={
+                                "Authorization": f"Bearer {RESEND_API_KEY}",
+                                "Content-Type": "application/json",
+                            },
+                            json={
+                                "from": remitente_display,
+                                "to": [correo],
+                                "subject": asunto,
+                                "html": html_contenido,
+                                "text": texto_plano,
+                            },
+                        )
                     if resp.status_code in (200, 201):
                         data = resp.json()
                         envio_id = data.get("id", f"resend-{uuid.uuid4().hex[:10]}")

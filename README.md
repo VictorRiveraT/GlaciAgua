@@ -2,93 +2,139 @@
 
 > **Sistema de Alerta Temprana Comunitaria de Drenaje Ácido de Roca (DAR) y Metales Pesados en la Cordillera Blanca (Huaraz, Áncash)**
 
-Plataforma integral desarrollada para el monitoreo geoquímico, evaluación de riesgo físico por retroceso glaciar, inferencia predictiva con Machine Learning y alerta comunitaria ante la contaminación de aguas por metales pesados en la cuenca del Río Santa.
+[![Plataforma en Producción](https://img.shields.io/badge/Producci%C3%B3n-glaciagua.lat-0284c7?style=flat-square&logo=google-chrome&logoColor=white)](https://glaciagua.lat)
+[![Hackathon FACI 2026](https://img.shields.io/badge/UPCH-Hackathon%20FACI%202026-b91c1c?style=flat-square)](https://www.cayetano.edu.pe/)
+[![Reto 4](https://img.shields.io/badge/Reto%204-Clima%2C%20Agua%20y%20Gesti%C3%B3n%20de%20Riesgos-15803d?style=flat-square)](#)
+[![Licencia](https://img.shields.io/badge/Licencia-MIT-gray?style=flat-square)](LICENSE)
+
+---
+
+## Acceso Rápido
+
+* **Plataforma Web en Producción (24/7):** [https://glaciagua.lat](https://glaciagua.lat)
+* **Repositorio Oficial:** [https://github.com/VictorRiveraT/GlaciAgua](https://github.com/VictorRiveraT/GlaciAgua)
+* **Documentación Técnica de la Ficha:** `docs/Ficha Técnica.docx`
+
+---
+
+## Descripción del Proyecto
+
+El retroceso acelerado de los glaciares tropicales en la Cordillera Blanca expone rocas con alto contenido de sulfuros (principalmente pirita y arsenopirita). Al oxidarse por contacto con agua y oxígeno, generan **Drenaje Ácido de Roca (DAR)** de origen natural, movilizando metales tóxicos (hierro, aluminio, manganeso, arsénico) hacia quebradas y captaciones de agua para consumo humano, agricultura y ganadería.
+
+**GlaciAgua** es una solución integral de base científico-tecnológica diseñada para cerrar la brecha entre los datos satelitales e hidroquímicos y la toma de decisiones en comunidades altoandinas. Combina:
+
+1. **Un Modelo Físico-Analítico Paramétrico (Score 0-100)** que pondera la roca expuesta, el potencial litológico ácido, la precipitación estacional y la atenuación natural de los bofedales.
+2. **Un Microservicio Predictivo de Machine Learning (Random Forest)** con 300 árboles de decisión que estima el pH en el talweg de salida, el margen de incertidumbre ($\pm\sigma$) y el consenso del ensamble.
+3. **Una Progressive Web App (PWA) Offline-First** con mapa interactivo Leaflet, soporte bilingüe (Castellano y Quechua Áncash) con audio asistido, diseño visual accesible WCAG y redactor automático de oficios formales para JASS y autoridades.
+4. **Un Portal de Ingeniería Ambiental y Ciencia Ciudadana** con autenticación segura por roles (PBKDF2), telemetría de muestreo en campo, reentrenamiento continuo del modelo y despacho automatizado de alertas por correo electrónico (Resend API / SMTP) con zona horaria de Perú (America/Lima UTC-5).
 
 ---
 
 ## Arquitectura del Sistema
 
-GlaciAgua opera como una arquitectura de microservicios contenerizada mediante Docker Compose:
+El ecosistema GlaciAgua está construido bajo una arquitectura modular de microservicios contenerizados mediante Docker y Docker Compose:
 
-1. **Frontend PWA (`front/`)**
-   - Interfaz web interactiva y Progressive Web App (PWA) desarrollada en React 19, TypeScript, Vite, Tailwind CSS y Leaflet.
-   - Mapa hidrográfico interactivo con polígonos de cuencas de relleno cartográfico semitransparente, enfoque cinemático automático (`flyToBounds`), corredores fluviales de alto contraste y capas conmutables.
-   - Tarjeta predictiva de Machine Learning en tiempo real: cálculo de pH estimado, margen de incertidumbre (+/- sigma), acuerdo de consenso entre 300 estimadores y matriz de 8 variables HydroBASINS.
-   - Doble validación explicable: contraste simultáneo entre el modelo físico analítico (Score sobre 100) y el modelo de Machine Learning.
-   - Filtros dinámicos por nivel de riesgo (Todos, Alto, Medio, Bajo) en el listado de microcuencas.
-   - Simulador en vivo del motor físico con sliders interactivos y presets por cuenca.
-   - Base de datos interactiva con estaciones hidroquímicas INAIGEM / UPCH y contraste contra ECA Agua (D.S. 004-2017-MINAM).
-   - Formulario de reportes comunitarios con soporte offline, cola local y geolocalización GPS.
-   - Generador automático de oficios formales para juntas de regantes y JASS.
-   - Puerto de servicio: **5173**
-
-2. **Backend API REST (`backend/`)**
-   - Servidor desarrollado en Python 3.11 con FastAPI, Pydantic y SQLite.
-   - Endpoints para gestión de microcuencas, mediciones hidroquímicas, exportación GeoJSON estándar RFC 7946 y sincronización idempotente por UUID.
-   - Cliente proxy integrado hacia el microservicio de Machine Learning (`/ml/salud`, `/ml/modelo`, `/ml/predecir`).
-   - Implementación del motor de cálculo de riesgo físico analítico.
-   - Puerto de servicio: **8000** (Swagger UI en `/docs`)
-
-3. **Microservicio Predictivo de Machine Learning (`api/`)**
-   - Servicio analítico especializado desarrollado en Python 3.11 con FastAPI y scikit-learn.
-   - Modelo `RandomForestRegressor` con 300 árboles de decisión entrenado sobre 8 variables hidrogeológicas a nivel HydroBASINS 12:
-     - `area_km2`: Superficie total de captación.
-     - `roca_expuesta_km2`: Área desglaciada reactiva reciente.
-     - `pct_sulfuros`: Concentración litológica de pirita y sulfuros oxidables.
-     - `pct_carbonatos`: Capacidad de neutralización natural.
-     - `lluvia_mm`: Precipitación acumulada estacional (SENAMHI / PISCO).
-     - `pct_bofedal`: Cobertura de bofedales amortiguadores.
-     - `pct_veg_humeda_est`: Vegetación de humedales estacionales.
-     - `temporada`: Factor estacional (`seca` vs `humeda`).
-   - Esquema de validación cruzada espacial `GroupKFold` agrupado por cuenca madre para evitar fuga de datos entre afluentes vecinos.
-   - Estimación de incertidumbre mediante la varianza predictiva entre los 300 árboles del ensamble.
-   - Puerto de servicio: **8001** (Swagger UI en `/docs`)
+```
+                               ┌─────────────────────────────────────────┐
+                               │             USUARIO COMUNAL             │
+                               │        (Comunero / JASS / Regante)      │
+                               └────────────────────┬────────────────────┘
+                                                    │
+                                                    ▼
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                                    FRONTEND PWA                                        │
+│  - React 19 + TypeScript + Vite + Tailwind CSS                                         │
+│  - Leaflet Map (Capas satelitales, polígonos GeoJSON y corredor del Río Santa)        │
+│  - Módulo Bilingüe (Castellano / Quechua Áncash) con sintetizador y audio local       │
+│  - Resiliencia Offline: Service Worker (Cache Storage) e IndexedDB con UUIDv4          │
+│  - Accesibilidad WCAG: Formas geométricas (círculo, triángulo, octágono) y alto contraste│
+│  - Redactor de Oficios Formales prellenados para JASS / ALA / Municipalidades          │
+│  - Portal Técnico para Investigadores y Administradores                                │
+└───────────────────────┬────────────────────────────────────────┬───────────────────────┘
+                        │ HTTP / REST                            │ HTTP / REST
+                        ▼                                        ▼
+┌──────────────────────────────────────────────┐  ┌──────────────────────────────────────┐
+│             BACKEND CORE (FastAPI)           │  │      MICROSERVICIO ML (FastAPI)      │
+│  - Python 3.11 + FastAPI + Pydantic v2       │  │  - Python 3.11 + scikit-learn        │
+│  - SQLite (WAL mode, consultas preparadas)   │  │  - Random Forest Regressor (300 est) │
+│  - Autenticación PBKDF2 (Admin / Especialista)│ │  - Validación cruzada GroupKFold     │
+│  - Exportación GeoJSON RFC 7946              │  │  - Predicción de pH e incertidumbre  │
+│  - Despacho de Correos (Resend API / SMTP)   │  │  - Pipeline de reentrenamiento       │
+│  - Zona Horaria Unificada: America/Lima      │  └──────────────────────────────────────┘
+└──────────────────────────────────────────────┘
+```
 
 ---
 
-## Puertos y Servicios
+## Servicios y Puertos
 
-| Servicio | Tecnología | Puerto Local | Documentación / URL |
-|---|---|---|---|
-| Frontend PWA | React 19 + Vite + Nginx | 5173 | http://localhost:5173 |
-| Backend Core | FastAPI + SQLite | 8000 | http://localhost:8000/docs |
-| API Machine Learning | FastAPI + scikit-learn | 8001 | http://localhost:8001/docs |
+| Servicio | Tecnología | Puerto Contenedor | Puerto Local | Descripción |
+|---|---|---|---|---|
+| **Frontend PWA** | React 19 + Vite + Nginx | 80 | 5173 | Interfaz de usuario comunitaria, mapas y portal técnico |
+| **Backend Core** | FastAPI + Python 3.11 + SQLite | 8000 | 8000 | Gestión de cuencas, reportes, usuarios y alertas por correo |
+| **Microservicio ML** | FastAPI + scikit-learn | 8001 | 8001 | Motor predictivo Random Forest y reentrenamiento |
 
 ---
 
-## Cómo Ejecutar el Sistema
+## Conjunto de Datos Final (`data/`)
+
+El repositorio incluye el conjunto de datos final y calibrado en la carpeta `data/`:
+
+* **`data/Dataset.xlsx` (Hoja 1):** Matriz histórica multianual con **884 filas** y **20 columnas** que comprende **26 cuencas a nivel nacional** (Río Santa, Pativilca, Huaura, Mantaro, Vilcanota, Rímac, entre otras) entre los años **2010 y 2026** para las temporadas **Húmeda** y **Seca**. Incluye caudales de aforo calibrados, área de desglaciación, precipitación PISCO/SENAMHI, inventario de bofedales INAIGEM, índices satelitales espectrales NDVI y NDMI procesados en Google Earth Engine, y scores de generación y riesgo.
+* **`data/microcuencas_modelo.csv`:** 1,680 observaciones hidrogeológicas a nivel de microcuencas utilizadas por el pipeline de entrenamiento del modelo de Machine Learning (`api/glaciagua/entrenamiento.py`).
+
+---
+
+## Formulación del Modelo de Riesgo Físico
+
+El motor analítico evalúa la interacción causal entre la generación ácida en altas cumbres y la amortiguación natural en cabeceras de cuenca:
+
+$$\text{Generación} = \left(\frac{\text{RocaExpuesta}}{100}\right) \times \left(\frac{\text{PotencialÁcido}}{100}\right)$$
+
+$$\text{Atenuación} = 1 - 0.65 \times \left(\frac{\text{Bofedal}}{100}\right)$$
+
+$$\text{Score} = \min\left(100, \max\left(0, 100 \times \text{Generación} \times \left(\frac{\text{Lluvia}}{100}\right) \times \text{Atenuación}\right)\right)$$
+
+* El factor $\alpha = 0.65$ representa la tasa empírica de retención e inmovilización de metales pesados documentada en humedales altoandinos (Sheoran & Sheoran, 2006; Roesel & Zak, 2022).
+* **Semáforo de Riesgo:**
+  * **Bajo (0 - 35):** Cumplimiento referencial de ECAs de agua; mantener monitoreo preventivo.
+  * **Medio (36 - 65):** Indicios de acidez y aporte metálico moderado; restringir uso crudo para consumo.
+  * **Alto (66 - 100):** Aguas con pH crítico y alta lixiviación de metales; desviar captaciones y notificar a la autoridad sanitaria.
+
+---
+
+## Cómo Ejecutar el Proyecto
 
 ### Opción A: Despliegue con Docker Compose (Recomendado)
 
-Con un solo comando se compilan y levantan los 3 microservicios en sus respectivos contenedores:
+Construye y levanta los 3 microservicios con sus redes y volúmenes persistentes:
 
 ```bash
 docker compose up -d --build
 ```
 
-Para verificar que todos los contenedores estén activos:
+Verificar el estado de los contenedores:
 
 ```bash
 docker compose ps
 ```
 
-Para detener los servicios:
+Detener los servicios:
 
 ```bash
 docker compose down
 ```
 
-### Opción B: Ejecución en Windows con 1 Clic
+### Opción B: Ejecución Rápida en Windows (1 Clic)
 
-El repositorio incluye scripts ejecutables para Windows:
+El proyecto incluye ejecutables para el entorno Windows:
 
-- **`iniciar_docker.bat`**: Construye e inicia la infraestructura completa en Docker.
-- **`iniciar_local.bat`**: Configura entornos virtuales de Python, instala dependencias e inicia los tres procesos localmente en terminales separadas.
+* **`iniciar_docker.bat`**: Compila y levanta la infraestructura en Docker.
+* **`iniciar_local.bat`**: Crea entornos virtuales de Python, instala dependencias e inicia el Frontend, Backend y ML API en ventanas separadas.
 
 ### Opción C: Ejecución Manual en Terminales Separadas
 
 #### 1. Microservicio de Machine Learning
-
 ```bash
 cd api
 python -m venv .venv
@@ -98,8 +144,7 @@ python -m glaciagua.entrenamiento
 python -m uvicorn glaciagua.api:app --reload --port 8001
 ```
 
-#### 2. Backend API
-
+#### 2. Backend API Core
 ```bash
 cd backend
 python -m venv .venv
@@ -109,7 +154,6 @@ python -m uvicorn main:app --reload --port 8000
 ```
 
 #### 3. Frontend PWA
-
 ```bash
 cd front
 npm install
@@ -118,34 +162,39 @@ npm run dev
 
 ---
 
-## Motor de Riesgo Físico y Validación Dual
+## Verificación de Calidad y Pruebas (QA)
 
-GlaciAgua valida el peligro hídrico contrastando dos enfoques complementarios:
+### Pruebas Unitarias del Microservicio ML
+```bash
+$env:PYTHONPATH="api"; python -m pytest api/tests
+```
+* Valida inferencia predictiva, cálculo de incertidumbre inter-árboles, validación cruzada espacial `GroupKFold` y endpoints `/salud`, `/modelo`, `/predecir`.
 
-### 1. Formulación Físico-Ambiental Analítica
+### Pruebas del Backend y Zona Horaria Perú
+```bash
+$env:PYTHONPATH="backend"; python -m pytest backend/
+```
+* Valida autenticación por hash PBKDF2, aislamiento de roles (`admin` vs `investigador`), telemetría de muestreo, sanitización de datos y envío de correos con hora de Perú (America/Lima UTC-5).
 
-Implementa la hipótesis ambiental consensuada para la Cordillera Blanca:
-
-$$\text{generación} = \text{roca\_expuesta} \times \text{potencial\_ácido}$$
-$$\text{amortiguación} = \max(0, 1 - \alpha \times \text{bofedal})$$
-$$\text{riesgo} = \text{generación} \times \text{lluvia} \times \text{amortiguación}$$
-
-- **Riesgo Alto:** Score >= 65 (pH < 4.5, alta carga de metales)
-- **Riesgo Medio:** Score 35 - 64 (pH 4.5 - 6.0, aporte moderado)
-- **Riesgo Bajo:** Score < 35 (pH > 6.5, dentro de estándares ECA)
-
-### 2. Modelo Predictivo Random Forest
-
-El ensamble de 300 árboles toma las 8 variables geomorfológicas y predice el pH resultante en el talweg de salida con su respectivo intervalo de confianza:
-
-$$\hat{\text{pH}} = \frac{1}{B} \sum_{b=1}^{B} T_b(x), \quad \sigma_{\text{pH}} = \sqrt{\frac{1}{B} \sum_{b=1}^{B} (T_b(x) - \hat{\text{pH}})^2}$$
-
-Ambos modelos convergen en la categorización de microcuencas prioritarias como Quillcay y Pachacoto (Nivel Alto / Crítico).
+### Validación del Frontend e Internacionalización (i18n)
+```bash
+cd front
+npm run build
+```
+* Compila TypeScript, empaqueta con Vite y valida al 100% la paridad de las 156 claves bilingües entre `es.json` y `qu.json`.
 
 ---
 
-## Fuentes de Datos y Validación Científica
+## Equipo de Desarrollo
 
-- **Topografía e Hidrografía:** OpenStreetMap (OSM), Instituto Geográfico Nacional (IGN), Shuttle Radar Topography Mission (SRTM 30m), HydroBASINS Nivel 12.
-- **Parámetros Hidroquímicos:** Estudios de campo publicados por INAIGEM (Instituto Nacional de Investigación en Glaciares y Ecosistemas de Montaña) y UPCH (Universidad Peruana Cayetano Heredia).
-- **Estándares Normativos:** Estándares de Calidad Ambiental para Agua (D.S. N° 004-2017-MINAM, Categoría 1-A2 para aguas que pueden ser potabilizadas con tratamiento convencional y Categoría 3 para riego y bebida de animales).
+**Universidad Peruana Cayetano Heredia (UPCH)**  
+*Facultad de Ciencias e Ingeniería (FACI) — Hackathon FACI 2026*
+
+* **Victor Daniel Rivera Torres** — Ingeniería Informática
+* **Vanesa Doris Rioja Cruz** — Ingeniería Ambiental
+* **Luis Martin Valenzuela Valer** — Ingeniería Informática
+* **Flavio Francisco Rabanal Bravo** — Ingeniería Informática
+* **Juan Martin Aquino Paucar** — Ingeniería Informática
+
+* **Docente Asesor:** Mg. Danny Emerson Robles Sanchez
+* **Mentor Asignado:** Omar Illesca Cangalaya

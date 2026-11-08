@@ -1,8 +1,8 @@
-// GlaciAgua PWA Offline-First Service Worker (v2)
+// GlaciAgua PWA Offline-First Service Worker (v3)
 // Diseñado para alta montaña y conectividad intermitente (2G/3G/Offline)
 
-const SHELL_CACHE = 'glaciagua-shell-v3'
-const RUNTIME_CACHE = 'glaciagua-runtime-v3'
+const SHELL_CACHE = 'glaciagua-shell-v4'
+const RUNTIME_CACHE = 'glaciagua-runtime-v4'
 const TILE_CACHE = 'glaciagua-tiles-v1'
 
 const PRECACHE_ASSETS = [
@@ -11,6 +11,7 @@ const PRECACHE_ASSETS = [
   '/manifest.webmanifest',
   '/favicon.svg',
   '/app-icon.svg',
+  '/data/microcuencas.geojson',
 ]
 
 // Instalación: precachea el shell básico de inmediato
@@ -85,13 +86,16 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // 3. Recursos estáticos locales (.js, .css, .svg, .woff2, imágenes): Cache-First con actualización en segundo plano
+  // 3. Recursos estáticos locales (.js, .css, .svg, .woff2, imágenes, datos GeoJSON): Cache-First con actualización en segundo plano
   if (
     request.destination === 'script' ||
     request.destination === 'style' ||
     request.destination === 'image' ||
     request.destination === 'font' ||
-    url.pathname.startsWith('/assets/')
+    url.pathname.startsWith('/assets/') ||
+    url.pathname.startsWith('/data/') ||
+    url.pathname.startsWith('/illustrations/') ||
+    url.pathname.startsWith('/audio/')
   ) {
     event.respondWith(
       caches.match(request).then((cached) => {

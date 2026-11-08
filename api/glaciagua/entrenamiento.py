@@ -72,12 +72,6 @@ def buscar_dataset_simulado():
         raiz / 'data' / 'Dataset.xlsx',
         Path('data') / 'microcuencas_modelo.csv',
         Path('data') / 'Dataset.xlsx',
-        raiz.parent / 'data_simulada' / 'Dataset_simulado_completo.xlsx',
-        raiz.parent / 'data_simulada' / 'microcuencas_modelo.csv',
-        raiz / 'data_simulada' / 'Dataset_simulado_completo.xlsx',
-        raiz / 'data_simulada' / 'microcuencas_modelo.csv',
-        Path('data_simulada') / 'Dataset_simulado_completo.xlsx',
-        Path('data_simulada') / 'microcuencas_modelo.csv',
     ]
     for c in candidatos:
         if c.exists():

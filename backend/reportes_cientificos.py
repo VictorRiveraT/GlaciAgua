@@ -36,7 +36,6 @@ def listar_reportes(
             parametros.append(valor)
     where = " WHERE " + " AND ".join(condiciones) if condiciones else ""
     with closing(get_connection()) as conn:
-        conn.execute("BEGIN")
         total = conn.execute("SELECT COUNT(*) FROM reportes" + where, parametros).fetchone()[0]
         # Las fotos se consultan en el detalle para no cargar todo el listado.
         filas = conn.execute("""
