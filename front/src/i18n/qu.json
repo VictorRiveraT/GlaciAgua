@@ -3544,5 +3544,65 @@
   "admin_reports_filter_basin": {
     "text": "Uchuy yaku mayukunawan akllay:",
     "_revisar": true
+  },
+  "admin_model_data_label": {
+    "text": "Willaykuna:",
+    "_revisar": true
+  },
+  "admin_model_data_real": {
+    "text": "Cheqaq",
+    "_revisar": true
+  },
+  "admin_reports_notices": {
+    "text": "willakuykuna",
+    "_revisar": true
+  },
+  "admin_reports_col_date": {
+    "text": "P'unchaw",
+    "_revisar": true
+  },
+  "admin_reports_col_basin": {
+    "text": "Wayq'o",
+    "_revisar": true
+  },
+  "admin_reports_col_stream": {
+    "text": "Quebrada",
+    "_revisar": true
+  },
+  "admin_reports_col_water_color": {
+    "text": "Yakupa llimp'in",
+    "_revisar": true
+  },
+  "admin_reports_col_ph": {
+    "text": "Tupusqa pH",
+    "_revisar": true
+  },
+  "admin_reports_col_smell_taste": {
+    "text": "Asnay / Malliy",
+    "_revisar": true
+  },
+  "admin_reports_col_observations": {
+    "text": "Qhawariykuna",
+    "_revisar": true
+  },
+  "admin_reports_col_detail": {
+    "text": "Uchuy yachay",
+    "_revisar": true
+  },
+  "admin_reports_view_record": {
+    "text": "Qillqata qhaway",
+    "_revisar": true
+  },
+  "admin_reports_not_measured": {
+    "text": "Mana tupusqa",
+    "_revisar": true
+  },
+  "admin_reports_close": {
+    "text": "Wichq'ay",
+    "_revisar": true
+  },
+  "oficio_letter_intro": {
+    "text": "Kay ofisiowanqa, kay sectorpi yaku ushaq runakunapa, ayllukunapa rantinpi, kay microcuencapa yaku pukyunkunata, yakuta hurquna lugarkunata, canalninkunatapis INSPECCIÓN TÉCNICA Y MONITOREO ruranaykipaq mañakuykiku.",
+    "_revisar": true
   }
 }

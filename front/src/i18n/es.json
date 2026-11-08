@@ -894,5 +894,20 @@
   "admin_reports_method_note": "Este dato ciudadano complementa el contraste de predicciones de drenaje ácido de roca (DAR), sin alterar el modelo numérico sin validación analítica previa.",
   "admin_reports_contrast_badge": "Contraste de Predicciones",
   "admin_reports_banner_description": "Consulta los avisos de observaciones ciudadanas para calibrar y contrastar las estimaciones de riesgo y pH del modelo.",
-  "admin_reports_filter_basin": "Filtrar por Microcuenca:"
+  "admin_reports_filter_basin": "Filtrar por Microcuenca:",
+  "admin_model_data_label": "Datos:",
+  "admin_model_data_real": "Real",
+  "admin_reports_notices": "avisos",
+  "admin_reports_col_date": "Fecha",
+  "admin_reports_col_basin": "Cuenca",
+  "admin_reports_col_stream": "Quebrada",
+  "admin_reports_col_water_color": "Color de Agua",
+  "admin_reports_col_ph": "pH Medido",
+  "admin_reports_col_smell_taste": "Olor / Sabor",
+  "admin_reports_col_observations": "Observaciones",
+  "admin_reports_col_detail": "Detalle",
+  "admin_reports_view_record": "Ver Ficha",
+  "admin_reports_not_measured": "No medido",
+  "admin_reports_close": "Cerrar",
+  "oficio_letter_intro": "Por medio del presente documento formal, nos dirigimos a su despacho en representación de los usuarios y familias del sector para solicitar una INSPECCIÓN TÉCNICA Y MONITOREO de la calidad del agua en las fuentes, captaciones y canales de la microcuenca."
 }

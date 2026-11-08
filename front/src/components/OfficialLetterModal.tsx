@@ -89,7 +89,7 @@ export const OfficialLetterModal: React.FC<OfficialLetterModalProps> = ({
     '',
     t('oficio_letter_greeting'),
     '',
-    t('oficio_letter_intro', basinName),
+    `${t('oficio_letter_intro_before')} ${basinName}${t('oficio_letter_intro_after')}`,
     '',
     `${t('oficio_letter_reason_heading')}:`,
     `- ${reasonText}.`,
