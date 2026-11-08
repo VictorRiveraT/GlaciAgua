@@ -863,12 +863,16 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
             <div className="flex items-center gap-2.5 pt-2 border-t border-slate-100">
               <span className="w-5 h-1.5 bg-blue-600 rounded-full shrink-0" />
-              <span className="text-slate-700 text-xs font-semibold">Río Santa (Colector Central)</span>
+              <span className="text-slate-700 text-xs font-semibold">
+                {t('legend_rio_santa')}
+              </span>
             </div>
 
             <div className="flex items-center gap-2.5">
               <span className="w-5 h-1 bg-gradient-to-r from-red-600 via-amber-500 to-emerald-600 rounded-full shrink-0" />
-              <span className="text-slate-700 text-xs font-semibold">Líneas de Subcuencas / Quebradas</span>
+              <span className="text-slate-700 text-xs font-semibold">
+                {t('legend_subbasin_lines')}
+              </span>
             </div>
           </div>
         </div>
@@ -876,8 +880,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
       {/* Advanced Layers Modal (Accessible Drawer / Popover) */}
       {layersModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-start sm:items-center justify-center px-4 pt-4 pb-28 sm:p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-4 sm:p-5 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 max-h-[calc(100dvh-8rem)] sm:max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
               <div className="flex items-center gap-2.5">
                 <div className="w-10 h-10 rounded-2xl bg-blue-100 text-blue-800 flex items-center justify-center">
@@ -893,7 +897,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
               <button
                 onClick={() => setLayersModalOpen(false)}
                 className="touch-target p-2 text-slate-400 hover:text-slate-700 rounded-xl"
-                aria-label="Cerrar capas"
+                aria-label={t('btn_close')}
               >
                 <X size={24} />
               </button>
@@ -907,8 +911,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                     🗺️
                   </div>
                   <div>
-                    <strong className="text-sm text-slate-900 block">Cuencas con Semáforo</strong>
-                    <span className="text-xs text-slate-500">Límites y color de riesgo por quebrada</span>
+                    <strong className="text-sm text-slate-900 block">{t('layers_basins_title')}</strong>
+                    <span className="text-xs text-slate-500">{t('layers_basins_desc')}</span>
                   </div>
                 </div>
                 <input
@@ -926,8 +930,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                     🌊
                   </div>
                   <div>
-                    <strong className="text-sm text-slate-900 block">Río Santa</strong>
-                    <span className="text-xs text-slate-500">Cauce central del Callejón de Huaylas</span>
+                    <strong className="text-sm text-slate-900 block">{t('layers_river_title')}</strong>
+                    <span className="text-xs text-slate-500">{t('layers_river_desc')}</span>
                   </div>
                 </div>
                 <input
@@ -945,8 +949,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                     ⚡
                   </div>
                   <div>
-                    <strong className="text-sm text-slate-900 block">Líneas de Subcuencas (Quebradas)</strong>
-                    <span className="text-xs text-slate-500">Cauces interiores con nivel de acidez y pH</span>
+                    <strong className="text-sm text-slate-900 block">{t('layers_subbasins_title')}</strong>
+                    <span className="text-xs text-slate-500">{t('layers_subbasins_desc')}</span>
                   </div>
                 </div>
                 <input
@@ -959,7 +963,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
               <div className="pt-2">
                 <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider mb-2">
-                  Capas Científicas Opcionales
+                  {t('layers_scientific_optional')}
                 </h4>
               </div>
 
@@ -970,8 +974,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                     🔥
                   </div>
                   <div>
-                    <strong className="text-sm text-slate-900 block">Focos de Acidez (DAR)</strong>
-                    <span className="text-xs text-slate-500">Morrenas con sulfuros reactivos</span>
+                    <strong className="text-sm text-slate-900 block">{t('layers_dar_title')}</strong>
+                    <span className="text-xs text-slate-500">{t('layers_dar_desc')}</span>
                   </div>
                 </div>
                 <input
@@ -989,8 +993,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                     🌿
                   </div>
                   <div>
-                    <strong className="text-sm text-slate-900 block">Bofedales y Humedales</strong>
-                    <span className="text-xs text-slate-500">Filtros naturales que retienen metales</span>
+                    <strong className="text-sm text-slate-900 block">{t('layers_wetlands_title')}</strong>
+                    <span className="text-xs text-slate-500">{t('layers_wetlands_desc')}</span>
                   </div>
                 </div>
                 <input
@@ -1008,8 +1012,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                     🔬
                   </div>
                   <div>
-                    <strong className="text-sm text-slate-900 block">Puntos de Monitoreo</strong>
-                    <span className="text-xs text-slate-500">Mediciones INAIGEM y UPCH</span>
+                    <strong className="text-sm text-slate-900 block">{t('layers_monitoring_title')}</strong>
+                    <span className="text-xs text-slate-500">{t('layers_monitoring_desc')}</span>
                   </div>
                 </div>
                 <input
@@ -1027,8 +1031,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                     📶
                   </div>
                   <div>
-                    <strong className="text-sm text-slate-900 block">Tambos e Internet Rural</strong>
-                    <span className="text-xs text-slate-500">Puntos con señal para sincronizar</span>
+                    <strong className="text-sm text-slate-900 block">{t('layers_connectivity_title')}</strong>
+                    <span className="text-xs text-slate-500">{t('layers_connectivity_desc')}</span>
                   </div>
                 </div>
                 <input

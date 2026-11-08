@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react'
 import {
   X,
@@ -28,18 +29,18 @@ interface OfficialLetterModalProps {
 }
 
 const COMMON_REASONS = [
-  'Agua con color anaranjado o turbio en la captación',
-  'Sabor u olor metálico en el agua de la quebrada',
-  'Inspección preventiva y monitoreo comunitario',
-  'Evidencia de posibles minerales y resguardo de animales',
-]
+  'oficio_reason_color',
+  'oficio_reason_metallic',
+  'oficio_reason_preventive',
+  'oficio_reason_minerals',
+] as const
 
 const AUTHORITIES = [
-  'Junta Administradora de Servicios de Saneamiento (JASS)',
-  'Junta de Usuarios / Comisión de Regantes',
-  'Municipalidad Provincial / Distrital de la zona',
-  'Centro de Salud / DIRESA Huaraz',
-]
+  'oficio_authority_jass',
+  'oficio_authority_irrigation',
+  'oficio_authority_municipality',
+  'oficio_authority_health',
+] as const
 
 export const OfficialLetterModal: React.FC<OfficialLetterModalProps> = ({
   isOpen,
@@ -49,58 +50,67 @@ export const OfficialLetterModal: React.FC<OfficialLetterModalProps> = ({
   const { t } = useI18n()
   const [step, setStep] = useState(1)
 
-  // Datos del formulario
   const [basinName, setBasinName] = useState(initialBasinName)
-  const [reason, setReason] = useState(COMMON_REASONS[0])
-  const [recipient, setRecipient] = useState(AUTHORITIES[0])
+  const [reason, setReason] = useState<string>(COMMON_REASONS[0])
+  const [recipient, setRecipient] = useState<string>(AUTHORITIES[0])
   const [applicantName, setApplicantName] = useState('')
-  const [applicantRole, setApplicantRole] = useState('Comunero / Usuario de agua')
+  const [applicantRole] = useState('oficio_applicant_role')
   const [letterDate, setLetterDate] = useState(() => {
     return new Date().toISOString().split('T')[0]
   })
   const [copied, setCopied] = useState(false)
 
-  // Estado para envío por correo
   const [recipientEmail, setRecipientEmail] = useState('')
   const [isSendingEmail, setIsSendingEmail] = useState(false)
-  const [emailResult, setEmailResult] = useState<{ success: boolean; mensaje: string } | null>(null)
+  const [emailResult, setEmailResult] = useState<{
+    success: boolean
+    mensaje: string
+  } | null>(null)
 
   if (!isOpen) return null
 
-  // Texto formal estructurado
-  const letterText = `SOLICITUD FORMAL DE INSPECCIÓN Y MONITOREO DE CALIDAD DE AGUA
+  const applicantDisplayName =
+    applicantName.trim() || t('oficio_applicant_default')
 
-A: ${recipient}
-DE: ${applicantName.trim() || 'Comuneros y Usuarios del Agua'} (${applicantRole})
-SECTOR / MICROCUENCA: ${basinName}
-FECHA: ${letterDate}
+  const applicantRoleText = t(applicantRole)
+  const recipientText = t(recipient)
+  const reasonText = t(reason)
 
-ASUNTO: Solicitud comunitaria de inspección técnica preventiva en fuentes de agua
-
-Estimadas autoridades:
-
-Por medio del presente documento formal, nos dirigimos a su despacho en representación de los usuarios y familias del sector para solicitar una INSPECCIÓN TÉCNICA Y MONITOREO de la calidad del agua en las fuentes, captaciones y canales de la microcuenca ${basinName}.
-
-MOTIVO OBSERVADO EN LA COMUNIDAD:
-- ${reason}.
-
-DATO REFERENCIAL COMUNITARIO:
-La plataforma comunitaria GlaciAgua registra este sector como zona de atención temprana por drenaje ácido o presencia de minerales de roca. Se deja constancia de que este es un dato referencial preventivo para cuidar la salud de las familias, el ganado y los cultivos; no certifica potabilidad.
-
-PETICIÓN CONCRETA:
-1. Inspección presencial de bocatomas y canales de conducción.
-2. Orientación técnica a la población sobre fuentes alternativas y tratamiento adecuado según normativa.
-3. Coordinación con el puesto de salud y la Autoridad Local del Agua.
-
-Agradecemos su pronta atención en resguardo de la salud de nuestra comunidad.
-
-Atentamente,
-
-
-______________________________________
-${applicantName.trim() || 'Firma de Autoridad Comunal / Solicitante'}
-DNI / Teléfono:
-`
+  // Carta formal: todo el contenido visible se adapta al idioma activo.
+  const letterText = [
+    t('oficio_letter_heading'),
+    '',
+    `${t('oficio_letter_to')}: ${recipientText}`,
+    `${t('oficio_letter_from')}: ${applicantDisplayName} (${applicantRoleText})`,
+    `${t('oficio_letter_sector')}: ${basinName}`,
+    `${t('oficio_letter_date')}: ${letterDate}`,
+    '',
+    `${t('oficio_letter_subject')}: ${t('oficio_letter_subject_text')}`,
+    '',
+    t('oficio_letter_greeting'),
+    '',
+    t('oficio_letter_intro', basinName),
+    '',
+    `${t('oficio_letter_reason_heading')}:`,
+    `- ${reasonText}.`,
+    '',
+    `${t('oficio_letter_reference_heading')}:`,
+    t('oficio_letter_reference_text'),
+    '',
+    `${t('oficio_letter_request_heading')}:`,
+    `1. ${t('oficio_letter_request_1')}`,
+    `2. ${t('oficio_letter_request_2')}`,
+    `3. ${t('oficio_letter_request_3')}`,
+    '',
+    t('oficio_letter_thanks'),
+    '',
+    t('oficio_letter_farewell'),
+    '',
+    '',
+    '______________________________________',
+    applicantName.trim() || t('oficio_letter_signature'),
+    `${t('oficio_letter_id_phone')}:`,
+  ].join('\n')
 
   const handleCopy = () => {
     navigator.clipboard?.writeText(letterText)
@@ -119,8 +129,12 @@ DNI / Teléfono:
 
   const handleSendEmail = async (e: React.FormEvent) => {
     e.preventDefault()
+
     if (!recipientEmail.trim() || !recipientEmail.includes('@')) {
-      setEmailResult({ success: false, mensaje: 'Por favor ingresa un correo electrónico válido.' })
+      setEmailResult({
+        success: false,
+        mensaje: t('oficio_email_invalid'),
+      })
       return
     }
 
@@ -130,14 +144,14 @@ DNI / Teléfono:
     try {
       const resp = await GlaciAguaApi.enviarEmailAlerta({
         destinatario: recipientEmail.trim(),
-        destinatarioNombre: recipient,
-        remitenteNombre: applicantName.trim() || 'Comuneros y Usuarios del Agua',
-        remitenteRol: applicantRole,
+        destinatarioNombre: recipientText,
+        remitenteNombre: applicantName.trim() || t('oficio_applicant_default'),
+        remitenteRol: applicantRoleText,
         cuencaNombre: basinName,
-        motivo: reason,
+        motivo: reasonText,
         cuerpoTexto: letterText,
-        asunto: `[GlaciAgua] Solicitud Comunitaria de Inspección - ${basinName}`,
-        nivelRiesgo: 'Atención Preventiva',
+        asunto: `[GlaciAgua] ${t('oficio_email_subject')} - ${basinName}`,
+        nivelRiesgo: t('oficio_preventive_attention'),
       })
 
       setEmailResult({
@@ -147,7 +161,7 @@ DNI / Teléfono:
     } catch {
       setEmailResult({
         success: false,
-        mensaje: 'Error al conectar con el servidor de correo.',
+        mensaje: t('oficio_email_connection_error'),
       })
     } finally {
       setIsSendingEmail(false)
@@ -160,6 +174,8 @@ DNI / Teléfono:
     setEmailResult(null)
   }
 
+  if (!isOpen) return null
+
   return (
     <div
       role="dialog"
@@ -168,15 +184,22 @@ DNI / Teléfono:
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in select-none"
     >
       <div className="bg-white rounded-3xl max-w-xl w-full shadow-2xl border border-[#cbd5e1] overflow-hidden flex flex-col max-h-[92vh]">
-        {/* Header no imprimible */}
-        <div className="no-print p-3.5 sm:p-4 border-b border-[#e2e8f0] flex items-center justify-between bg-[#f8fafc]">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-black uppercase text-[#1e3a8a] bg-[#eff6ff] px-3 py-1 rounded-full border border-blue-200">
-              Paso {step} de 3
+
+        {/* Encabezado */}
+        <div className="no-print px-3.5 py-3.5 sm:p-4 border-b border-[#e2e8f0] flex items-center gap-2 bg-[#f8fafc] shrink-0">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <span className="text-[11px] sm:text-xs font-black uppercase text-[#1e3a8a] bg-[#eff6ff] px-2.5 sm:px-3 py-1.5 rounded-full border border-blue-200 whitespace-nowrap shrink-0">
+              <span className="sm:hidden">
+                {t('oficio_step_short')} {step}/3
+              </span>
+              <span className="hidden sm:inline">
+                {t('oficio_step')} {step} {t('oficio_of')} 3
+              </span>
             </span>
+
             <h2
               id="oficio-modal-title"
-              className="text-xs sm:text-sm font-black text-[#0f172a] truncate"
+              className="text-[13px] sm:text-sm font-black text-[#0f172a] leading-snug min-w-0 flex-1 whitespace-normal break-words"
             >
               {step === 1 && t('oficio_step1_title')}
               {step === 2 && t('oficio_step2_title')}
@@ -187,22 +210,24 @@ DNI / Teléfono:
           <button
             type="button"
             onClick={handleClose}
-            className="touch-target w-10 h-10 rounded-full flex items-center justify-center text-[#64748b] hover:text-[#0f172a] hover:bg-[#e2e8f0] transition-colors"
-            aria-label="Cerrar redacción de oficio"
+            className="touch-target w-10 h-10 rounded-full flex items-center justify-center text-[#64748b] hover:text-[#0f172a] hover:bg-[#e2e8f0] transition-colors shrink-0"
+            aria-label={t('oficio_close')}
           >
             <X size={20} />
           </button>
         </div>
 
-        {/* Contenido según paso */}
-        <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4">
-          {/* PASO 1: QUEBRADA Y MOTIVO */}
+        {/* Contenido */}
+        <div className="p-4 sm:p-6 overflow-y-auto overflow-x-hidden flex-1 min-h-0 space-y-4">
+
+          {/* PASO 1 */}
           {step === 1 && (
             <div className="space-y-4 animate-in fade-in">
               <div>
                 <label className="text-xs sm:text-sm font-black text-[#0f172a] block mb-1.5">
                   {t('oficio_label_basin')}
                 </label>
+
                 <div className="grid grid-cols-2 gap-2">
                   {PILOT_BASINS.map((b) => (
                     <button
@@ -225,20 +250,23 @@ DNI / Teléfono:
                 <label className="text-xs sm:text-sm font-black text-[#0f172a] block mb-1.5">
                   {t('oficio_label_reason')}
                 </label>
+
                 <div className="space-y-2">
-                  {COMMON_REASONS.map((r) => (
+                  {COMMON_REASONS.map((reasonKey) => (
                     <button
-                      key={r}
+                      key={reasonKey}
                       type="button"
-                      onClick={() => setReason(r)}
+                      onClick={() => setReason(reasonKey)}
                       className={`touch-target w-full p-3 rounded-2xl text-xs sm:text-sm font-bold border-2 text-left flex items-center justify-between gap-2 transition-all ${
-                        reason === r
+                        reason === reasonKey
                           ? 'border-[#1e3a8a] bg-[#eff6ff] text-[#1e3a8a] shadow-xs'
                           : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
                       }`}
                     >
-                      <span>{r}</span>
-                      {reason === r && <Check size={18} className="text-[#1e3a8a] shrink-0" />}
+                      <span>{t(reasonKey)}</span>
+                      {reason === reasonKey && (
+                        <Check size={18} className="text-[#1e3a8a] shrink-0" />
+                      )}
                     </button>
                   ))}
                 </div>
@@ -246,7 +274,7 @@ DNI / Teléfono:
             </div>
           )}
 
-          {/* PASO 2: DESTINATARIO Y FIRMA */}
+          {/* PASO 2 */}
           {step === 2 && (
             <div className="space-y-4 animate-in fade-in">
               <div>
@@ -254,20 +282,21 @@ DNI / Teléfono:
                   <Building2 size={16} className="text-[#1e3a8a]" />
                   {t('oficio_label_to')}
                 </label>
+
                 <div className="space-y-2">
-                  {AUTHORITIES.map((auth) => (
+                  {AUTHORITIES.map((authorityKey) => (
                     <button
-                      key={auth}
+                      key={authorityKey}
                       type="button"
-                      onClick={() => setRecipient(auth)}
+                      onClick={() => setRecipient(authorityKey)}
                       className={`touch-target w-full p-3 rounded-2xl text-xs sm:text-sm font-bold border-2 text-left flex items-center justify-between gap-2 transition-all ${
-                        recipient === auth
+                        recipient === authorityKey
                           ? 'border-[#1e3a8a] bg-[#eff6ff] text-[#1e3a8a] shadow-xs'
                           : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
                       }`}
                     >
-                      <span>{auth}</span>
-                      {recipient === auth && (
+                      <span>{t(authorityKey)}</span>
+                      {recipient === authorityKey && (
                         <Check size={18} className="text-[#1e3a8a] shrink-0" />
                       )}
                     </button>
@@ -281,11 +310,12 @@ DNI / Teléfono:
                     <User size={14} />
                     {t('oficio_label_name')}
                   </label>
+
                   <input
                     type="text"
                     value={applicantName}
                     onChange={(e) => setApplicantName(e.target.value)}
-                    placeholder="Ej. Juan Pérez / Junta Directiva"
+                    placeholder={t('oficio_name_placeholder')}
                     className="touch-target w-full p-3 rounded-2xl border-2 border-slate-300 font-bold text-xs sm:text-sm text-[#0f172a] bg-white focus:outline-hidden focus:border-[#1e3a8a]"
                   />
                 </div>
@@ -295,6 +325,7 @@ DNI / Teléfono:
                     <Calendar size={14} />
                     {t('oficio_label_date')}
                   </label>
+
                   <input
                     type="date"
                     value={letterDate}
@@ -306,22 +337,22 @@ DNI / Teléfono:
             </div>
           )}
 
-          {/* PASO 3: VISTA PREVIA Y ACCIONES */}
+          {/* PASO 3 */}
           {step === 3 && (
             <div className="space-y-4 animate-in fade-in">
-              {/* Ilustración de oficio */}
+
               <div className="no-print flex justify-center">
                 <div className="w-20 h-20 sm:w-24 sm:h-24">
                   <Illustration
                     name="oficio_documento"
-                    alt="Documento formal de solicitud comunitaria"
+                    alt={t('oficio_illustration_alt')}
                     animation="float"
                     className="w-full h-full drop-shadow-sm"
                   />
                 </div>
               </div>
 
-              {/* 3 Grandes Acciones Táctiles Rápidas */}
+              {/* Acciones */}
               <div className="no-print grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <button
                   type="button"
@@ -329,7 +360,9 @@ DNI / Teléfono:
                   className="touch-target py-3.5 px-4 rounded-2xl bg-[#1e3a8a] hover:bg-[#172554] text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition-transform active:scale-95"
                 >
                   {copied ? <Check size={18} /> : <Copy size={18} />}
-                  <span>{copied ? '¡Copiado!' : t('oficio_btn_copy')}</span>
+                  <span>
+                    {copied ? t('oficio_copied') : t('oficio_btn_copy')}
+                  </span>
                 </button>
 
                 <button
@@ -351,15 +384,19 @@ DNI / Teléfono:
                 </button>
               </div>
 
-              {/* Acción de Envío por Correo Electrónico Formal */}
+              {/* Correo */}
               <div className="no-print bg-[#eff6ff] p-3.5 sm:p-4 rounded-2xl border border-blue-200 space-y-3">
                 <div className="flex items-center gap-2">
                   <Mail size={16} className="text-[#1e3a8a] shrink-0" />
                   <h3 className="text-xs sm:text-sm font-black text-[#1e3a8a]">
-                    {t('oficio_btn_email')} a la Autoridad o a tu buzón
+                    {t('oficio_btn_email')}
                   </h3>
                 </div>
-                <form onSubmit={handleSendEmail} className="flex flex-col sm:flex-row gap-2">
+
+                <form
+                  onSubmit={handleSendEmail}
+                  className="flex flex-col sm:flex-row gap-2"
+                >
                   <input
                     type="email"
                     value={recipientEmail}
@@ -368,8 +405,9 @@ DNI / Teléfono:
                       if (emailResult) setEmailResult(null)
                     }}
                     placeholder={t('oficio_email_placeholder')}
-                    className="touch-target flex-1 p-2.5 sm:p-3 rounded-xl border border-blue-300 font-medium text-xs sm:text-sm text-[#0f172a] bg-white focus:outline-hidden focus:border-[#1e3a8a]"
+                    className="touch-target flex-1 min-w-0 p-2.5 sm:p-3 rounded-xl border border-blue-300 font-medium text-xs sm:text-sm text-[#0f172a] bg-white focus:outline-hidden focus:border-[#1e3a8a]"
                   />
+
                   <button
                     type="submit"
                     disabled={isSendingEmail || !recipientEmail.trim()}
@@ -383,11 +421,12 @@ DNI / Teléfono:
                     ) : (
                       <>
                         <Send size={16} />
-                        <span>Enviar</span>
+                        <span>{t('oficio_email_send')}</span>
                       </>
                     )}
                   </button>
                 </form>
+
                 {emailResult && (
                   <div
                     className={`p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 ${
@@ -406,7 +445,7 @@ DNI / Teléfono:
                 )}
               </div>
 
-              {/* Vista previa tipo carta con formato formal imprimible */}
+              {/* Vista previa */}
               <div
                 id="printable-oficio"
                 className="bg-[#f8fafc] p-4 sm:p-6 rounded-2xl border border-slate-300 font-mono text-[11px] sm:text-xs text-[#0f172a] whitespace-pre-wrap leading-relaxed shadow-inner"
@@ -422,8 +461,8 @@ DNI / Teléfono:
           )}
         </div>
 
-        {/* Footer con navegación de pasos (No imprimible) */}
-        <div className="no-print p-3.5 sm:p-4 border-t border-[#e2e8f0] bg-[#f8fafc] flex items-center justify-between gap-3">
+        {/* Pie de navegación */}
+        <div className="no-print p-3.5 sm:p-4 border-t border-[#e2e8f0] bg-[#f8fafc] flex items-center justify-between gap-3 shrink-0">
           {step > 1 ? (
             <button
               type="button"
@@ -431,7 +470,7 @@ DNI / Teléfono:
               className="touch-target px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm text-[#475569] hover:bg-[#e2e8f0] flex items-center gap-1 transition-colors"
             >
               <ChevronLeft size={18} />
-              <span>Atrás</span>
+              <span>{t('oficio_back')}</span>
             </button>
           ) : (
             <div />
@@ -443,7 +482,7 @@ DNI / Teléfono:
               onClick={() => setStep(step + 1)}
               className="touch-target px-5 py-3 rounded-2xl bg-[#1e3a8a] hover:bg-[#172554] text-white font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-md ml-auto transition-transform active:scale-95"
             >
-              <span>Siguiente</span>
+              <span>{t('oficio_next')}</span>
               <ChevronRight size={18} />
             </button>
           ) : (
@@ -453,7 +492,7 @@ DNI / Teléfono:
               className="touch-target px-5 py-3 rounded-2xl bg-slate-700 hover:bg-slate-800 text-white font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-md ml-auto"
             >
               <FileCheck size={18} />
-              <span>Listo</span>
+              <span>{t('oficio_done')}</span>
             </button>
           )}
         </div>

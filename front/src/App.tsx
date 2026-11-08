@@ -419,7 +419,7 @@ export default function App() {
 
         {/* Vista 1: ¿Puedo usar el agua? */}
         {currentView === 'agua' && (
-          <div className="w-full h-full overflow-y-auto px-4 py-5 pb-24 lg:pb-8 flex justify-center">
+          <div className="box-border h-full min-h-0 w-full flex-none overflow-x-hidden overflow-y-auto px-4 pt-5 pb-36 lg:pb-8">
             <SimpleWaterStatusCard
               basins={PILOT_BASINS}
               selectedBasin={selectedBasin || PILOT_BASINS[0]}
@@ -530,7 +530,7 @@ export default function App() {
                 </div>
 
                 {isMobileDrawerExpanded && (
-                  <div className="flex-1 overflow-y-auto">
+                  <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain pb-6">
                     <BasinDetailPanel
                       basin={selectedBasin}
                       season={season}
@@ -649,29 +649,6 @@ export default function App() {
         )}
       </main>
 
-      {/* Mobile Floating Action Button for "Avisar agua sucia" */}
-      {!isWelcomeView && (
-        <button
-          type="button"
-          onClick={() => setIsReportModalOpen(true)}
-          style={{
-            bottom: 'calc(8.25rem + env(safe-area-inset-bottom, 0px))',
-            right: 'calc(1rem + env(safe-area-inset-right, 0px))',
-          }}
-          className="lg:hidden fixed z-40 touch-target px-4 py-3 bg-amber-400 hover:bg-amber-500 text-slate-950 rounded-full font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-2xl border-2 border-amber-500 transition-transform active:scale-95"
-          aria-label="Avisar agua sucia"
-        >
-          <div className="flex items-center -mr-0.5">
-            <Droplet size={18} className="fill-slate-950 text-slate-950" />
-            <Plus size={14} className="-ml-1 font-black" />
-          </div>
-
-          <span className="font-black tracking-tight">
-            {t('btn_report_water')}
-          </span>
-        </button>
-      )}
-
       {/* Mobile Bottom Navigation Bar */}
       {!isWelcomeView && (
         <nav
@@ -689,7 +666,7 @@ export default function App() {
             }`}
           >
             <Droplet size={22} />
-            <span className="text-[11px] leading-none">¿Uso el agua?</span>
+            <span className="text-[11px] leading-none">{t('nav_water_mobile')}</span>
           </button>
 
           <button
@@ -751,7 +728,9 @@ export default function App() {
             bottom: 'calc(4.75rem + env(safe-area-inset-bottom, 0px))',
             right: 'calc(1rem + env(safe-area-inset-right, 0px))',
           }}
-          className="fixed z-40 w-12 h-12 rounded-full bg-[#1e3a8a] hover:bg-[#172554] text-white shadow-xl flex items-center justify-center font-black text-2xl border-2 border-white ring-2 ring-[#1e3a8a]/20 transition-transform active:scale-95 focus:outline-hidden focus:ring-4 focus:ring-blue-400 select-none lg:bottom-6 lg:right-6"
+          className={`fixed z-40 w-12 h-12 rounded-full bg-[#1e3a8a] hover:bg-[#172554] text-white shadow-xl items-center justify-center font-black text-2xl border-2 border-white ring-2 ring-[#1e3a8a]/20 transition-transform active:scale-95 focus:outline-hidden focus:ring-4 focus:ring-blue-400 select-none lg:bottom-6 lg:right-6 ${
+            currentView === 'mapa' || currentView === 'conectividad' || currentView === 'simulador' ? 'hidden' : 'flex'
+          }`}
           aria-label={t('help_floating_aria')}
           title={t('help_floating_aria')}
         >

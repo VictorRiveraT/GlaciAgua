@@ -1,5 +1,5 @@
 import React from 'react'
-import { Volume2, VolumeX, Loader2 } from 'lucide-react'
+import { Volume2, VolumeX } from 'lucide-react'
 import { useAudioGuide } from '../utils/useAudioGuide'
 import { useI18n } from '../i18n/I18nContext'
 
@@ -25,7 +25,7 @@ export const AudioPlayButton: React.FC<AudioPlayButtonProps> = ({
     <button
       type="button"
       onClick={togglePlay}
-      className={`touch-target inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-2xl font-black text-sm transition-all shadow-sm ${
+      className={`touch-target inline-flex shrink-0 max-w-full whitespace-nowrap items-center justify-center gap-2 px-3 py-2 sm:px-3.5 rounded-2xl font-black text-xs sm:text-sm transition-all shadow-sm ${
         isPlaying
           ? 'bg-[#991b1b] text-white animate-pulse ring-2 ring-red-300'
           : 'bg-[#1e3a8a] hover:bg-[#172554] text-white'
@@ -35,12 +35,12 @@ export const AudioPlayButton: React.FC<AudioPlayButtonProps> = ({
     >
       {isPlaying ? (
         <>
-          <VolumeX size={20} className="shrink-0" />
+          <VolumeX size={18} className="shrink-0 sm:w-5 sm:h-5" />
           {!compact && <span>{t('stop_audio')}</span>}
         </>
       ) : (
         <>
-          <Volume2 size={20} className="shrink-0" />
+          <Volume2 size={18} className="shrink-0 sm:w-5 sm:h-5" />
           {!compact && <span>{t('listen')}</span>}
         </>
       )}

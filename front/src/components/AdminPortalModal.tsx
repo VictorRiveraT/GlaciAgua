@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { GlaciAguaApi, API_BASE_URL } from '../services/api'
+import { useI18n } from '../i18n/I18nContext'
+
+const SELECT_CHEVRON_STYLE: React.CSSProperties = {
+  appearance: 'none',
+  backgroundImage:
+    "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")",
+  backgroundRepeat: 'no-repeat',
+  backgroundPosition: 'right 14px center',
+  backgroundSize: '14px 14px',
+}
 
 const DEFAULT_MODEL_INFO = {
   version: 'rf-reg-2026.04-sobek-calibrated',
@@ -157,8 +167,7 @@ interface AdminPortalModalProps {
 }
 
 export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onClose }) => {
-  if (!isOpen) return null
-
+  const { t, lang } = useI18n()
   // Estado de autenticación
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     return localStorage.getItem('glaciagua_admin_auth') === 'true'
@@ -216,10 +225,29 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
   const [testEmailTo, setTestEmailTo] = useState('victor.rivera@upch.pe')
   const [testEmailName, setTestEmailName] = useState('Autoridad Local del Agua / JASS')
   const [testEmailBasin, setTestEmailBasin] = useState('Quillcay')
-  const [testEmailReason, setTestEmailReason] = useState('Alerta de turbidez y acidez por deshielo')
-  const [testEmailBody, setTestEmailBody] = useState(
-    'Notificación preventiva de GlaciAgua: Se ha detectado descenso de pH y posible drenaje ácido en captación Shallap. Se solicita inspección técnica inmediata.'
+  const [testEmailReason, setTestEmailReason] = useState(() =>
+    t('admin_email_reason_default', 'Alerta de turbidez y acidez por deshielo')
   )
+  const [testEmailBody, setTestEmailBody] = useState(() =>
+    t(
+      'admin_email_body_default',
+      'Notificación preventiva de GlaciAgua: Se ha detectado descenso de pH y posible drenaje ácido en captación Shallap. Se solicita inspección técnica inmediata.'
+    )
+  )
+
+  // Actualizar los textos predeterminados cuando cambia el idioma.
+  useEffect(() => {
+    setTestEmailReason(
+      t('admin_email_reason_default', 'Alerta de turbidez y acidez por deshielo')
+    )
+
+    setTestEmailBody(
+      t(
+        'admin_email_body_default',
+        'Notificación preventiva de GlaciAgua: Se ha detectado descenso de pH y posible drenaje ácido en captación Shallap. Se solicita inspección técnica inmediata.'
+      )
+    )
+  }, [lang, t])
   const [sendingEmail, setSendingEmail] = useState(false)
   const [emailSendResult, setEmailSendResult] = useState<{ success: boolean; mensaje: string } | null>(null)
 
@@ -331,7 +359,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
       }
       localStorage.setItem('glaciagua_admin_auth', 'true')
     } else {
-      setLoginError(res.error || 'Credenciales inválidas.')
+      setLoginError(res.error || t('admin_login_invalid', 'Credenciales inválidas.'))
     }
   }
 
@@ -512,30 +540,32 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
     URL.revokeObjectURL(url)
   }
 
+  if (!isOpen) return null
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-xs select-none">
-      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-2 sm:p-5 bg-slate-950/70 backdrop-blur-xs select-none">
+      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-4xl max-h-[calc(100dvh-1rem)] sm:max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         
         {/* Header Común */}
-        <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-black shadow-md">
-              <Cpu size={22} />
+        <div className="px-3 sm:px-6 py-2.5 sm:py-3 bg-slate-900 text-white flex items-center justify-between gap-2 border-b border-slate-800 shrink-0">
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black shadow-md shrink-0">
+              <Cpu size={19} />
             </div>
-            <div>
-              <h2 className="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-2">
-                Portal de Ingeniería Ambiental
+            <div className="min-w-0 flex-1">
+              <h2 className="text-sm sm:text-lg leading-tight font-black tracking-tight text-white flex flex-wrap items-center gap-x-2 gap-y-1">
+                {t('admin_header_title', 'Portal de Ingeniería Ambiental')}
                 {isAuthenticated && (
                   <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
                     currentUser?.rol === 'admin'
                       ? 'bg-purple-500/20 text-purple-300 border border-purple-400/40'
                       : 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40'
                   }`}>
-                    {currentUser?.rol === 'admin' ? 'Administrador' : 'Investigador'}
+                    {currentUser?.rol === 'admin' ? t('admin_role_administrator', 'Administrador') : t('admin_role_researcher', 'Investigador')}
                   </span>
                 )}
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-[11px] sm:text-xs leading-snug text-slate-400 mt-0.5">
                 {isAuthenticated && currentUser ? (
                   <span>
                     Sesión: <strong className="text-slate-200">{currentUser.nombre}</strong> {currentUser.institucion ? `(${currentUser.institucion})` : ''}
@@ -551,16 +581,16 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
             {isAuthenticated && (
               <button
                 onClick={handleLogout}
-                className="text-xs font-bold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl border border-slate-700 flex items-center gap-1.5 transition-colors"
-                title="Cerrar Sesión"
+                className="text-xs font-bold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-2.5 py-2 rounded-xl border border-slate-700 flex items-center gap-1.5 transition-colors shrink-0"
+                title={t('admin_logout_title', 'Cerrar sesión')} 
               >
                 <LogOut size={14} />
-                <span className="hidden sm:inline">Salir</span>
+                <span className="hidden sm:inline">{t('admin_logout', 'Salir')}</span>
               </button>
             )}
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors"
+              className="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors shrink-0"
             >
               <X size={18} />
             </button>
@@ -569,15 +599,16 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
 
         {/* CONTENIDO: PANTALLA DE LOGIN SI NO ESTÁ AUTENTICADO */}
         {!isAuthenticated ? (
-          <div className="p-6 sm:p-10 flex flex-col items-center justify-center text-center max-w-md mx-auto my-auto space-y-5">
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
+            <div className="min-h-full w-full max-w-md mx-auto p-5 sm:p-10 flex flex-col items-center justify-center text-center space-y-5">
             <div className="w-16 h-16 rounded-3xl bg-blue-50 border border-blue-200 text-blue-700 flex items-center justify-center shadow-inner">
               <Lock size={32} />
             </div>
 
             <div className="space-y-1">
-              <h3 className="text-xl font-black text-slate-900">Acceso a Calibración Técnica</h3>
+              <h3 className="text-xl font-black text-slate-900">{t('admin_login_title', 'Acceso a Calibración Técnica')}</h3>
               <p className="text-xs text-slate-500">
-                Ingrese las credenciales del especialista hidroquímico o administrador de plataforma.
+                {t('admin_login_description', 'Ingrese las credenciales del especialista hidroquímico o administrador de plataforma.')}
               </p>
             </div>
 
@@ -591,7 +622,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
             <form onSubmit={handleLogin} className="w-full space-y-4 text-left">
               <div>
                 <label className="block text-xs font-black uppercase text-slate-600 mb-1">
-                  Usuario / Correo Electrónico
+                  {t('admin_login_username', 'Usuario / Correo Electrónico')}
                 </label>
                 <input
                   type="text"
@@ -605,7 +636,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
 
               <div>
                 <label className="block text-xs font-black uppercase text-slate-600 mb-1">
-                  Contraseña
+                  {t('admin_login_password', 'Contraseña')}
                 </label>
                 <input
                   type="password"
@@ -623,13 +654,13 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                 className="w-full py-3 bg-blue-700 hover:bg-blue-800 text-white font-black text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 {loggingIn ? <RefreshCw size={16} className="animate-spin" /> : <Unlock size={16} />}
-                <span>{loggingIn ? 'Verificando...' : 'Ingresar al Portal'}</span>
+                <span>{loggingIn ? t('admin_login_verifying', 'Verificando...') : t('admin_login_submit', 'Ingresar al Portal')}</span>
               </button>
             </form>
 
             <div className="w-full pt-3 border-t border-slate-200 space-y-2">
-              <p className="text-[11px] font-black uppercase text-slate-400">Credenciales de Evaluación Rápida</p>
-              <div className="grid grid-cols-2 gap-2">
+              <p className="text-[11px] font-black uppercase text-slate-400">{t('admin_login_credentials_title', 'Credenciales de Evaluación Rápida')}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => {
@@ -639,7 +670,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                   }}
                   className="p-2 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-200 text-left transition-colors cursor-pointer"
                 >
-                  <span className="text-[10px] font-black uppercase text-purple-900 block">Administrador</span>
+                  <span className="text-[10px] font-black uppercase text-purple-900 block">{t('admin_login_admin', 'Administrador')}</span>
                   <span className="text-[11px] font-mono text-purple-700 truncate block">admin@glaciagua.lat</span>
                 </button>
 
@@ -652,122 +683,60 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                   }}
                   className="p-2 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-left transition-colors cursor-pointer"
                 >
-                  <span className="text-[10px] font-black uppercase text-blue-900 block">Investigador</span>
+                  <span className="text-[10px] font-black uppercase text-blue-900 block">{t('admin_login_researcher', 'Investigador')}</span>
                   <span className="text-[11px] font-mono text-blue-700 truncate block">cientifico.demo@...</span>
                 </button>
               </div>
+            </div>
             </div>
           </div>
         ) : (
           /* CONTENIDO AUTENTICADO: PANEL DE INGENIERÍA */
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-            {/* Navegación por Pestañas */}
-            <div className="flex border-b border-slate-200 bg-slate-50 px-6 pt-2 gap-2 shrink-0 overflow-x-auto">
-              <button
-                onClick={() => setActiveTab('metricas')}
-                className={`px-3.5 py-2 text-xs font-black rounded-t-xl transition-all flex items-center gap-2 border-t border-x whitespace-nowrap ${
-                  activeTab === 'metricas'
-                    ? 'bg-white text-blue-700 border-slate-200 shadow-2xs'
-                    : 'text-slate-600 hover:text-slate-900 border-transparent hover:bg-slate-100'
-                }`}
-              >
-                <Cpu size={15} />
-                <span>1. Modelo ML</span>
-              </button>
+            {/* Navegación responsive por pestañas */}
+            <div className="shrink-0 border-b border-slate-200 bg-slate-50 px-3 sm:px-6 py-3">
+              <label htmlFor="admin-portal-tab" className="sr-only">
+                Seleccionar sección del portal
+              </label>
+              <select
+                id="admin-portal-tab"
+                value={activeTab}
+                onChange={(e) => {
+                  const nextTab = e.target.value as typeof activeTab
+                  setActiveTab(nextTab)
 
-              <button
-                onClick={() => setActiveTab('ingreso')}
-                className={`px-3.5 py-2 text-xs font-black rounded-t-xl transition-all flex items-center gap-2 border-t border-x whitespace-nowrap ${
-                  activeTab === 'ingreso'
-                    ? 'bg-white text-blue-700 border-slate-200 shadow-2xs'
-                    : 'text-slate-600 hover:text-slate-900 border-transparent hover:bg-slate-100'
-                }`}
-              >
-                <Database size={15} />
-                <span>2. Mediciones Campo</span>
-                {mediciones.length > 0 && (
-                  <span className="bg-blue-100 text-blue-800 px-1.5 py-0.2 rounded-full text-[10px]">
-                    {mediciones.length}
-                  </span>
-                )}
-              </button>
-
-              <button
-                onClick={() => setActiveTab('reentrenar')}
-                className={`px-3.5 py-2 text-xs font-black rounded-t-xl transition-all flex items-center gap-2 border-t border-x whitespace-nowrap ${
-                  activeTab === 'reentrenar'
-                    ? 'bg-white text-blue-700 border-slate-200 shadow-2xs'
-                    : 'text-slate-600 hover:text-slate-900 border-transparent hover:bg-slate-100'
-                }`}
-              >
-                <RefreshCw size={15} />
-                <span>3. Re-entrenar</span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab('correo')}
-                className={`px-3.5 py-2 text-xs font-black rounded-t-xl transition-all flex items-center gap-2 border-t border-x whitespace-nowrap ${
-                  activeTab === 'correo'
-                    ? 'bg-white text-blue-700 border-slate-200 shadow-2xs'
-                    : 'text-slate-600 hover:text-slate-900 border-transparent hover:bg-slate-100'
-                }`}
-              >
-                <Mail size={15} />
-                <span>4. Alertas Correo</span>
-                {emailStatus?.configurado && (
-                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                )}
-              </button>
-
-              {currentUser?.rol === 'admin' && (
-                <button
-                  onClick={() => {
-                    setActiveTab('usuarios')
+                  if (nextTab === 'usuarios') {
                     fetchUsuarios()
-                  }}
-                  className={`px-3.5 py-2 text-xs font-black rounded-t-xl transition-all flex items-center gap-2 border-t border-x whitespace-nowrap ${
-                    activeTab === 'usuarios'
-                      ? 'bg-white text-purple-700 border-slate-200 shadow-2xs'
-                      : 'text-slate-600 hover:text-slate-900 border-transparent hover:bg-slate-100'
-                  }`}
-                >
-                  <Users size={15} />
-                  <span>5. Gestión Investigadores</span>
-                  {usuarios.length > 0 ? (
-                    <span className="bg-purple-100 text-purple-800 px-1.5 py-0.2 rounded-full text-[10px]">
-                      {usuarios.length}
-                    </span>
-                  ) : (
-                    <span className="bg-purple-100 text-purple-800 text-[9px] uppercase px-1.5 py-0.2 rounded-full font-bold">
-                      Admin
-                    </span>
-                  )}
-                </button>
-              )}
+                  }
 
-              <button
-                onClick={() => {
-                  setActiveTab('reportes_cienc')
-                  fetchReportesCientificos()
+                  if (nextTab === 'reportes_cienc') {
+                    fetchReportesCientificos()
+                  }
                 }}
-                className={`px-3.5 py-2 text-xs font-black rounded-t-xl transition-all flex items-center gap-2 border-t border-x whitespace-nowrap ${
-                  activeTab === 'reportes_cienc'
-                    ? 'bg-white text-teal-700 border-slate-200 shadow-2xs'
-                    : 'text-slate-600 hover:text-slate-900 border-transparent hover:bg-slate-100'
-                }`}
+                className="w-full appearance-none rounded-xl border border-slate-300 bg-white pl-4 pr-12 py-3 text-xs sm:text-sm font-bold text-slate-800 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                style={SELECT_CHEVRON_STYLE}
               >
-                <Inbox size={15} />
-                <span>6. Bandeja Reportes</span>
-                {reportesCientificos.length > 0 && (
-                  <span className="bg-teal-100 text-teal-800 px-1.5 py-0.2 rounded-full text-[10px]">
-                    {reportesCientificos.length}
-                  </span>
+                <option value="metricas">1. {t('admin_tab_model', 'Modelo ML')}</option>
+                <option value="ingreso">
+                  2. {t('admin_measurement_title', 'Mediciones de Campo')} ({mediciones.length})
+                </option>
+                <option value="reentrenar">3. {t('admin_tab_retrain2', 'Re-entrenar')}</option>
+                <option value="correo">
+                  4. {t('admin_email_tab', 'Alertas por correo')}{emailStatus?.configurado ? ` • ${t('admin_email_configured', 'Configurado')}` : ''}
+                </option>
+                {currentUser?.rol === 'admin' && (
+                  <option value="usuarios">
+                    5. {t('admin_users_tab', 'Gestión de Investigadores')} ({usuarios.length})
+                  </option>
                 )}
-              </button>
+                <option value="reportes_cienc">
+                  {t('admin_tab_reports', '6. Bandeja Reportes')} ({reportesCientificos.length})
+                </option>
+              </select>
             </div>
 
             {/* CUERPO DEL TAB */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain p-3 sm:p-6 space-y-5 sm:space-y-6">
 
               {/* PESTAÑA 1: MÉTRICAS Y ESTADO DEL MODELO */}
               {activeTab === 'metricas' && (
@@ -787,7 +756,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                           <div>
                             <div className="flex items-center gap-2">
                               <span className="text-xs font-black uppercase text-blue-900">
-                                Versión: {modelInfo.version}
+                                {t('admin_model_version_label', 'Versión:')} {modelInfo.version}
                               </span>
                               <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
                                 modelInfo.fuente_datos === 'real'
@@ -796,11 +765,11 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                                   ? 'bg-indigo-100 text-indigo-800 border border-indigo-300'
                                   : 'bg-amber-100 text-amber-800 border border-amber-300'
                               }`}>
-                                Datos: {modelInfo.fuente_datos}
+                                {t('admin_model_data_label', 'Datos:')} {modelInfo.fuente_datos === 'hibrido' ? t('admin_model_data_hybrid', 'Híbrido') : modelInfo.fuente_datos === 'real' ? t('admin_model_data_real', 'Real') : modelInfo.fuente_datos}
                               </span>
                             </div>
                             <p className="text-xs text-blue-800 mt-0.5">
-                              Entrenado con {modelInfo.n_filas} filas y {modelInfo.n_microcuencas} microcuencas
+                              {t('admin_model_trained_summary', 'Entrenado con {rows} filas y {basins} microcuencas').replace('{rows}', String(modelInfo.n_filas)).replace('{basins}', String(modelInfo.n_microcuencas))}
                             </p>
                           </div>
                         </div>
@@ -809,51 +778,51 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                           onClick={fetchDashboardData}
                           className="text-xs font-bold text-blue-700 hover:text-blue-900 bg-white px-3 py-1.5 rounded-xl border border-blue-200 transition-colors flex items-center gap-1 shadow-2xs"
                         >
-                          <RefreshCw size={13} /> Actualizar Estado
+                          <RefreshCw size={13} /> {t('admin_model_refresh', 'Actualizar Estado')}
                         </button>
                       </div>
 
                       {/* Tarjetas de Métricas Estadísticas */}
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center">
-                          <span className="text-[11px] font-black uppercase text-slate-500">Coeficiente R²</span>
+                          <span className="text-[11px] font-black uppercase text-slate-500">{t('admin_metric_r2_label', 'Coeficiente R²')}</span>
                           <p className="text-2xl font-black text-slate-900 mt-1">
                             {modelInfo.metricas_validacion?.r2 ?? 'N/A'}
                           </p>
                           <span className="text-[10px] text-emerald-700 font-bold block mt-0.5">
-                            Ajuste de varianza
+                            {t('admin_metric_r2_description', 'Ajuste de varianza')}
                           </span>
                         </div>
 
                         <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center">
-                          <span className="text-[11px] font-black uppercase text-slate-500">Error MAE</span>
+                          <span className="text-[11px] font-black uppercase text-slate-500">{t('admin_metric_mae_label', 'Error MAE')}</span>
                           <p className="text-2xl font-black text-slate-900 mt-1">
                             ±{modelInfo.metricas_validacion?.mae_ph ?? 'N/A'}
                           </p>
                           <span className="text-[10px] text-slate-500 font-bold block mt-0.5">
-                            Unidades de pH
+                            {t('admin_metric_mae_description', 'Unidades de pH')}
                           </span>
                         </div>
 
                         <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center">
-                          <span className="text-[11px] font-black uppercase text-slate-500">Error RMSE</span>
+                          <span className="text-[11px] font-black uppercase text-slate-500">{t('admin_metric_rmse_label', 'Error RMSE')}</span>
                           <p className="text-2xl font-black text-slate-900 mt-1">
                             {modelInfo.metricas_validacion?.rmse_ph ?? 'N/A'}
                           </p>
                           <span className="text-[10px] text-slate-500 font-bold block mt-0.5">
-                            Penalización cuadrática
+                            {t('admin_metric_rmse_description', 'Penalización cuadrática')}
                           </span>
                         </div>
 
                         <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center">
-                          <span className="text-[11px] font-black uppercase text-slate-500">Acierto Semáforo</span>
+                          <span className="text-[11px] font-black uppercase text-slate-500">{t('admin_metric_accuracy_label', 'Acierto Semáforo')}</span>
                           <p className="text-2xl font-black text-blue-700 mt-1">
                             {modelInfo.metricas_validacion?.acierto_nivel
                               ? `${Math.round(modelInfo.metricas_validacion.acierto_nivel * 100)}%`
                               : 'N/A'}
                           </p>
                           <span className="text-[10px] text-slate-500 font-bold block mt-0.5">
-                            Riesgo Alto/Medio/Bajo
+                            {t('admin_metric_accuracy_description', 'Riesgo Alto/Medio/Bajo')}
                           </span>
                         </div>
                       </div>
@@ -862,7 +831,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                       <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3">
                         <h4 className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
                           <TrendingUp size={15} className="text-blue-700" />
-                          Variables con mayor peso en el drenaje ácido
+                          {t('admin_model_features_title', 'Variables con mayor peso en el drenaje ácido')}
                         </h4>
 
                         <div className="space-y-2">
@@ -875,15 +844,17 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                                   <div className="flex justify-between text-xs font-bold text-slate-700">
                                     <span>
                                       {variable === 'pct_sulfuros'
-                                        ? 'Minerales de Sulfuro (Pirita / Potencial Ácido)'
+                                        ? t('admin_feature_sulfide', 'Minerales de Sulfuro (Pirita / Potencial Ácido)')
                                         : variable === 'roca_relativa'
-                                        ? 'Proporción de Roca Desglaciada Expuesta'
+                                        ? t('admin_feature_exposed_rock', 'Proporción de Roca Desglaciada Expuesta')
                                         : variable === 'ratio_neutralizacion'
-                                        ? 'Ratio de Neutralización (Carbonatos vs Sulfuros)'
+                                        ? t('admin_feature_neutralization', 'Ratio de Neutralización (Carbonatos vs Sulfuros)')
                                         : variable === 'depuracion_bofedal'
-                                        ? 'Capacidad de Amortiguación del Bofedal'
+                                        ? t('admin_feature_wetland_buffer', 'Capacidad de Amortiguación del Bofedal')
                                         : variable === 'balance_geoquimico'
-                                        ? 'Balance Geoquímico Neto (ABA)'
+                                        ? t('admin_feature_geochemical_balance', 'Balance Geoquímico Neto (ABA)')
+                                        : variable === 'precipitacion_efectiva'
+                                        ? t('admin_feature_effective_precipitation', 'Precipitación efectiva')
                                         : variable}
                                     </span>
                                     <span>{Math.round(peso * 100)}%</span>
@@ -914,12 +885,12 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                     <div className="p-4 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs font-bold flex items-start gap-3">
                       <AlertTriangle size={20} className="shrink-0 text-amber-700 mt-0.5" />
                       <div className="space-y-1">
-                        <p className="font-black text-amber-950">Aviso de Autoría Científica:</p>
+                        <p className="font-black text-amber-950">{t('admin_measurement_author_notice_title', 'Aviso de Autoría Científica:')}</p>
                         <p>
-                          El registro de nuevas mediciones hidroquímicas está reservado a cuentas con rol de <strong>Investigador Científico</strong> para preservar la trazabilidad institucional de los datos. Su sesión actual tiene rol <strong>Administrador</strong>.
+                          {t('admin_measurement_author_notice_body', 'El registro de nuevas mediciones hidroquímicas está reservado a cuentas con rol de Investigador Científico para preservar la trazabilidad institucional de los datos. Su sesión actual tiene el rol Administrador.')}
                         </p>
                         <p className="text-[11px] text-amber-800">
-                          Para registrar mediciones oficiales, cree o active una cuenta en la pestaña <strong>5. Gestión Investigadores</strong> o inicie sesión como Investigador (ej: <code>cientifico.demo@glaciagua.lat</code>).
+                          {t('admin_measurement_author_notice_help', 'Para registrar mediciones oficiales, cree o active una cuenta en la pestaña 5. Gestión Investigadores o inicie sesión como Investigador (ej: cientifico.demo@glaciagua.lat).')}
                         </p>
                       </div>
                     </div>
@@ -930,11 +901,11 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                       <div className="flex items-center gap-2">
                         <CheckCircle2 size={16} className="text-emerald-700 shrink-0" />
                         <span>
-                          Autor Científico Certificado: <strong>{currentUser.nombre}</strong> {currentUser.institucion ? `(${currentUser.institucion})` : ''}
+                          {t('admin_measurement_certified_author', 'Autor Científico Certificado:')} <strong>{currentUser.nombre}</strong> {currentUser.institucion ? `(${currentUser.institucion})` : ''}
                         </span>
                       </div>
                       <span className="text-[10px] font-black uppercase bg-emerald-200/60 text-emerald-950 px-2 py-0.5 rounded-full">
-                        Trazabilidad Activa
+                        {t('admin_measurement_traceability_active', 'Trazabilidad Activa')}
                       </span>
                     </div>
                   )}
@@ -947,14 +918,14 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                     <div className="flex items-center justify-between">
                       <h4 className="text-xs font-black uppercase text-slate-800 flex items-center gap-1.5">
                         <PlusCircle size={15} className="text-blue-700" />
-                        Registrar Medición de Temporada
+                        {t('admin_measurement_form_title', 'Registrar Medición de Temporada')}
                       </h4>
                       <button
                         type="button"
                         onClick={handleDescargarPlantilla}
                         className="text-xs font-bold text-blue-700 hover:text-blue-900 flex items-center gap-1"
                       >
-                        <Download size={13} /> Descargar plantilla CSV
+                        <Download size={13} /> {t('admin_measurement_download_csv', 'Descargar plantilla CSV')}
                       </button>
                     </div>
 
@@ -973,12 +944,13 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div>
                         <label className="block text-[11px] font-black uppercase text-slate-600 mb-1">
-                          Microcuenca
+                          {t('admin_measurement_microbasin', 'Microcuenca')}
                         </label>
                         <select
                           value={cuencaId}
                           onChange={(e) => setCuencaId(e.target.value)}
-                          className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900"
+                          className="w-full appearance-none pl-3 pr-10 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900"
+                          style={SELECT_CHEVRON_STYLE}
                         >
                           <option value="quillcay">Quillcay (Huaraz)</option>
                           <option value="pachacoto">Pachacoto (Pastoruri)</option>
@@ -989,13 +961,14 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
 
                       <div>
                         <label className="block text-[11px] font-black uppercase text-slate-600 mb-1">
-                          Periodo / Año
+                          {t('admin_measurement_period_year', 'Periodo / Año')}
                         </label>
                         <input
                           type="text"
                           value={periodo}
                           onChange={(e) => setPeriodo(e.target.value)}
-                          className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900"
+                          className="w-full appearance-none pl-3 pr-10 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900"
+                          style={SELECT_CHEVRON_STYLE}
                           placeholder="2026-humeda"
                           required
                         />
@@ -1003,12 +976,12 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
 
                       <div>
                         <label className="block text-[11px] font-black uppercase text-slate-600 mb-1">
-                          Temporada
+                          {t('admin_measurement_season', 'Temporada')}
                         </label>
                         <select
                           value={temporada}
                           onChange={(e) => setTemporada(e.target.value as any)}
-                          className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900"
+                          className="w-full appearance-none pl-3 pr-10 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900"
                         >
                           <option value="humeda">Lluvias (Húmeda)</option>
                           <option value="seca">Estiaje (Seca)</option>
@@ -1019,7 +992,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       <div>
                         <label className="block text-[11px] font-black uppercase text-blue-900 mb-1">
-                          pH Mínimo Medido *
+                          {t('admin_measurement_min_ph', 'pH Mínimo Medido *')}
                         </label>
                         <input
                           type="number"
@@ -1035,40 +1008,40 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
 
                       <div>
                         <label className="block text-[11px] font-black uppercase text-slate-600 mb-1">
-                          Lluvia (mm)
+                          {t('admin_measurement_rain_mm', 'Lluvia (mm)')}
                         </label>
                         <input
                           type="number"
                           step="5"
                           value={lluviaMm}
                           onChange={(e) => setLluviaMm(parseFloat(e.target.value))}
-                          className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900"
+                          className="w-full appearance-none pl-3 pr-10 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900"
                         />
                       </div>
 
                       <div>
                         <label className="block text-[11px] font-black uppercase text-slate-600 mb-1">
-                          Roca Expuesta (km²)
+                          {t('admin_measurement_exposed_rock', 'Roca Expuesta (km²)')}
                         </label>
                         <input
                           type="number"
                           step="1"
                           value={rocaExpuestaKm2}
                           onChange={(e) => setRocaExpuestaKm2(parseFloat(e.target.value))}
-                          className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900"
+                          className="w-full appearance-none pl-3 pr-10 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900"
                         />
                       </div>
 
                       <div>
                         <label className="block text-[11px] font-black uppercase text-slate-600 mb-1">
-                          % Sulfuros
+                          {t('admin_measurement_sulfides', '% Sulfuros')}
                         </label>
                         <input
                           type="number"
                           step="1"
                           value={pctSulfuros}
                           onChange={(e) => setPctSulfuros(parseFloat(e.target.value))}
-                          className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900"
+                          className="w-full appearance-none pl-3 pr-10 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900"
                         />
                       </div>
                     </div>
@@ -1076,25 +1049,25 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block text-[11px] font-black uppercase text-slate-600 mb-1">
-                          Quebrada / Estación de Muestreo
+                          {t('admin_measurement_stream_station', 'Quebrada / Estación de Muestreo')}
                         </label>
                         <input
                           type="text"
                           value={quebrada}
                           onChange={(e) => setQuebrada(e.target.value)}
-                          className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900"
+                          className="w-full appearance-none pl-3 pr-10 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900"
                         />
                       </div>
 
                       <div>
                         <label className="block text-[11px] font-black uppercase text-slate-600 mb-1">
-                          Responsable / Laboratorio
+                          {t('admin_measurement_responsible_lab', 'Responsable / Laboratorio')}
                         </label>
                         <input
                           type="text"
                           value={responsable}
                           onChange={(e) => setResponsable(e.target.value)}
-                          className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900"
+                          className="w-full appearance-none pl-3 pr-10 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900"
                         />
                       </div>
                     </div>
@@ -1107,17 +1080,17 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                           onChange={(e) => setEsPrueba(e.target.checked)}
                           className="rounded text-blue-600 focus:ring-blue-500"
                         />
-                        <span>Marcar como medición de prueba / simulación preliminar (es_prueba: 1)</span>
+                        <span>{t('admin_measurement_test', 'Marcar como medición de prueba / simulación preliminar')} (es_prueba: 1)</span>
                       </label>
                     </div>
 
                     <button
                       type="submit"
                       disabled={savingMedicion}
-                      className="w-full py-2.5 bg-blue-700 hover:bg-blue-800 text-white text-xs font-black rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full px-5 py-3 bg-blue-700 hover:bg-blue-800 text-white text-xs font-black rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2.5 cursor-pointer"
                     >
                       {savingMedicion ? <RefreshCw size={14} className="animate-spin" /> : <PlusCircle size={14} />}
-                      <span>{savingMedicion ? 'Guardando...' : 'Guardar Medición en Base de Datos Central'}</span>
+                      <span className="max-w-[300px] text-center leading-snug">{savingMedicion ? t('admin_measurement_saving', 'Guardando...') : t('admin_measurement_save', 'Guardar Medición en Base de Datos Central')}</span>
                     </button>
                   </form>
 
@@ -1126,26 +1099,26 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                     <div className="flex items-center justify-between">
                       <h4 className="text-xs font-black uppercase text-slate-800 flex items-center gap-1.5">
                         <Layers size={15} className="text-blue-700" />
-                        Historial de Mediciones Guardadas ({mediciones.length})
+                        {t('admin_measurement_history', 'Historial de Mediciones Guardadas')} ({mediciones.length})
                       </h4>
                     </div>
 
                     {mediciones.length === 0 ? (
                       <p className="text-xs text-slate-500 py-3 text-center">
-                        Aún no hay mediciones registradas en SQLite. Utilice el formulario superior para añadir la primera.
+                        {t('admin_measurement_empty_history', 'Aún no hay mediciones registradas en SQLite. Utilice el formulario superior para añadir la primera.')}
                       </p>
                     ) : (
                       <div className="overflow-x-auto">
-                        <table className="w-full text-left text-xs border-collapse">
+                        <table className="w-full min-w-[720px] text-left text-xs border-collapse">
                           <thead>
                             <tr className="border-b border-slate-200 text-slate-500 uppercase text-[10px] font-black">
-                              <th className="py-2 px-2">Cuenca</th>
-                              <th className="py-2 px-2">Periodo</th>
-                              <th className="py-2 px-2">pH Real</th>
-                              <th className="py-2 px-2">Lluvia</th>
-                              <th className="py-2 px-2">Roca</th>
-                              <th className="py-2 px-2">Autor / Científico</th>
-                              <th className="py-2 px-2">Estado</th>
+                              <th className="py-2 px-2">{t('admin_measurement_history_col_basin', 'Cuenca')}</th>
+                              <th className="py-2 px-2">{t('admin_measurement_history_col_period', 'Periodo')}</th>
+                              <th className="py-2 px-2">{t('admin_measurement_history_col_ph', 'pH Real')}</th>
+                              <th className="py-2 px-2">{t('admin_measurement_history_col_rain', 'Lluvia')}</th>
+                              <th className="py-2 px-2">{t('admin_measurement_history_col_rock', 'Roca')}</th>
+                              <th className="py-2 px-2">{t('admin_measurement_history_col_author', 'Autor / Científico')}</th>
+                              <th className="py-2 px-2">{t('admin_measurement_history_col_status', 'Estado')}</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100">
@@ -1163,7 +1136,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                                 <td className="py-2 px-2">
                                   <div className="flex items-center gap-1">
                                     <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
-                                      {m.estado || 'registrado'}
+                                      {m.estado === 'registrado' ? t('admin_measurement_status_registered', 'Registrado') : (m.estado || 'registrado')}
                                     </span>
                                     {m.es_prueba && (
                                       <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
@@ -1192,10 +1165,10 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                       </div>
                       <div>
                         <h4 className="text-sm font-black text-indigo-950">
-                          Aumento de Datos & Simulación Física Guiada
+                          {t('admin_retrain_augmentation_title', 'Aumento de Datos y Simulación Física Guiada')}
                         </h4>
                         <p className="text-xs text-indigo-800 mt-0.5">
-                          Cuando hay pocas mediciones de campo, este proceso combina tus muestras reales con simulaciones de balance ácido-base (Sobek Method / Monte Carlo) para entrenar un modelo robusto sin sobreajuste.
+                          {t('admin_retrain_description', 'Cuando hay pocas mediciones de campo, este proceso combina tus muestras reales con simulaciones de balance ácido-base (Sobek Method / Monte Carlo) para entrenar un modelo robusto sin sobreajuste.')}
                         </p>
                       </div>
                     </div>
@@ -1209,15 +1182,15 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                           className="w-4 h-4 text-indigo-600 rounded-md border-indigo-300 focus:ring-indigo-500"
                         />
                         <span className="text-xs font-bold text-indigo-900">
-                          Combinar con datos sintéticos basados en física ambiental (Recomendado cuando hay &lt; 30 mediciones)
+                          {t('admin_retrain_combine_synthetic', 'Combinar con datos sintéticos basados en física ambiental (Recomendado cuando hay < 30 mediciones)')}
                         </span>
                       </label>
 
                       {aumentarConFisica && (
                         <div className="space-y-1 pl-7">
                           <div className="flex justify-between text-xs font-bold text-indigo-900">
-                            <span>Cantidad de microcuencas sintéticas:</span>
-                            <span>{nSinteticos} cuencas ({nSinteticos * 14} observaciones históricas)</span>
+                            <span>{t('admin_retrain_synthetic_count', 'Cantidad de microcuencas sintéticas:')}</span>
+                            <span>{t('admin_retrain_synthetic_summary', '{basins} cuencas ({observations} observaciones históricas)').replace('{basins}', String(nSinteticos)).replace('{observations}', String(nSinteticos * 14))}</span>
                           </div>
                           <input
                             type="range"
@@ -1237,11 +1210,10 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                   <div className="p-6 rounded-3xl bg-white border border-slate-200 text-center space-y-4 shadow-sm">
                     <div className="max-w-md mx-auto space-y-1">
                       <h4 className="text-base font-black text-slate-900">
-                        ¿Listo para actualizar el modelo en producción?
+                        {t('admin_retrain_ready_title', '¿Listo para actualizar el modelo en producción?')}
                       </h4>
                       <p className="text-xs text-slate-500">
-                        Se tomarán las {mediciones.length} mediciones reales en SQLite
-                        {aumentarConFisica ? ` + ${nSinteticos} cuencas sintéticas` : ''} y se entrenará un nuevo ensamble Random Forest de {nArboles} árboles.
+                        {t('admin_retrain_ready_description', 'Se tomarán las {measurements} mediciones reales en SQLite{synthetic} y se entrenará un nuevo ensamble Random Forest de {trees} árboles.').replace('{measurements}', String(mediciones.length)).replace('{synthetic}', aumentarConFisica ? ` + ${nSinteticos} ${t('admin_retrain_synthetic_basins', 'cuencas sintéticas')}` : '').replace('{trees}', String(nArboles))}
                       </p>
                     </div>
 
@@ -1251,7 +1223,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                       className="px-8 py-3.5 bg-blue-700 hover:bg-blue-800 disabled:bg-blue-400 text-white font-black text-sm rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 mx-auto cursor-pointer"
                     >
                       <RefreshCw size={18} className={reentrenando ? 'animate-spin' : ''} />
-                      <span>{reentrenando ? 'Entrenando Random Forest en vivo...' : 'Re-entrenar Modelo Ahora'}</span>
+                      <span>{reentrenando ? t('admin_retrain_button_loading', 'Entrenando Random Forest en vivo...') : t('admin_retrain_button', 'Re-entrenar Modelo Ahora')}</span>
                     </button>
 
                     {resultadoReentreno && (
@@ -1266,10 +1238,10 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                         </div>
                         {resultadoReentreno.version_nueva && (
                           <div className="mt-2 space-y-0.5 text-[11px] text-emerald-800">
-                            <div>• Nueva versión guardada: <strong className="font-mono">{resultadoReentreno.version_nueva}</strong></div>
-                            <div>• Total filas entrenadas: <strong>{resultadoReentreno.n_filas}</strong> ({resultadoReentreno.fuente_datos})</div>
+                            <div>• {t('admin_retrain_result_version', 'Nueva versión guardada:')} <strong className="font-mono">{resultadoReentreno.version_nueva}</strong></div>
+                            <div>• {t('admin_retrain_result_rows', 'Total de filas entrenadas:')} <strong>{resultadoReentreno.n_filas}</strong> ({resultadoReentreno.fuente_datos})</div>
                             {resultadoReentreno.metricas && (
-                              <div>• Métricas validación: R²: <strong>{resultadoReentreno.metricas.r2}</strong> | MAE pH: <strong>±{resultadoReentreno.metricas.mae_ph}</strong> | Acierto: <strong>{Math.round(resultadoReentreno.metricas.acierto_nivel * 100)}%</strong></div>
+                              <div>• {t('admin_retrain_result_metrics', 'Métricas de validación:')} R²: <strong>{resultadoReentreno.metricas.r2}</strong> | MAE pH: <strong>±{resultadoReentreno.metricas.mae_ph}</strong> | {t('admin_retrain_result_accuracy', 'Acierto:')} <strong>{Math.round(resultadoReentreno.metricas.acierto_nivel * 100)}%</strong></div>
                             )}
                           </div>
                         )}
@@ -1287,36 +1259,36 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                     <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200">
                       <div className="flex items-center gap-2 text-blue-900 font-black text-xs uppercase">
                         <Mail size={16} className="text-blue-700" />
-                        <span>Proveedor Activo</span>
+                        <span>{t('admin_email_provider_active', 'Proveedor activo')}</span>
                       </div>
                       <p className="text-lg font-black text-blue-950 mt-1 capitalize">
-                        {emailStatus?.proveedor || 'Resend (API HTTPS)'}
+                        {emailStatus?.proveedor === 'Offline' ? t('admin_email_offline', 'Desconectado') : emailStatus?.proveedor || 'Resend (API HTTPS)'}
                       </p>
                       <span className="text-[11px] text-blue-700 font-medium">
-                        Puerto 443 HTTPS / Sin bloqueo firewall
+                        {t('admin_email_port_status', 'Puerto 443 HTTPS / Sin bloqueo de firewall')}
                       </span>
                     </div>
 
                     <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200">
                       <div className="flex items-center gap-2 text-emerald-900 font-black text-xs uppercase">
                         <ShieldCheck size={16} className="text-emerald-700" />
-                        <span>Remitente Oficial</span>
+                        <span>{t('admin_email_official_sender', 'Remitente oficial')}</span>
                       </div>
                       <p className="text-sm font-black font-mono text-emerald-950 mt-1">
                         {emailStatus?.remitente || 'alertas@glaciagua.lat'}
                       </p>
                       <span className="text-[11px] text-emerald-700 font-medium">
-                        DKIM & SPF verificados en Namecheap
+                        {t('admin_email_dns_verified', 'DKIM y SPF verificados en Namecheap')}
                       </span>
                     </div>
 
                     <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
                       <div className="flex items-center gap-2 text-slate-700 font-black text-xs uppercase">
                         <CheckCircle2 size={16} className="text-emerald-600" />
-                        <span>Estado de Entrega</span>
+                        <span>{t('admin_email_delivery_status', 'Estado de entrega')}</span>
                       </div>
                       <p className="text-lg font-black text-slate-900 mt-1">
-                        {emailStatus?.activo ? 'Operativo 100%' : 'Conectando...'}
+                        {emailStatus?.activo ? t('admin_email_operational', 'Operativo al 100%') : t('admin_email_connecting', 'Conectando...')}
                       </p>
                       <button
                         type="button"
@@ -1324,7 +1296,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                         className="text-[11px] text-blue-700 hover:text-blue-900 font-bold underline mt-0.5 inline-flex items-center gap-1"
                       >
                         <RefreshCw size={11} className={loadingEmailStatus ? 'animate-spin' : ''} />
-                        Verificar conexión
+                        {t('admin_email_verify_connection', 'Verificar conexión')}
                       </button>
                     </div>
                   </div>
@@ -1335,10 +1307,10 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                       <div>
                         <h4 className="text-base font-black text-slate-900 flex items-center gap-2">
                           <Send size={18} className="text-blue-700" />
-                          Despacho de Alerta Formal / Oficio Técnico
+                          {t('admin_email_dispatch_title', 'Envío de alerta formal / oficio técnico')}
                         </h4>
                         <p className="text-xs text-slate-500 mt-0.5">
-                          Envía una notificación oficial con formato institucional y membrete desde <strong>alertas@glaciagua.lat</strong> hacia cualquier autoridad o investigador.
+                          {t('admin_email_dispatch_description_start', 'Envía una notificación oficial con formato institucional y membrete desde')} <strong>alertas@glaciagua.lat</strong> {t('admin_email_dispatch_description_end', 'hacia cualquier autoridad o investigador.')}
                         </p>
                       </div>
                     </div>
@@ -1347,27 +1319,27 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                           <label className="text-xs font-black text-slate-700 block mb-1">
-                            Correo Electrónico de Destino *
+                            {t('admin_email_recipient_email', 'Correo electrónico del destinatario *')}
                           </label>
                           <input
                             type="email"
                             required
                             value={testEmailTo}
                             onChange={(e) => setTestEmailTo(e.target.value)}
-                            placeholder="ej: jass@gmail.com o autoridad@ala.gob.pe"
+                            placeholder={t('admin_email_recipient_placeholder', 'Ej.: jass@gmail.com o autoridad@ala.gob.pe')}
                             className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-semibold text-slate-900 focus:outline-hidden focus:border-blue-700"
                           />
                         </div>
 
                         <div>
                           <label className="text-xs font-black text-slate-700 block mb-1">
-                            Nombre del Destinatario / Entidad
+                            {t('admin_email_recipient_name', 'Nombre del destinatario / entidad')}
                           </label>
                           <input
                             type="text"
                             value={testEmailName}
                             onChange={(e) => setTestEmailName(e.target.value)}
-                            placeholder="ej: Presidente JASS Shallap"
+                            placeholder={t('admin_email_recipient_name_placeholder', 'Ej.: presidente de la JASS de Shallap')}
                             className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-semibold text-slate-900 focus:outline-hidden focus:border-blue-700"
                           />
                         </div>
@@ -1376,12 +1348,13 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                           <label className="text-xs font-black text-slate-700 block mb-1">
-                            Microcuenca Afectada
+                            {t('admin_email_affected_microbasin', 'Microcuenca afectada')}
                           </label>
                           <select
                             value={testEmailBasin}
                             onChange={(e) => setTestEmailBasin(e.target.value)}
-                            className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-semibold text-slate-900 focus:outline-hidden focus:border-blue-700 bg-white"
+                            className="w-full appearance-none pl-2.5 pr-10 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold text-slate-900 focus:outline-hidden focus:border-blue-700 bg-white"
+                          style={SELECT_CHEVRON_STYLE}
                           >
                             <option value="Quillcay">Quillcay (Huaraz)</option>
                             <option value="Pachacoto">Pachacoto (Pastoruri)</option>
@@ -1392,13 +1365,13 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
 
                         <div>
                           <label className="text-xs font-black text-slate-700 block mb-1">
-                            Motivo Principal de la Notificación
+                            {t('admin_email_notification_reason', 'Motivo principal de la notificación')}
                           </label>
                           <input
                             type="text"
                             value={testEmailReason}
                             onChange={(e) => setTestEmailReason(e.target.value)}
-                            placeholder="ej: Descenso abrupto de pH / Alerta de DAR"
+                            placeholder={t('admin_email_reason_placeholder', 'Ej.: descenso brusco del pH / alerta de DAR')}
                             className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-semibold text-slate-900 focus:outline-hidden focus:border-blue-700"
                           />
                         </div>
@@ -1406,7 +1379,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
 
                       <div>
                         <label className="text-xs font-black text-slate-700 block mb-1">
-                          Cuerpo del Mensaje / Exposición de Motivos
+                          {t('admin_email_message_body', 'Cuerpo del mensaje / exposición de motivos')}
                         </label>
                         <textarea
                           rows={3}
@@ -1418,7 +1391,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
 
                       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
                         <span className="text-[11px] text-slate-500">
-                          El mensaje incluye automáticamente membrete formal, recomendaciones de ECA Agua y firma digital de GlaciAgua.
+                          {t('admin_email_automatic_footer', 'El mensaje incluye automáticamente membrete formal, recomendaciones de ECA Agua y firma digital de GlaciAgua.')}
                         </span>
 
                         <button
@@ -1429,12 +1402,12 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                           {sendingEmail ? (
                             <>
                               <RefreshCw size={14} className="animate-spin" />
-                              <span>Enviando por Resend API...</span>
+                              <span>{t('admin_email_sending', 'Enviando mediante la API de Resend...')}</span>
                             </>
                           ) : (
                             <>
                               <Send size={14} />
-                              <span>Enviar Oficio de Alerta</span>
+                              <span>{t('admin_email_send_alert', 'Enviar oficio de alerta')}</span>
                             </>
                           )}
                         </button>
@@ -1473,14 +1446,14 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-black uppercase text-purple-950">
-                            Administración de Investigadores Científicos
+                            {t('admin_users_banner_title', 'Administración de Investigadores Científicos')}
                           </span>
                           <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-purple-100 text-purple-900 border border-purple-300">
-                            Exclusivo Administrador
+                            {t('admin_users_admin_only', 'Exclusivo Administrador')}
                           </span>
                         </div>
                         <p className="text-xs text-purple-800 mt-0.5">
-                          Crea credenciales con hash PBKDF2 (mínimo 12 caracteres) y audita accesos para registrar mediciones hidroquímicas de campo.
+                          {t('admin_users_banner_description', 'Crea credenciales con hash PBKDF2 (mínimo 12 caracteres) y audita accesos para registrar mediciones hidroquímicas de campo.')}
                         </p>
                       </div>
                     </div>
@@ -1489,7 +1462,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                       className="text-xs font-bold text-purple-800 hover:text-purple-950 bg-white px-3 py-1.5 rounded-xl border border-purple-200 transition-colors flex items-center gap-1 shadow-2xs shrink-0 cursor-pointer"
                     >
                       <RefreshCw size={13} className={loadingUsuarios ? 'animate-spin' : ''} />
-                      Actualizar Lista
+                      {t('admin_users_refresh', 'Actualizar Lista')}
                     </button>
                   </div>
 
@@ -1511,10 +1484,10 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                       <div className="flex items-center justify-between">
                         <h4 className="text-xs font-black uppercase text-slate-800 flex items-center gap-1.5">
                           <UserPlus size={15} className="text-purple-700" />
-                          Registrar Nuevo Investigador / Científico
+                          {t('admin_users_register_title', 'Registrar Nuevo Investigador / Científico')}
                         </h4>
                         <span className="text-[11px] text-slate-400 font-semibold">
-                          Almacenamiento en SQLite y notificación con credenciales por correo
+                          {t('admin_users_storage_info', 'Almacenamiento en SQLite y notificación con credenciales por correo')}
                         </span>
                       </div>
 
@@ -1538,28 +1511,28 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                           <label className="block text-[11px] font-black uppercase text-slate-600 mb-1">
-                            Nombre Completo *
+                            {t('admin_users_full_name', 'Nombre Completo *')}
                           </label>
                           <input
                             type="text"
                             required
                             value={nuevoNombre}
                             onChange={(e) => setNuevoNombre(e.target.value)}
-                            placeholder="ej: Dra. Elena Morales"
+                            placeholder={t('admin_users_full_name_placeholder', 'Ej.: Dra. Elena Morales')}
                             className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:border-purple-600 focus:outline-hidden"
                           />
                         </div>
 
                         <div>
                           <label className="block text-[11px] font-black uppercase text-slate-600 mb-1">
-                            Correo Institucional *
+                            {t('admin_users_email', 'Correo Institucional *')}
                           </label>
                           <input
                             type="email"
                             required
                             value={nuevoCorreo}
                             onChange={(e) => setNuevoCorreo(e.target.value)}
-                            placeholder="ej: emorales@inaigem.gob.pe"
+                            placeholder={t('admin_users_email_placeholder', 'Ej.: emorales@inaigem.gob.pe')}
                             className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:border-purple-600 focus:outline-hidden"
                           />
                         </div>
@@ -1568,7 +1541,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                           <label className="block text-[11px] font-black uppercase text-slate-600 mb-1">
-                            Contraseña de Acceso * (Mínimo 12 caracteres)
+                            {t('admin_users_password', 'Contraseña de Acceso * (Mínimo 12 caracteres)')}
                           </label>
                           <input
                             type="password"
@@ -1580,19 +1553,19 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                             className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:border-purple-600 focus:outline-hidden"
                           />
                           <span className="text-[10px] text-slate-400 mt-0.5 block">
-                            Debe cumplir política de seguridad: al menos 12 caracteres.
+                            {t('admin_users_password_policy', 'Debe cumplir la política de seguridad: al menos 12 caracteres.')}
                           </span>
                         </div>
 
                         <div>
                           <label className="block text-[11px] font-black uppercase text-slate-600 mb-1">
-                            Institución / Entidad Científica
+                            {t('admin_users_institution', 'Institución / Entidad Científica')}
                           </label>
                           <input
                             type="text"
                             value={nuevaInstitucion}
                             onChange={(e) => setNuevaInstitucion(e.target.value)}
-                            placeholder="ej: INAIGEM / UPCH / ANA / UNASAM"
+                            placeholder={t('admin_users_institution_placeholder', 'Ej.: INAIGEM / UPCH / ANA / UNASAM')}
                             className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:border-purple-600 focus:outline-hidden"
                           />
                         </div>
@@ -1604,7 +1577,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                         className="w-full py-2.5 bg-purple-700 hover:bg-purple-800 disabled:opacity-50 text-white text-xs font-black rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
                       >
                         {guardandoUsuario ? <RefreshCw size={14} className="animate-spin" /> : <UserPlus size={14} />}
-                        <span>{guardandoUsuario ? 'Registrando en SQLite...' : 'Crear Cuenta de Investigador'}</span>
+                        <span>{guardandoUsuario ? t('admin_users_creating', 'Registrando en SQLite...') : t('admin_users_create', 'Crear Cuenta de Investigador')}</span>
                       </button>
                     </form>
                   )}
@@ -1614,26 +1587,27 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <h4 className="text-xs font-black uppercase text-slate-800 flex items-center gap-1.5">
                         <Users size={15} className="text-purple-700" />
-                        Investigadores Registrados ({usuarios.length})
+                        {t('admin_users_registered_title', 'Investigadores Registrados')} ({usuarios.length})
                       </h4>
 
                       {/* Filtros */}
-                      <div className="flex items-center gap-2">
+                      <div className="grid grid-cols-1 min-[390px]:grid-cols-[minmax(0,1fr)_minmax(0,auto)] items-center gap-2 w-full sm:w-auto">
                         <input
                           type="text"
-                          placeholder="Buscar por nombre o correo..."
+                          placeholder={t('admin_users_search_placeholder', 'Buscar por nombre o correo...')}
                           value={busquedaUsuario}
                           onChange={(e) => setBusquedaUsuario(e.target.value)}
-                          className="px-2.5 py-1 text-xs border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400"
+                          className="w-full min-w-0 px-2.5 py-2 text-xs border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400"
                         />
                         <select
                           value={filtroEstadoUsuario}
                           onChange={(e) => setFiltroEstadoUsuario(e.target.value as any)}
-                          className="px-2 py-1 text-xs border border-slate-300 rounded-lg text-slate-700 font-bold bg-white"
+                          className="w-full min-w-0 max-w-full appearance-none pl-2.5 pr-9 py-2 text-xs border border-slate-300 rounded-lg text-slate-700 font-bold bg-white"
+                          style={SELECT_CHEVRON_STYLE}
                         >
-                          <option value="todos">Todos los Estados</option>
-                          <option value="activo">Solo Activos</option>
-                          <option value="suspendido">Solo Suspendidos</option>
+                          <option value="todos">{t('admin_users_all_statuses', 'Todos los Estados')}</option>
+                          <option value="activo">{t('admin_users_only_active', 'Solo Activos')}</option>
+                          <option value="suspendido">{t('admin_users_only_suspended', 'Solo Suspendidos')}</option>
                         </select>
                       </div>
                     </div>
@@ -1641,24 +1615,24 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                     {loadingUsuarios ? (
                       <div className="py-8 text-center text-xs text-slate-500 font-bold flex items-center justify-center gap-2">
                         <RefreshCw size={16} className="animate-spin text-purple-700" />
-                        Cargando investigadores...
+                        {t('admin_users_loading', 'Cargando investigadores...')}
                       </div>
                     ) : usuarios.length === 0 ? (
                       <p className="text-xs text-slate-500 py-6 text-center">
-                        No hay investigadores registrados aún. Utilice el formulario superior para incorporar al primer especialista.
+                        {t('admin_users_empty', 'No hay investigadores registrados aún. Utilice el formulario superior para incorporar al primer especialista.')}
                       </p>
                     ) : (
                       <div className="overflow-x-auto">
-                        <table className="w-full text-left text-xs border-collapse">
+                        <table className="w-full min-w-[850px] text-left text-xs border-collapse">
                           <thead>
                             <tr className="border-b border-slate-200 text-slate-500 uppercase text-[10px] font-black">
                               <th className="py-2.5 px-3">ID</th>
-                              <th className="py-2.5 px-3">Investigador</th>
-                              <th className="py-2.5 px-3">Correo</th>
-                              <th className="py-2.5 px-3">Institución</th>
-                              <th className="py-2.5 px-3">Rol</th>
-                              <th className="py-2.5 px-3">Estado</th>
-                              <th className="py-2.5 px-3 text-right">Acciones</th>
+                              <th className="py-2.5 px-3">{t('admin_users_col_researcher', 'Investigador')}</th>
+                              <th className="py-2.5 px-3">{t('admin_users_col_email', 'Correo')}</th>
+                              <th className="py-2.5 px-3">{t('admin_users_col_institution', 'Institución')}</th>
+                              <th className="py-2.5 px-3">{t('admin_users_col_role', 'Rol')}</th>
+                              <th className="py-2.5 px-3">{t('admin_users_col_status', 'Estado')}</th>
+                              <th className="py-2.5 px-3 text-right">{t('admin_users_col_actions', 'Acciones')}</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100">
@@ -1687,7 +1661,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                                         ? 'bg-purple-100 text-purple-800 border border-purple-200'
                                         : 'bg-blue-100 text-blue-800 border border-blue-200'
                                     }`}>
-                                      {u.rol}
+                                      {u.rol === 'admin' ? t('admin_users_role_admin', 'Administrador') : t('admin_users_role_researcher', 'Investigador')}
                                     </span>
                                   </td>
                                   <td className="py-2.5 px-3">
@@ -1697,7 +1671,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                                         : 'bg-red-100 text-red-800 border border-red-300'
                                     }`}>
                                       <span className={`w-1.5 h-1.5 rounded-full ${u.estado === 'activo' ? 'bg-emerald-600' : 'bg-red-600'}`} />
-                                      {u.estado}
+                                      {u.estado === 'activo' ? t('admin_users_status_active', 'Activo') : t('admin_users_status_suspended', 'Suspendido')}
                                     </span>
                                   </td>
                                   <td className="py-2.5 px-3 text-right">
@@ -1712,13 +1686,13 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                                         }`}
                                       >
                                         {togglingUsuarioId === u.id
-                                          ? 'Actualizando...'
+                                          ? t('admin_users_updating', 'Actualizando...')
                                           : u.estado === 'activo'
-                                          ? 'Suspender'
-                                          : 'Reactivar'}
+                                          ? t('admin_users_suspend', 'Suspender')
+                                          : t('admin_users_reactivate', 'Reactivar')}
                                       </button>
                                     ) : (
-                                      <span className="text-[10px] text-slate-400 font-semibold italic">Protegido</span>
+                                      <span className="text-[10px] text-slate-400 font-semibold italic">{t('admin_users_protected', 'Protegido')}</span>
                                     )}
                                   </td>
                                 </tr>
@@ -1743,14 +1717,14 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-black uppercase text-teal-950">
-                            Bandeja Científica de Reportes Comunitarios
+                            {t('admin_reports_banner_title', 'Bandeja Científica de Reportes Comunitarios')}
                           </span>
-                          <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-teal-100 text-teal-900 border border-teal-300">
-                            Contraste de Predicciones
+                          <span className="max-w-[112px] text-center text-[8px] sm:text-[9px] leading-tight font-black uppercase px-2 py-1 rounded-full bg-teal-100 text-teal-900 border border-teal-300 shrink-0">
+                            {t('admin_reports_contrast_badge', 'Contraste de Predicciones')}
                           </span>
                         </div>
                         <p className="text-xs text-teal-800 mt-0.5">
-                          Consulta los avisos de observaciones ciudadanas para calibrar y contrastar las estimaciones de riesgo y pH del modelo.
+                          {t('admin_reports_banner_description', 'Consulta los avisos de observaciones ciudadanas para calibrar y contrastar las estimaciones de riesgo y pH del modelo.')}
                         </p>
                       </div>
                     </div>
@@ -1759,7 +1733,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                       className="text-xs font-bold text-teal-800 hover:text-teal-950 bg-white px-3 py-1.5 rounded-xl border border-teal-200 transition-colors flex items-center gap-1 shadow-2xs shrink-0 cursor-pointer"
                     >
                       <RefreshCw size={13} className={loadingReportesCientificos ? 'animate-spin' : ''} />
-                      Actualizar Reportes
+                      {t('admin_reports_refresh', 'Actualizar Reportes')}
                     </button>
                   </div>
 
@@ -1767,7 +1741,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                   <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
                       <Filter size={15} className="text-teal-700" />
-                      <span>Filtrar por Microcuenca:</span>
+                      <span>{t('admin_reports_filter_basin', 'Filtrar por Microcuenca:')}</span>
                       <select
                         value={filtroCuencaReporte}
                         onChange={(e) => {
@@ -1775,9 +1749,10 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                           setFiltroCuencaReporte(val)
                           fetchReportesCientificos(val)
                         }}
-                        className="px-3 py-1.5 text-xs font-bold bg-slate-50 border border-slate-300 rounded-xl text-slate-900"
+                        className="appearance-none pl-3 pr-10 py-1.5 text-xs font-bold bg-slate-50 border border-slate-300 rounded-xl text-slate-900"
+                          style={SELECT_CHEVRON_STYLE}
                       >
-                        <option value="todas">Todas las cuencas</option>
+                        <option value="todas">{t('admin_reports_all_basins', 'Todas las cuencas')}</option>
                         <option value="quillcay">Quillcay (Huaraz)</option>
                         <option value="pachacoto">Pachacoto (Pastoruri)</option>
                         <option value="canray_chico">Canray Chico (Olleros)</option>
@@ -1786,7 +1761,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                     </div>
 
                     <span className="text-xs text-slate-500 font-semibold">
-                      Total en bandeja: <strong>{reportesCientificos.length}</strong> avisos
+                      {t('admin_reports_total', 'Total en bandeja:')} <strong>{reportesCientificos.length}</strong> {t('admin_reports_notices', 'avisos')}
                     </span>
                   </div>
 
@@ -1795,26 +1770,26 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                     {loadingReportesCientificos ? (
                       <div className="py-8 text-center text-xs text-slate-500 font-bold flex items-center justify-center gap-2">
                         <RefreshCw size={16} className="animate-spin text-teal-700" />
-                        Consultando avisos de ciencia ciudadana...
+                        {t('admin_reports_loading', 'Consultando avisos de ciencia ciudadana...')}
                       </div>
                     ) : reportesCientificos.length === 0 ? (
                       <div className="py-8 text-center text-xs text-slate-500 space-y-2">
                         <Inbox size={28} className="mx-auto text-slate-300" />
-                        <p>No se encontraron reportes ciudadanos registrados para los filtros seleccionados.</p>
+                        <p>{t('admin_reports_empty', 'No se encontraron reportes ciudadanos registrados para los filtros seleccionados.')}</p>
                       </div>
                     ) : (
                       <div className="overflow-x-auto">
-                        <table className="w-full text-left text-xs border-collapse">
+                        <table className="w-full min-w-[950px] text-left text-xs border-collapse">
                           <thead>
                             <tr className="border-b border-slate-200 text-slate-500 uppercase text-[10px] font-black">
-                              <th className="py-2.5 px-3">Fecha</th>
-                              <th className="py-2.5 px-3">Cuenca</th>
-                              <th className="py-2.5 px-3">Quebrada</th>
-                              <th className="py-2.5 px-3">Color de Agua</th>
-                              <th className="py-2.5 px-3">pH Medido</th>
-                              <th className="py-2.5 px-3">Olor / Sabor</th>
-                              <th className="py-2.5 px-3">Observaciones</th>
-                              <th className="py-2.5 px-3 text-right">Detalle</th>
+                              <th className="py-2.5 px-3">{t('admin_reports_col_date', 'Fecha')}</th>
+                              <th className="py-2.5 px-3">{t('admin_reports_col_basin', 'Cuenca')}</th>
+                              <th className="py-2.5 px-3">{t('admin_reports_col_stream', 'Quebrada')}</th>
+                              <th className="py-2.5 px-3">{t('admin_reports_col_water_color', 'Color de Agua')}</th>
+                              <th className="py-2.5 px-3">{t('admin_reports_col_ph', 'pH Medido')}</th>
+                              <th className="py-2.5 px-3">{t('admin_reports_col_smell_taste', 'Olor / Sabor')}</th>
+                              <th className="py-2.5 px-3">{t('admin_reports_col_observations', 'Observaciones')}</th>
+                              <th className="py-2.5 px-3 text-right">{t('admin_reports_col_detail', 'Detalle')}</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100">
@@ -1827,7 +1802,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                                   {rep.cuenca_id}
                                 </td>
                                 <td className="py-2.5 px-3 font-semibold text-slate-800">
-                                  {rep.quebrada || 'No especificada'}
+                                  {rep.quebrada || t('admin_reports_unspecified', 'No especificada')}
                                 </td>
                                 <td className="py-2.5 px-3">
                                   <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
@@ -1839,7 +1814,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                                       ? 'bg-cyan-100 text-cyan-900 border border-cyan-300'
                                       : 'bg-emerald-100 text-emerald-900 border border-emerald-300'
                                   }`}>
-                                    {rep.color_agua || 'Normal'}
+                                    {rep.color_agua || t('admin_reports_normal', 'Normal')}
                                   </span>
                                 </td>
                                 <td className="py-2.5 px-3 font-mono font-bold">
@@ -1848,11 +1823,11 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                                       {rep.ph_medido}
                                     </span>
                                   ) : (
-                                    <span className="text-slate-400 font-normal italic">Sin pH</span>
+                                    <span className="text-slate-400 font-normal italic">{t('admin_reports_no_ph', 'Sin pH')}</span>
                                   )}
                                 </td>
                                 <td className="py-2.5 px-3 text-slate-600">
-                                  {rep.olor_sabor || 'Normal'}
+                                  {rep.olor_sabor || t('admin_reports_normal', 'Normal')}
                                 </td>
                                 <td className="py-2.5 px-3 text-slate-600 max-w-xs truncate" title={rep.comentarios}>
                                   {rep.comentarios || '—'}
@@ -1862,7 +1837,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                                     onClick={() => setReporteModalDetalle(rep)}
                                     className="text-xs font-bold text-teal-700 hover:text-teal-900 bg-teal-50 hover:bg-teal-100 px-2.5 py-1 rounded-lg border border-teal-200 transition-colors cursor-pointer"
                                   >
-                                    Ver Ficha
+                                    {t('admin_reports_view_record', 'Ver Ficha')}
                                   </button>
                                 </td>
                               </tr>
@@ -1880,7 +1855,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                           <h5 className="font-black text-slate-900 text-sm flex items-center gap-2">
                             <Inbox size={16} className="text-teal-700" />
-                            Ficha Técnica de Reporte Ciudadano
+                            {t('admin_reports_detail_title', 'Ficha Técnica de Reporte Ciudadano')}
                           </h5>
                           <button
                             onClick={() => setReporteModalDetalle(null)}
@@ -1892,19 +1867,19 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
 
                         <div className="space-y-2 text-xs">
                           <div className="grid grid-cols-2 gap-2 p-3 bg-slate-50 rounded-xl">
-                            <div><span className="text-slate-500 font-bold">ID:</span> <span className="font-mono text-[11px] block truncate">{reporteModalDetalle.id}</span></div>
-                            <div><span className="text-slate-500 font-bold">Cuenca:</span> <span className="uppercase font-black block">{reporteModalDetalle.cuenca_id}</span></div>
-                            <div><span className="text-slate-500 font-bold">Quebrada:</span> <span className="block">{reporteModalDetalle.quebrada || 'No especificada'}</span></div>
-                            <div><span className="text-slate-500 font-bold">Fecha:</span> <span className="block">{reporteModalDetalle.fecha_registro}</span></div>
-                            <div><span className="text-slate-500 font-bold">Coordenadas:</span> <span className="font-mono block">{reporteModalDetalle.lat}, {reporteModalDetalle.lng}</span></div>
-                            <div><span className="text-slate-500 font-bold">Precisión GPS:</span> <span className="block">±{reporteModalDetalle.precision_m || 10} m</span></div>
-                            <div><span className="text-slate-500 font-bold">Color observado:</span> <span className="font-bold block capitalize">{reporteModalDetalle.color_agua || 'Normal'}</span></div>
-                            <div><span className="text-slate-500 font-bold">pH Medido:</span> <span className="font-bold block">{reporteModalDetalle.ph_medido ?? 'No medido'}</span></div>
+                            <div><span className="text-slate-500 font-bold">{t('admin_reports_field_id', 'ID')}:</span> <span className="font-mono text-[11px] block truncate">{reporteModalDetalle.id}</span></div>
+                            <div><span className="text-slate-500 font-bold">{t('admin_reports_field_basin', 'Cuenca')}:</span> <span className="uppercase font-black block">{reporteModalDetalle.cuenca_id}</span></div>
+                            <div><span className="text-slate-500 font-bold">{t('admin_reports_field_stream', 'Quebrada')}:</span> <span className="block">{reporteModalDetalle.quebrada || t('admin_reports_unspecified', 'No especificada')}</span></div>
+                            <div><span className="text-slate-500 font-bold">{t('admin_reports_field_date', 'Fecha')}:</span> <span className="block">{reporteModalDetalle.fecha_registro}</span></div>
+                            <div><span className="text-slate-500 font-bold">{t('admin_reports_field_coordinates', 'Coordenadas')}:</span> <span className="font-mono block">{reporteModalDetalle.lat}, {reporteModalDetalle.lng}</span></div>
+                            <div><span className="text-slate-500 font-bold">{t('admin_reports_field_gps_accuracy', 'Precisión GPS')}:</span> <span className="block">±{reporteModalDetalle.precision_m || 10} m</span></div>
+                            <div><span className="text-slate-500 font-bold">{t('admin_reports_field_water_color', 'Color observado')}:</span> <span className="font-bold block capitalize">{reporteModalDetalle.color_agua || t('admin_reports_normal', 'Normal')}</span></div>
+                            <div><span className="text-slate-500 font-bold">{t('admin_reports_field_measured_ph', 'pH Medido')}:</span> <span className="font-bold block">{reporteModalDetalle.ph_medido ?? t('admin_reports_not_measured', 'No medido')}</span></div>
                           </div>
 
                           {reporteModalDetalle.usos_afectados && reporteModalDetalle.usos_afectados.length > 0 && (
                             <div className="p-3 bg-slate-50 rounded-xl space-y-1">
-                              <span className="text-slate-500 font-bold block">Usos Hídricos Afectados:</span>
+                              <span className="text-slate-500 font-bold block">{t('admin_reports_field_affected_uses', 'Usos Hídricos Afectados')}:</span>
                               <div className="flex flex-wrap gap-1">
                                 {reporteModalDetalle.usos_afectados.map((uso: string, idx: number) => (
                                   <span key={idx} className="bg-slate-200 text-slate-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
@@ -1917,13 +1892,13 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
 
                           {reporteModalDetalle.comentarios && (
                             <div className="p-3 bg-slate-50 rounded-xl space-y-1">
-                              <span className="text-slate-500 font-bold block">Comentarios del Observador:</span>
+                              <span className="text-slate-500 font-bold block">{t('admin_reports_field_comments', 'Comentarios del Observador')}:</span>
                               <p className="text-slate-700 italic">{reporteModalDetalle.comentarios}</p>
                             </div>
                           )}
 
                           <div className="p-2.5 rounded-xl bg-teal-50 border border-teal-200 text-[11px] text-teal-900">
-                            <strong>Nota Metodológica:</strong> Este dato ciudadano complementa el contraste de predicciones de drenaje ácido de roca (DAR), sin alterar el modelo numérico sin validación analítica previa.
+                            <strong>{t('admin_reports_method_note_title', 'Nota Metodológica')}:</strong> {t('admin_reports_method_note', 'Este dato ciudadano complementa el contraste de predicciones de drenaje ácido de roca (DAR), sin alterar el modelo numérico sin validación analítica previa.')}
                           </div>
                         </div>
 
@@ -1932,7 +1907,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({ isOpen, onCl
                             onClick={() => setReporteModalDetalle(null)}
                             className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-xl cursor-pointer"
                           >
-                            Cerrar
+                            {t('admin_reports_close', 'Cerrar')}
                           </button>
                         </div>
                       </div>
