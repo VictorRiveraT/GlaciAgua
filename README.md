@@ -41,27 +41,27 @@ El ecosistema GlaciAgua está construido bajo una arquitectura modular de micros
                                └────────────────────┬────────────────────┘
                                                     │
                                                     ▼
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                                    FRONTEND PWA                                        │
-│  - React 19 + TypeScript + Vite + Tailwind CSS                                         │
-│  - Leaflet Map (Capas satelitales, polígonos GeoJSON y corredor del Río Santa)        │
-│  - Módulo Bilingüe (Castellano / Quechua Áncash) con sintetizador y audio local       │
-│  - Resiliencia Offline: Service Worker (Cache Storage) e IndexedDB con UUIDv4          │
+┌──────────────────────────────────────────────────────────────────────────────────────────┐
+│                                    FRONTEND PWA                                          │
+│  - React 19 + TypeScript + Vite + Tailwind CSS                                           │
+│  - Leaflet Map (Capas satelitales, polígonos GeoJSON y corredor del Río Santa)           │
+│  - Módulo Bilingüe (Castellano / Quechua Áncash) con sintetizador y audio local          │
+│  - Resiliencia Offline: Service Worker (Cache Storage) e IndexedDB con UUIDv4            │
 │  - Accesibilidad WCAG: Formas geométricas (círculo, triángulo, octágono) y alto contraste│
-│  - Redactor de Oficios Formales prellenados para JASS / ALA / Municipalidades          │
-│  - Portal Técnico para Investigadores y Administradores                                │
-└───────────────────────┬────────────────────────────────────────┬───────────────────────┘
+│  - Redactor de Oficios Formales prellenados para JASS / ALA / Municipalidades            │
+│  - Portal Técnico para Investigadores y Administradores                                  │
+└───────────────────────┬────────────────────────────────────────┬─────────────────────────┘
                         │ HTTP / REST                            │ HTTP / REST
                         ▼                                        ▼
-┌──────────────────────────────────────────────┐  ┌──────────────────────────────────────┐
-│             BACKEND CORE (FastAPI)           │  │      MICROSERVICIO ML (FastAPI)      │
-│  - Python 3.11 + FastAPI + Pydantic v2       │  │  - Python 3.11 + scikit-learn        │
-│  - SQLite (WAL mode, consultas preparadas)   │  │  - Random Forest Regressor (300 est) │
+┌───────────────────────────────────────────────┐ ┌──────────────────────────────────────┐
+│             BACKEND CORE (FastAPI)            │ │      MICROSERVICIO ML (FastAPI)      │
+│  - Python 3.11 + FastAPI + Pydantic v2        │ │  - Python 3.11 + scikit-learn        │
+│  - SQLite (WAL mode, consultas preparadas)    │ │  - Random Forest Regressor (300 est) │
 │  - Autenticación PBKDF2 (Admin / Especialista)│ │  - Validación cruzada GroupKFold     │
-│  - Exportación GeoJSON RFC 7946              │  │  - Predicción de pH e incertidumbre  │
-│  - Despacho de Correos (Resend API / SMTP)   │  │  - Pipeline de reentrenamiento       │
-│  - Zona Horaria Unificada: America/Lima      │  └──────────────────────────────────────┘
-└──────────────────────────────────────────────┘
+│  - Exportación GeoJSON RFC 7946               │ │  - Predicción de pH e incertidumbre  │
+│  - Despacho de Correos (Resend API / SMTP)    │ │  - Pipeline de reentrenamiento       │
+│  - Zona Horaria Unificada: America/Lima       │ └──────────────────────────────────────┘
+└───────────────────────────────────────────────┘
 ```
 
 ---
