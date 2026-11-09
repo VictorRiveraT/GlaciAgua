@@ -191,9 +191,9 @@ npm run build
 *Facultad de Ciencias e Ingeniería (FACI) — Hackathon FACI 2026*
 
 * **Victor Daniel Rivera Torres** — Ingeniería Informática
-* **Vanesa Doris Rioja Cruz** — Ingeniería Ambiental
+* **Vanesa Doris Rioja Cruz** — Ingeniería Informática
 * **Luis Martin Valenzuela Valer** — Ingeniería Informática
-* **Flavio Francisco Rabanal Bravo** — Ingeniería Informática
+* **Flavio Francisco Rabanal Bravo** — Ingeniería Ambiental
 * **Juan Martin Aquino Paucar** — Ingeniería Informática
 
 * **Docente Asesor:** Mg. Danny Emerson Robles Sanchez
